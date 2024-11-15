@@ -57,6 +57,9 @@ def logOperatorComment(logMessage):
     writeToLogSafe(logMessage)
     pass
 
+def logManifestUpload(shipName, numContainers): #Manifest HMMAlgeciras.txt is opened, there are 12 containers on the ship
+    writeToLogSafe(f"Manifest {shipName}.txt is opened, there are {numContainers} containers on the ship.")
+
 def logLoadUnloadOperation(containerName, isLoad):
     if isLoad:#Loading: “2024-01-30: 11:08 “Walmart Christmas Cat Toys” is onloaded.”
         writeToLogSafe(f"\"{containerName}\" is onloaded.")
@@ -139,11 +142,27 @@ def testCase(shipName, containerNameSample):
     logOperatorSignIn("Haocheng Mai")
 
     
-
-        
+def realisticLog(firstOperator, secondOperator, shipName, containerLoad, containerOffload):
+    logOperatorSignIn(firstOperator)
+    logManifestUpload(shipName, 15)
+    logLoadUnloadOperation(containerLoad, True)
+    logLoadUnloadOperation(containerOffload, False)
+    logFinishCycle(shipName)
     
+
+    newShipName = shipName + "ButAwesome"
+    logOperatorSignIn(secondOperator)
+    logManifestUpload(newShipName, 40)
+    logBalanceOperation(newShipName, False)
+    logFinishCycle(newShipName)
+    logEndOfYearShutdown()
+
+
+realisticLog("Zachary Snackary", "Haocheng Mai", "HMSJellycatJack", "Walmart Boxes", "Walmart Polygonal Toy")
+        
+
         
 
 
-testCase("ShipeName", "Walmart Toys")
+# testCase("ShipeName", "Walmart Toys")
 
