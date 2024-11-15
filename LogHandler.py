@@ -7,6 +7,7 @@ import pytz
 la = pytz.timezone('America/Los_Angeles')
 utc = pytz.timezone('UTC')
 logFileName = "" #in format 'KeoghsPort[YEAR].txt
+lastOperatorName = None
 
 #Helpers:
 
@@ -41,18 +42,20 @@ def writeToLogSafe(logMessage):
     logFileName= generateFileName()
 
     #TODO sanitize any inputs with non-ascii
-
     writeToLogFile(messageWithPrefix)
-
-
-                                        
-
 
 #Each log:
 def logOperatorSignIn(operatorName):
-    pass
-
+    global lastOperatorName
+    if not lastOperatorName == None:
+        writeToLogSafe(f"{lastOperatorName} signs out")
+    
+    writeToLogSafe(f"{operatorName} signs in")
+    lastOperatorName = operatorName
+        
 def logOperatorComment(logMessage):
+    
+    
     pass
 
 def logLoadUnloadOperation(containerName, isLoad):
@@ -65,6 +68,7 @@ def logFinishCycle(shipName):
     pass
 
 def logEndOfYearShutdown():
+    #Remember to set OperatorName to None
     pass
 
 #testing:
@@ -81,7 +85,33 @@ def testCase(shipName, containerNameSample):
     print("Test 2: ", addTimePrefix("TestMessage"))
 
     #testing Write to file:
-    writeToLogSafe("SampleMessage")
+    try:
+        writeToLogSafe("SampleMessage")
+        print("Test 3: Write to file passed")
+    except:
+        print("Test 3 Failed: Write to file failed")
+
+    #Operator signin / out:
+    try:
+        logOperatorSignIn("Allison Burgers")
+        print("Test 4: Operator signin with no previous operator works")
+    except:
+        print("Test 4 Failed: Operator signin with no previous operator works")
+
+    try:
+        #Another signin/out, with a previous operator:
+        logOperatorSignIn("Jamilton Snagwich")
+        print("Test 5: Operator signing with previous operator works")
+    except:
+        print("Test 5 Failed: Operator signing with previous operator works")
+        
+
+    #Operator Comment:
+    
+
+        
+    
+        
 
 
 testCase("ShipeName", "Walmart Toys")
