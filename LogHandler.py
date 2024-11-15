@@ -48,27 +48,40 @@ def writeToLogSafe(logMessage):
 def logOperatorSignIn(operatorName):
     global lastOperatorName
     if not lastOperatorName == None:
-        writeToLogSafe(f"{lastOperatorName} signs out")
+        writeToLogSafe(f"{lastOperatorName} signs out.")
     
-    writeToLogSafe(f"{operatorName} signs in")
+    writeToLogSafe(f"{operatorName} signs in.")
     lastOperatorName = operatorName
         
 def logOperatorComment(logMessage):
-    
-    
+    writeToLogSafe(logMessage)
     pass
 
 def logLoadUnloadOperation(containerName, isLoad):
-    pass
+    if isLoad:#Loading: “2024-01-30: 11:08 “Walmart Christmas Cat Toys” is onloaded.”
+        writeToLogSafe(f"\"{containerName}\" is onloaded.")
+    else:#Offloading: “2024-01-30: 11:08 “Walmart Christmas Cat Toys” is offloaded.
+        writeToLogSafe(f"\"{containerName}\" is offloaded.")
+    
 
 def logBalanceOperation(shipName, isSift):
-    pass
+    if isSift: #“2024-1-30: 15:40 Balanced HMSJakartaExplorer within the Maritime Law’s definition of balance.”
+        writeToLogSafe(f"Balanced {shipName} within the Maritime Law\'s definition of balance.") 
+    else: #2024-1-30: 15:40 HMSThanatos cannot be balanced within Maritime Law’s definition of balance. Balanced ship to match the goal state of SIFT.”
+        writeToLogSafe(f"{shipName} cannot be balanced within Maritime Law\'s definition of balance. Balanced ship to match the goal state of SIFT.")
 
 def logFinishCycle(shipName):
-    pass
+    writeToLogSafe(f"Finished a Cycle. Manifest {shipName}OUTBOUND.txt was written to desktop, and a reminder pop-up to operator to send file was displayed.")
 
 def logEndOfYearShutdown():
     #Remember to set OperatorName to None
+    global lastOperatorName
+    
+    writeToLogSafe(f"{lastOperatorName} shuts down Mr. Keogh's Port for the year, and {lastOperatorName} signs out.")
+    # writeToLogSafe(f"{lastOperatorName} signs out.")
+
+    lastOperatorName = None #to prevent signout message when re-opening port
+
     pass
 
 #testing:
@@ -107,6 +120,24 @@ def testCase(shipName, containerNameSample):
         
 
     #Operator Comment:
+
+    #Balance Log
+    logBalanceOperation("Dog", True)
+    logBalanceOperation("Fake", False)
+
+    #Load/Unload
+    logLoadUnloadOperation("Cat toys", True)
+    logLoadUnloadOperation("Dog Toys", False)
+
+    #Finish Cycle
+    logFinishCycle("HMSJellyCatJack")
+
+    #Shut down port for the year.
+    logEndOfYearShutdown()
+
+    #making sure signout works
+    logOperatorSignIn("Haocheng Mai")
+
     
 
         
