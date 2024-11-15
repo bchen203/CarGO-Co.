@@ -1,4 +1,4 @@
 import manifest
 
-manifest.Manifest("SampleManifests/ShipCase1.txt")
-
+manifest = manifest.Manifest("SampleManifests/ShipCase1.txt")
+manifest.exportManifest()
