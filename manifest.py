@@ -11,6 +11,10 @@ class Container:
         print(f"container weight: {self.weight}")
         print(f"conainer description: {self.description}")
 
+    def changeWeight(self, weight):
+        # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
+        self.weight = weight
+
 
 class Manifest:
     # the 2D grid representation of the ship's containers
@@ -19,6 +23,7 @@ class Manifest:
 
     # initialize the manifest object by reading in a given manifest file
     def __init__(self, filename):
+        # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
         self.filename = filename
         file = open(self.filename, "r")
         lines = file.readlines()
