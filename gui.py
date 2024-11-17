@@ -15,7 +15,7 @@ class GUI:
 
     def selectOperation(self):
 
-        self.operation_select = Frame(self.master)
+        self.operation_select = Frame(self.master, height=720, width=1080)
 
         # prompt user for operation select
         self.operation_select_text = Label(self.operation_select,
@@ -24,22 +24,43 @@ class GUI:
 
         # buttons to select type of operation
         # will automatically prompt user for file upload
-        self.load_offload_button = Button(self.operation_select,
+        # create frames that serve as borders for buttons
+        self.button_border1 = Frame(self.operation_select,
+                                   highlightbackground="black",
+                                   background="black",
+                                   bd=4)
+        self.button_border2 = Frame(self.operation_select,
+                                           highlightbackground="black",
+                                           background="black",
+                                           bd=4)
+
+        self.load_offload_button = Button(self.button_border1,
                                           command=self.select_load_offload,
                                           text="Load/Offload Containers",
-                                          height=2,
-                                          width=30)
+                                          font=("Arial", 16, "bold"),
+                                          relief="flat",
+                                          overrelief="flat",
+                                          borderwidth=0,
+                                          activebackground="#00ff14")
 
-        self.balance_button = Button(self.operation_select,
+        self.balance_button = Button(self.button_border2,
                                      command=self.select_balance,
                                      text="Balance Containers",
-                                     height=2,
-                                     width=30)
+                                     font=("Arial", 16, "bold"),
+                                     relief="flat",
+                                     borderwidth=0,
+                                     activebackground="#00ff14")
 
-        self.operation_select_text.pack()
-        self.load_offload_button.pack()
-        self.balance_button.pack()
-        self.operation_select.pack()
+        # center buttons/text based on size of window
+        self.operation_select_text.place(relx=0.5, rely=0.1, anchor="center")
+        self.button_border1.place(relx=0.05, rely=0.2, relheight=0.6, relwidth=0.4)
+        self.load_offload_button.place(relheight=1, relwidth=1)
+
+        self.button_border2.place(relx=0.55, rely=0.2, relheight=0.6, relwidth=0.4)
+        self.balance_button.place(relheight=1, relwidth=1)
+
+        self.operation_select.place(relheight=1, relwidth=1)
+
 
     def select_load_offload(self):
         self.operation = "load"
@@ -56,14 +77,20 @@ class GUI:
 
 
     def loadManifest(self):
-        self.operation_select.pack_forget()
+        self.operation_select.place_forget()
         self.manifest_upload = Frame(self.master)
-        self.manifest_upload_text = Label(self.manifest_upload, text = "Please select manifest file")
+        self.manifest_upload_text = Label(self.manifest_upload,
+                                          text = "Please select manifest file",
+                                          font=("Arial", 16, "bold"))
         self.manifest_upload_button = Button(self.manifest_upload,
                                              text = "Load Manifest File",
                                              command=self.select_manifest_file,
                                              width=30,
-                                             height=2)
+                                             height=20,
+                                             font=("Arial", 16, "bold"),
+                                             relief="flat",
+                                             borderwidth=0,
+                                             background="blue")
 
         self.manifest_upload_text.pack()
         self.manifest_upload_button.pack()
