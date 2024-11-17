@@ -50,27 +50,27 @@ class GUI:
         self.loadManifest()
 
     def select_manifest_file(self):
-
-        pass
+        # limit file select to only txt files
+        manifest_file = filedialog.askopenfile(mode="r", filetypes=[("Text Files", "*.txt")])
+        return manifest_file
 
 
     def loadManifest(self):
         self.operation_select.pack_forget()
-        self.manifest_upload = Frame(window)
+        self.manifest_upload = Frame(self.master)
         self.manifest_upload_text = Label(self.manifest_upload, text = "Please select manifest file")
         self.manifest_upload_button = Button(self.manifest_upload,
                                              text = "Load Manifest File",
+                                             command=self.select_manifest_file,
                                              width=30,
                                              height=2)
 
         self.manifest_upload_text.pack()
         self.manifest_upload_button.pack()
         self.manifest_upload.pack()
-        manifest_file = filedialog.askopenfile(mode="r",filetypes=[("Text Files", "*.txt")])
-        print(manifest_file)
+        manifest_file = self.select_manifest_file()
         if manifest_file is not None:
             self.manifest = manifest.Manifest(manifest_file.name)
-        self.manifest.displayManifest()
 
 
 
@@ -78,6 +78,7 @@ class GUI:
 
 
 
-window = Tk()
-GUI(window)
-window.mainloop()
+
+# window = Tk()
+# GUI(window)
+# window.mainloop()
