@@ -1,5 +1,9 @@
 import manifest
+import gui
+import tkinter as tk
 
-manifest = manifest.Manifest("SampleManifests/ShipCase1.txt")
-manifest.displayManifest()
-manifest.exportManifest()
+
+
+window = tk.Tk()
+gui.GUI(window)
+window.mainloop()
