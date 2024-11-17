@@ -104,8 +104,3 @@ class GUI:
 
 
 
-
-
-# window = Tk()
-# GUI(window)
-# window.mainloop()
