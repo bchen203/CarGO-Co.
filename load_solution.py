@@ -9,7 +9,7 @@ class Container:
 
     def print(self):
         print(f"container weight: {self.weight}")
-        print(f"conainer description: {self.description}")
+        print(f"container description: {self.description}")
 
 
 class Loader:
@@ -19,8 +19,18 @@ class Loader:
         self.offload_list = []
 
     #adds a container from a truck into the load list
-    def add_load(self,name,weight):
-        truck_container = Container(weight,name)
+    def add_pending_load(self,name,weight):
+        shown_weight = 0
+        if(weight < 0):
+            shown_weight = 0
+        elif(weight > 99999 ):
+            shown_weight = 99999
+        else:
+            shown_weight = weight
+        
+        shown_weight = round(shown_weight)
+
+        truck_container = Container(shown_weight,name)
         self.pending_loads.append(truck_container)
 
     #prints the load from truck list
@@ -40,7 +50,17 @@ class Loader:
 
     #adds a container from the ship into the offload list
     def add_offload(self,name,weight):
-        ship_container = Container(weight,name)
+        shown_weight = 0
+        if(weight < 0):
+            shown_weight = 0
+        elif(weight > 99999 ):
+            shown_weight = 99999
+        else:
+            shown_weight = weight
+        
+        shown_weight = round(shown_weight)
+
+        ship_container = Container(shown_weight,name)
         self.offload_list.append(ship_container)
 
     #prints the offload from ship list
@@ -59,11 +79,62 @@ class Loader:
         return self.offload_list
     
 if __name__ == "__main__":
-        transfer = Loader()
-        transfer.add_offload("James", 40)
+        
+        #Test 1: Adding to Pending Loads List
+        print("\nTest 1:")
+        pending = Loader()
+        pending.add_pending_load("Henry Space Age Toys", 40)
+        pending.add_pending_load("Money Robin Dee Banks", 800)
     
-        transfer.print_offload_list()
+        pending.print_pending_loads()
 
+        #Test 2: Removing from Pending Loads List
+        print("\nTest 2:")
+        pending.remove_pending_loads(0)
+
+        pending.print_pending_loads()
+        
+        #Test 3: Getting the Pending Loads List
+        print("\nTest 3:")
+        pending_list = pending.get_pending_loads()
+        pending_list.pop().print()
+
+
+        #Test 4: Edge Cases for Adding to Pending Loads List
+        print("\nTest 4:")
+        pending.add_pending_load("Dallas Moon Shoes", -80)
+        pending.add_pending_load("Tungsten Cubes", 999999)
+        pending.add_pending_load("Dessie Decibel Speakers", 40.567)
+
+        pending.print_pending_loads()
+
+        #Test 5: Adding to Offload List
+        print("\nTest 5:")
+        offloader = Loader()
+        offloader.add_offload("Henry Space Age Toys", 40)
+        offloader.add_offload("Money Robin Dee Banks", 800)
+    
+        offloader.print_offload_list()
+
+        #Test 6: Removing from Offload List
+        print("\nTest 6:")
+        offloader.remove_offload_list(0)
+
+        offloader.print_offload_list()
+        
+        #Test 7: Getting the Offload List
+        print("\nTest 7:")
+        offload_list = offloader.get_offload_list()
+        offload_list.pop().print()
+
+
+        #Test 8: Edge Cases for Adding to the Offload List
+        print("\nTest 8:")
+        offloader.add_offload("Dallas Moon Shoes", -80)
+        offloader.add_offload("Tungsten Cubes", 999999)
+        offloader.add_offload("Dessie Decibel Speakers", 40.567)
+
+        offloader.print_offload_list()
     
     
 
