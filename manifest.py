@@ -9,7 +9,7 @@ class Container:
 
     def print(self):
         print(f"container weight: {self.weight}")
-        print(f"conainer description: {self.description}")
+        print(f"container description: {self.description}")
 
     def changeWeight(self, weight):
         # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
@@ -75,9 +75,12 @@ class Manifest:
         containerMoving = self.grid[y1,x1]
         if containerMoving.description != "UNUSED" and containerMoving.description != "NAN":
             if self.grid[y2,x2].description == "UNUSED":
-                # TODO: [LOG] container [name] was moved from [startLocation] to [endLocation]
-                self.grid[y1,x1] = Container(0, "UNUSED")
-                self.grid[y2,x2] = containerMoving
+                if y2 > 0 and self.grid[y2,x2].description != "UNUSED": #DAVID: checks to see if container would be floating
+                    # TODO: [LOG] container [name] was moved from [startLocation] to [endLocation]
+                    self.grid[y1,x1] = Container(0, "UNUSED")
+                    self.grid[y2,x2] = containerMoving
+                else:
+                    print("[ERROR] cannot move container to location where it is floating\n")
             else:
                 print("[ERROR] cannot move a container to an occupised location\n")
         else:
@@ -90,9 +93,12 @@ class Manifest:
     def loadContainer(self, containerDescription, y, x):
         if containerDescription != "UNUSED" and containerDescription != "NAN":
             if self.grid[y,x].description == "UNUSED":
-                # TODO: [LOG] container [name] was loaded onto the ship. It is located at [y,x]
-                # NOTE: a weight of -1 is given as a placeholder weight since the weight of the container will not be determined until the operator picks up the container during the instruction phase of the program
-                self.grid[y,x] = Container(-1, containerDescription)
+                if y > 0 and self.grid[y,x].description != "UNUSED": #DAVID: checks to see if container would be floating
+                    # TODO: [LOG] container [name] was loaded onto the ship. It is located at [y,x]
+                    # NOTE: a weight of -1 is given as a placeholder weight since the weight of the container will not be determined until the operator picks up the container during the instruction phase of the program
+                    self.grid[y,x] = Container(-1, containerDescription)
+                else:
+                        print("[ERROR] cannot move container to location where it is floating\n")
             else:
                 print("[ERROR] cannot move a container to an occupised location\n")
         else:
