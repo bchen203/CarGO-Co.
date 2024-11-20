@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import filedialog
+from tkinter import simpledialog
 import manifest
 
 class GUI:
@@ -7,10 +8,43 @@ class GUI:
     def __init__(self, master):
         self.master = master
         self.master.geometry("1080x720")
+        self.master.update()
         self.operation = ""
         self.frames = [] # store all pages of gui to display
 
         self.selectOperation()
+        self.menuBar()
+
+    def  menuBar(self):
+        self.userMenu = Menubutton(self.master, text="User")
+        self.userMenu.menu = Menu(self.userMenu, tearoff=False)
+        self.userMenu["menu"] = self.userMenu.menu
+        self.userMenu.menu.add_command(label="Sign In", command=self.signIn)
+        self.logMenu = Menubutton(self.master, text = "Event Log")
+        self.logMenu.menu = Menu(self.logMenu, tearoff=False)
+        self.logMenu["menu"] = self.logMenu.menu
+        self.logMenu.menu.add_command(label="Add Comment to Log", command=self.addLogComment)
+        self.logMenu.menu.add_command(label="View Log", command=None)
+
+        self.userMenu.place(x=self.master.winfo_width() - self.userMenu.winfo_reqwidth(), y=0)
+        self.logMenu.place(x=0, y=0)
+        self.userMenu.bind("<Configure>", self.adjustMenuBarPosition()) # configure not registering for master window
+
+    def adjustMenuBarPosition(self):
+        self.master.update()
+        self.userMenu.place_forget()
+        self.userMenu.place(x=self.master.winfo_width() - self.userMenu.winfo_reqwidth(), y=0)
+
+    def signIn(self):
+        self.currUser = simpledialog.askstring(title="User Sign In", prompt="Please enter your name")
+        self.userMenu.configure(text=self.currUser)
+
+        self.adjustMenuBarPosition()
+
+    def addLogComment(self):
+        comment = simpledialog.askstring(title="Log Comment", prompt="Please enter log comment")
+        # TODO:[LOG] add comment to log file
+
 
 
     def selectOperation(self):
