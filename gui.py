@@ -15,7 +15,7 @@ class GUI:
         self.selectOperation()
         self.menuBar()
 
-    def  menuBar(self):
+    def menuBar(self):
         self.userMenu = Menubutton(self.master, text="User")
         self.userMenu.menu = Menu(self.userMenu, tearoff=False)
         self.userMenu["menu"] = self.userMenu.menu
@@ -24,27 +24,32 @@ class GUI:
         self.logMenu.menu = Menu(self.logMenu, tearoff=False)
         self.logMenu["menu"] = self.logMenu.menu
         self.logMenu.menu.add_command(label="Add Comment to Log", command=self.addLogComment)
-        self.logMenu.menu.add_command(label="View Log", command=None)
+        self.logMenu.menu.add_command(label="View Log", command=self.viewLog)
 
+        # self.userMenu.place(x=self.master.winfo_width() - self.userMenu.winfo_reqwidth(), y=0)
+        # self.logMenu.place(x=0, y=0)
+        self.master.bind("<Configure>", lambda event: self.placeMenuBar())
+
+    def placeMenuBar(self):
         self.userMenu.place(x=self.master.winfo_width() - self.userMenu.winfo_reqwidth(), y=0)
         self.logMenu.place(x=0, y=0)
-        self.userMenu.bind("<Configure>", self.adjustMenuBarPosition()) # configure not registering for master window
-
-    def adjustMenuBarPosition(self):
-        self.master.update()
-        self.userMenu.place_forget()
-        self.userMenu.place(x=self.master.winfo_width() - self.userMenu.winfo_reqwidth(), y=0)
 
     def signIn(self):
+        #TODO: [LOG] implicit sign out
+        #prevUser = self.currUser
         self.currUser = simpledialog.askstring(title="User Sign In", prompt="Please enter your name")
         self.userMenu.configure(text=self.currUser)
+        #TODO: [LOG] sign in
 
-        self.adjustMenuBarPosition()
+        self.placeMenuBar()
 
     def addLogComment(self):
         comment = simpledialog.askstring(title="Log Comment", prompt="Please enter log comment")
-        # TODO:[LOG] add comment to log file
+        # TODO: [LOG] add comment to log file
 
+    def viewLog(self):
+        #TODO: retrieve log file
+        pass
 
 
     def selectOperation(self):
@@ -115,7 +120,7 @@ class GUI:
         self.manifest_upload = Frame(self.master)
         self.manifest_upload_text = Label(self.manifest_upload,
                                           text = "Please select manifest file",
-                                          font=("Arial", 16, "bold"))
+                                          font=("Arial", 30, "bold"))
         self.manifest_upload_button = Button(self.manifest_upload,
                                              text = "Load Manifest File",
                                              command=self.select_manifest_file,
@@ -126,20 +131,16 @@ class GUI:
                                              borderwidth=0,
                                              background="blue")
 
+        # Bug: place causes menubar to disappear, likely still in lower layer
+        # menu bar displays correctly if use .pack() rather than .place()
+        # self.manifest_upload_text.place(relx=0.5, rely=0.1, anchor="center")
+        # self.manifest_upload_button.place(relx=0.5, rely=0.5, anchor="center")
+        # self.manifest_upload.place(relwidth=1, relheight=1)
         self.manifest_upload_text.pack()
         self.manifest_upload_button.pack()
         self.manifest_upload.pack()
+        # self.placeMenuBar()
         manifest_file = self.select_manifest_file()
         if manifest_file is not None:
             self.manifest = manifest.Manifest(manifest_file.name)
 
-
-
-
-
-
-
-
-# window = Tk()
-# GUI(window)
-# window.mainloop()
