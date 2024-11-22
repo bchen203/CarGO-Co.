@@ -13,14 +13,13 @@ class GUI:
         self.frames = [] # store all pages of gui to display
 
         self.selectOperation()
-        self.menuBar()
 
     def menuBar(self):
-        self.userMenu = Menubutton(self.master, text="User")
+        self.userMenu = Menubutton(self.master, text="User", bd=0)
         self.userMenu.menu = Menu(self.userMenu, tearoff=False)
         self.userMenu["menu"] = self.userMenu.menu
         self.userMenu.menu.add_command(label="Sign In", command=self.signIn)
-        self.logMenu = Menubutton(self.master, text = "Event Log")
+        self.logMenu = Menubutton(self.master, text = "Event Log", bd=0)
         self.logMenu.menu = Menu(self.logMenu, tearoff=False)
         self.logMenu["menu"] = self.logMenu.menu
         self.logMenu.menu.add_command(label="Add Comment to Log", command=self.addLogComment)
@@ -65,13 +64,13 @@ class GUI:
         # will automatically prompt user for file upload
         # create frames that serve as borders for buttons
         self.button_border1 = Frame(self.operation_select,
-                                   highlightbackground="black",
-                                   background="black",
-                                   bd=4)
+                                    highlightbackground="black",
+                                    background="black",
+                                    bd=4)
         self.button_border2 = Frame(self.operation_select,
-                                           highlightbackground="black",
-                                           background="black",
-                                           bd=4)
+                                    highlightbackground="black",
+                                    background="black",
+                                    bd=4)
 
         self.load_offload_button = Button(self.button_border1,
                                           command=self.select_load_offload,
@@ -99,6 +98,8 @@ class GUI:
         self.balance_button.place(relheight=1, relwidth=1)
 
         self.operation_select.place(relheight=1, relwidth=1)
+        # draw menubar over operation selection screen
+        self.menuBar()
 
 
     def select_load_offload(self):
@@ -111,36 +112,54 @@ class GUI:
 
     def select_manifest_file(self):
         # limit file select to only txt files
-        manifest_file = filedialog.askopenfile(mode="r", filetypes=[("Text Files", "*.txt")])
-        return manifest_file
+        self.manifest_file = filedialog.askopenfile(mode="r", filetypes=[("Text Files", "*.txt")])
+
+        # display selected file with full path
+        self.manifest_file_text = Label(self.manifest_upload,
+                                        text=self.manifest_file.name,
+                                        font=[("Arial", 16)])
+        self.manifest_file_text.configure(text=self.manifest_file.name)
+        self.manifest_file_text.place(relx=0.5, rely=0.8, anchor="center",
+                                      relwidth = 1,
+                                      relheight=0.1)
+
 
 
     def loadManifest(self):
+        # deload operation selection screen
         self.operation_select.place_forget()
+
+        # configure manifest upload screen
         self.manifest_upload = Frame(self.master)
         self.manifest_upload_text = Label(self.manifest_upload,
                                           text = "Please select manifest file",
                                           font=("Arial", 30, "bold"))
-        self.manifest_upload_button = Button(self.manifest_upload,
+
+        self.manifest_upload_button_border = Frame(self.manifest_upload,
+                                                   highlightbackground="black",
+                                                   background="black",
+                                                   bd=4)
+        self.manifest_upload_button = Button(self.manifest_upload_button_border,
                                              text = "Load Manifest File",
                                              command=self.select_manifest_file,
-                                             width=30,
-                                             height=20,
+                                             # width=30,
+                                             # height=20,
                                              font=("Arial", 16, "bold"),
                                              relief="flat",
                                              borderwidth=0,
-                                             background="blue")
+                                             activebackground="#00ff14")
 
-        # Bug: place causes menubar to disappear, likely still in lower layer
-        # menu bar displays correctly if use .pack() rather than .place()
-        # self.manifest_upload_text.place(relx=0.5, rely=0.1, anchor="center")
-        # self.manifest_upload_button.place(relx=0.5, rely=0.5, anchor="center")
-        # self.manifest_upload.place(relwidth=1, relheight=1)
-        self.manifest_upload_text.pack()
-        self.manifest_upload_button.pack()
-        self.manifest_upload.pack()
-        # self.placeMenuBar()
-        manifest_file = self.select_manifest_file()
-        if manifest_file is not None:
-            self.manifest = manifest.Manifest(manifest_file.name)
 
+
+        self.manifest_upload_text.place(relx=0.5, rely=0.1, anchor="center")
+        self.manifest_upload_button_border.place(relx=0.5, rely=0.5, relwidth = 0.5, relheight=0.5, anchor="center")
+        self.manifest_upload_button.place(relheight=1, relwidth=1)
+        self.manifest_upload.place(relwidth=1, relheight=1)
+
+        # redraw menubar over manifest_upload screen
+        self.menuBar()
+        self.select_manifest_file()
+
+
+        if self.manifest_file is not None:
+            self.manifest = manifest.Manifest(self.manifest_file.name)
