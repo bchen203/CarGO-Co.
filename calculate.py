@@ -7,14 +7,41 @@
     move/load/offload from the manifest.py (snag and alter them to work)
 
 """
+#nabbed from another branch for testing purposes 
+#REMOVE LATER
+class Container:
+    def __init__(self, container_weight, container_description):
+        self.weight = container_weight
+        # Note: reserved container names are UNUSED, NAN (will need to check if the operator inputs these names later on)
+        self.description = container_description
+
+    def print(self):
+        print(f"container weight: {self.weight}")
+        print(f"container description: {self.description}")
 
 class Calculate:
     def __init__(self,manifest_array):
         self.ship_bay_array = manifest_array
 
+#adapted from manifest.py code by Jake Blackwell (group decided to move implementation here)
 #checks if a move: passing in start location (x1,y1) and end location (x2,y2)
     def is_legal_move(self,x1,y1,x2,y2):
-        return 0
+        containerMoving = self.grid[y1,x1]
+        if(y1 >= 11 or self.grid[y1+1,x1].description == "UNUSED"): #checks if container's start pos has a container above it
+            if containerMoving.description != "UNUSED" and containerMoving.description != "NAN": #checks if start pos is empty
+                if self.grid[y2,x2].description == "UNUSED": #checks if end pos is empty
+                    if y2 > 0 and self.grid[y2,x2].description != "UNUSED": #DAVID: checks to see if container would be floating
+                        return True
+                    else:
+                        print("[ERROR] cannot move container to location where it is floating\n")
+                else:
+                    print("[ERROR] cannot move a container to an occupised location\n")
+            else:
+                print("[ERROR] cannot move a container with the name \"UNUSED\" or \"NAN\"\n")
+        else:
+            print("[ERROR] cannot move container because there is container above starting position")
+
+        return False
     
 #calculates manhattan distance between start location (x1,y1) and end location (x2,y2)
     def calculate_time(self,x1,y1,x2,y2):
@@ -28,18 +55,12 @@ class Calculate:
     # ERROR CHECKING: a container can only be moved if the ending location is in the 2D grid range, is "UNUSED", and the container being moved is NOT "UNUSED" nor "NAN"
     def moveContainer(self, y1, x1, y2, x2):
         containerMoving = self.grid[y1,x1]
-        if containerMoving.description != "UNUSED" and containerMoving.description != "NAN":
-            if self.grid[y2,x2].description == "UNUSED":
-                if y2 > 0 and self.grid[y2,x2].description != "UNUSED": #DAVID: checks to see if container would be floating
-                    # TODO: [LOG] container [name] was moved from [startLocation] to [endLocation]
-                    self.grid[y1,x1] = Container(0, "UNUSED")
-                    self.grid[y2,x2] = containerMoving
-                else:
-                    print("[ERROR] cannot move container to location where it is floating\n")
-            else:
-                print("[ERROR] cannot move a container to an occupised location\n")
-        else:
-            print("[ERROR] cannot move a container with the name \"UNUSED\" or \"NAN\"\n")
+
+        if(self.is_legal_move(x1,y1,x2,y2) ):
+            # TODO: [LOG] container [name] was moved from [startLocation] to [endLocation]
+            self.grid[y1,x1] = Container(0, "UNUSED")
+            self.grid[y2,x2] = containerMoving
+
 
     # load containers onto the ship
     # containerDescription: the description of a container provided by the operator

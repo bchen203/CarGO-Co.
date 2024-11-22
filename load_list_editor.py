@@ -1,6 +1,7 @@
 #import manifest.py
 
 #nabbed from another branch for testing purposes
+#REMOVE LATER
 class Container:
     def __init__(self, container_weight, container_description):
         self.weight = container_weight
