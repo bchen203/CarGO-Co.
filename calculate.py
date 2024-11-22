@@ -67,11 +67,10 @@ class Calculate:
     def is_legal_ship_move(self,y1,x1,y2,x2):
         return self.is_start_legal(y1,x1) and self.is_end_legal(y2,x2)
     
-#calculates manhattan distance between start location (y1,x1) and end location (y2,x2)
+#calculates manhattan distance between start location (y1,x1) and end location (y2,x2) - FOR ONLY LOCATIONS INSIDE SHIP
     def calculate_time(self,y1,x1,y2,x2):
-        return -1
+        return abs(y1-y2) + abs(x1-x2)
     
-    #adapted from manifest.py code by Jake Blackwell (group decided to move implementation here)
 
         # move containers that already exist on the ship
     # [y1,x1]: starting location of container (to be replaced with "UNUSED")
