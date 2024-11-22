@@ -67,6 +67,8 @@ class Manifest:
                 file.write(output)
         file.close()
 
+#commented out and implementation moved to calculate.py
+"""
     # move containers that already exist on the ship
     # [y1,x1]: starting location of container (to be replaced with "UNUSED")
     # [y2,x2]: ending location of container (to be replaced with the moved container)
@@ -113,3 +115,4 @@ class Manifest:
                 self.grid[y,x] = Container(0, "UNUSED")
         else:
             print("[ERROR] cannot offload a container with the name \"UNUSED\" or \"NAN\"\n")
+"""
