@@ -1,4 +1,3 @@
-import manifest
 import gui
 import tkinter as tk
 
