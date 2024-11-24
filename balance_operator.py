@@ -37,7 +37,7 @@ def perform_balance_operation_brute_force_helper(current_left_containers, curren
             return None    
 
 def get_partition(array): #Get the partition line (considering which side is left/right) returns last index of left side (inclusive)
-    return len(array[0])
+    return len(array[0])/2
 
 def is_balanceable(containers, current_weight): #rewrite container_weights to be a list of containers
     container_weights = []
@@ -60,7 +60,22 @@ def is_balanced(port_weight, starboard_weight):
 
     return (max(port_weight, starboard_weight) / min(port_weight , starboard_weight) < 1.1)
 
-def is_ship_balanced(manifest_array):
+def is_ship_balanced(manifest_array): #manifest is a 2D array
+    left_partition_inclusive = get_partition(manifest_array) 
+
+    port_weight = 0
+    starboard_weight = 0
+
+    for row in manifest_array: #assumign row-column?
+        i = 0
+        for container in row:
+            if i <= left_partition_inclusive:
+                port_weight += container.weight
+            else:
+                starboard_weight_weight += container.weight
+            i += 1
+    
+    return is_balanced(port_weight, starboard_weight)        
     
     #Adding all the port weights to port, and adding all the starboard weights to starboard, then running is_balanced
     pass
