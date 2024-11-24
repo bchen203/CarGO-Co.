@@ -2,10 +2,12 @@ import re
 
 
 class Container:
-    def __init__(self, container_weight, container_description):
+    def __init__(self, container_weight, container_description, container_id):
         self.weight = container_weight
         # Note: reserved container names are UNUSED, NAN (will need to check if the operator inputs these names later on)
         self.description = container_description
+        # Added id variable to uniquely identify containers (will be used in solution calculations)
+        self.id = container_id
 
     def print(self):
         print(f"container weight: {self.weight}")
@@ -19,7 +21,8 @@ class Container:
 class Manifest:
     # the 2D grid representation of the ship's containers
     # ship dimensions: 12x8
-    grid = [[Container(0, "UNUSED") for i in range(8)] for j in range(12)]
+    grid = [[Container(0, "UNUSED", -1) for i in range(8)] for j in range(12)]
+    containerID = -1
 
     # initialize the manifest object by reading in a given manifest file
     def __init__(self, filename):
@@ -40,10 +43,15 @@ class Manifest:
             x = int(temp[0][1:])
             y = int(temp[1][:2])
             weight = re.search("[0-9]{5}", temp[2])
-            description = temp[3][1:]
+            # POTENTIAL PROBLEM: by using regex for description, we exclude the newline at the end of each line. This results in the exported manifest also not including the newline, so we have to manually re-add it back, except for on the last line. This assumption of removing the newline on the last line of the file could lead to a mismatched manifest if the original manifest included a newline on the last line.
+            description = (re.search("[A-Za-z0-9]+", temp[3])).group()
+            if description != "UNUSED" and description != "NAN":
+                id = self.generateID()
+            else:
+                id = -1
 
             # 3. create a container object using the variables from step 2 and add it to the 2D grid at location [y-1][x-1] (zero indexing adjustment)
-            self.grid[y - 1][x - 1] = Container(int(weight.group()), description)
+            self.grid[y - 1][x - 1] = Container(int(weight.group()), description, id)
 
     # export the outbound manifest
     def exportManifest(self):
@@ -61,11 +69,32 @@ class Manifest:
                 padded_weight = str(temp.weight).rjust(5, "0")
 
                 # combine all the data into a singular manifest line
-                output = f"[{padded_x}, {padded_y}], {{{padded_weight}}}, {temp.description}"
+                output = f"[{padded_x},{padded_y}], {{{padded_weight}}}, {temp.description}"
 
                 # write this line to the manifest file
-                file.write(output)
+                # check if we are writing the last line of the exported manifest. If so, do not include the newline
+                if i == 7 and j == 11:
+                    file.write(f"{output}")
+                else:
+                    file.write(f"{output}\n")
         file.close()
+
+    # return a copy of the manifest
+    def copyManifest(self):
+        return self.grid
+    
+    # print the id's of the manifest (for terminal use only)
+    def printManifest(self):
+        for i in range(7, -1, -1):
+            for j in range(12):
+                print(self.grid[j][i].id, end=" ")
+            print("")
+
+    # returns the next ID needed to uniquely identify a container and will update the manifest class's ID global containerID variable
+    def generateID(self):
+        self.containerID += 1
+        return self.containerID
+
 
 #commented out and implementation moved to calculate.py
 """
