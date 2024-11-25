@@ -117,7 +117,7 @@ class Calculate:
 
 if __name__ == "__main__":
     
-    array = [[Container(0, "UNUSED",-1) for i in range(12)] for j in range(8)]
+    array = [[Container(0, "UNUSED",-1) for i in range(8)] for j in range(12)]
 
     """
     for i in array:
