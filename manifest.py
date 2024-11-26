@@ -21,7 +21,7 @@ class Container:
 class Manifest:
     # the 2D grid representation of the ship's containers
     # ship dimensions: 12x8
-    grid = [[Container(0, "UNUSED", -1) for i in range(8)] for j in range(12)]
+    grid = [[Container(0, "UNUSED", -1) for r in range(12)] for c in range(8)]
     containerID = -1
 
     # initialize the manifest object by reading in a given manifest file
@@ -51,7 +51,9 @@ class Manifest:
                 id = -1
 
             # 3. create a container object using the variables from step 2 and add it to the 2D grid at location [y-1][x-1] (zero indexing adjustment)
-            self.grid[y - 1][x - 1] = Container(int(weight.group()), description, id)
+            # column    -> y -> outer array     (grid[y][])
+            # row       -> x -> inner array     (grid[][x])
+            self.grid[x - 1][y - 1] = Container(int(weight.group()), description, id)
 
     # export the outbound manifest
     def exportManifest(self):
@@ -59,12 +61,12 @@ class Manifest:
         # creates a new output manifest
         output_file = self.filename[:-4] + "OUTBOUND.txt" # append "OUTBOUND" to end of manifest name
         file = open(output_file, "w")
-        for i in range(8):
-            for j in range(12):
-                temp = self.grid[j][i]
+        for r in range(8):
+            for c in range(12):
+                temp = self.grid[r][c]
                 # ensure that all coordinate locations have a leading zero (each coordinate is 2 digits)
-                padded_x = str(i + 1).rjust(2, "0")
-                padded_y = str(j + 1).rjust(2, "0")
+                padded_x = str(r + 1).rjust(2, "0")
+                padded_y = str(c + 1).rjust(2, "0")
                 # ensure that all weights have leading zeros (each weight is 5 digits)
                 padded_weight = str(temp.weight).rjust(5, "0")
 
@@ -73,7 +75,7 @@ class Manifest:
 
                 # write this line to the manifest file
                 # check if we are writing the last line of the exported manifest. If so, do not include the newline
-                if i == 7 and j == 11:
+                if r == 7 and c == 11:
                     file.write(f"{output}")
                 else:
                     file.write(f"{output}\n")
@@ -85,10 +87,12 @@ class Manifest:
     
     # print the id's of the manifest (for terminal use only)
     def printManifest(self):
-        for i in range(7, -1, -1):
-            for j in range(12):
-                print(self.grid[j][i].id, end=" ")
+        self.grid[7][11].id = 5
+        for r in range(7, -1, -1):
+            for c in range(12):
+                print(str(self.grid[r][c].id).rjust(2, " "), end=" ")
             print("")
+        
 
     # returns the next ID needed to uniquely identify a container and will update the manifest class's ID global containerID variable
     def generateID(self):

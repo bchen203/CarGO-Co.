@@ -1,6 +1,6 @@
 import manifest
 
-fileName = "CargoCo/SampleManifests/ShipCase1.txt"
+fileName = "SampleManifests/ShipCase1.txt"
 
 # __________invalid file input name__________
 try:
