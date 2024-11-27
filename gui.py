@@ -19,6 +19,7 @@ class GUI:
         self.userMenu.menu = Menu(self.userMenu, tearoff=False)
         self.userMenu["menu"] = self.userMenu.menu
         self.userMenu.menu.add_command(label="Sign In", command=self.signIn)
+        self.userMenu.menu.add_command(label="Sign Out", command=self.signOut)
         self.logMenu = Menubutton(self.master, text = "Event Log", bd=0)
         self.logMenu.menu = Menu(self.logMenu, tearoff=False)
         self.logMenu["menu"] = self.logMenu.menu
@@ -41,6 +42,10 @@ class GUI:
         #TODO: [LOG] sign in
 
         self.placeMenuBar()
+
+    def signOut(self):
+        #TODO: [Log] shutdown port & program for annual maintainence
+        self.master.destroy()
 
     def addLogComment(self):
         comment = simpledialog.askstring(title="Log Comment", prompt="Please enter log comment")
@@ -114,14 +119,14 @@ class GUI:
         # limit file select to only txt files
         self.manifest_file = filedialog.askopenfile(mode="r", filetypes=[("Text Files", "*.txt")])
 
-        # display selected file with full path
-        self.manifest_file_text = Label(self.manifest_upload,
-                                        text=self.manifest_file.name,
-                                        font=[("Arial", 16)])
-        self.manifest_file_text.configure(text=self.manifest_file.name)
-        self.manifest_file_text.place(relx=0.5, rely=0.8, anchor="center",
-                                      relwidth = 1,
-                                      relheight=0.1)
+        if self.manifest_file is not None:
+            # display selected file with full path
+            self.manifest_file_text = Label(self.manifest_upload,
+                                            font=[("Arial", 16)])
+            self.manifest_file_text.configure(text=self.manifest_file.name)
+            self.manifest_file_text.place(relx=0.5, rely=0.8, anchor="center",
+                                          relwidth = 1,
+                                          relheight=0.1)
 
 
 
