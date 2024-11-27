@@ -1,23 +1,15 @@
 import sys
 sys.path.append('../CargoCo')
 import calculate
-#import manifest
+import manifest
 
 
-array = [[calculate.Container(0, "UNUSED",-1) for col in range(12)] for row in range(8)]
+#array = [[manifest.Container(0, "UNUSED",-1) for col in range(12)] for row in range(8)]
 
-"""
-for i in array:
-        print("[")
-        for j in i:
-            print(j.description)
-        print("]")
-"""
-
-calculator = calculate.Calculate(array)
-array[0][0] = calculate.Container(1,"CoolCatCars",0)
-array[0][1] = calculate.Container(2,"DogDerbies",1)
-array[1][0] = calculate.Container(3,"ThirdContainer",2)
+fileName = "SampleManifests/customManifest.txt"
+inputManifest = manifest.Manifest(fileName)
+array, containerID = inputManifest.copyManifest()
+calculator = calculate.Calculate(array, containerID)
 print("Testing is_start_legal function:")
 
 for r in range(7, -1, -1):
@@ -142,6 +134,13 @@ if(calculator.ship_bay_array[0][3].description != "UNUSED"):
 else:
         print("Container unsuccessful in placing on ship")
 
+#TEST 13.5 loadContainer/generateID - testing unique IDs of loaded containers
+calculator.loadContainer("DillianCargos",1,3)
+calculator.loadContainer("EillianCargos",2,3)
+calculator.loadContainer("FillianCargos",3,3)
+calculator.loadContainer("GillianCargos",4,3)
+calculator.offloadContainer(4,3)
+calculator.loadContainer("HillianCargos",4,3)
 for r in range(7, -1, -1):
     for c in range(12):
         print(str(array[r][c].id).rjust(2, " "), end=" ")
@@ -191,3 +190,10 @@ if calculator.calculate_time(1,1,1,1) == 0:
         print("Time calculation is correct")
 else:
         print("Time calculation is incorrect")
+
+print("\nTEST 19:")
+print("Testing updateManifest function from Manifest class:")
+#TEST 19 updateManifest - update the manifest class with this manifest
+inputManifest.updateManifest(array)
+inputManifest.printManifest()
+inputManifest.exportManifest() # NOTE: loaded containers have a weight of -1 since they haven't been given a measured weight from the operator
