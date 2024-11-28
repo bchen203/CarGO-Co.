@@ -10,12 +10,13 @@ class GUI:
         self.master.geometry("1080x720")
         self.master.update()
         self.operation = ""
+        self.currUser = "User"
         self.frames = [] # store all pages of gui to display
 
         self.selectOperation()
 
     def menuBar(self):
-        self.userMenu = Menubutton(self.master, text="User", bd=0)
+        self.userMenu = Menubutton(self.master, text=self.currUser, bd=0)
         self.userMenu.menu = Menu(self.userMenu, tearoff=False)
         self.userMenu["menu"] = self.userMenu.menu
         self.userMenu.menu.add_command(label="Sign In", command=self.signIn)
@@ -123,16 +124,33 @@ class GUI:
             # display selected file with full path
             self.manifest_file_text = Label(self.manifest_upload,
                                             font=[("Arial", 16)])
-            self.manifest_file_text.configure(text=self.manifest_file.name)
+            self.manifest_file_text.configure(text=self.manifest_file.name, background="red")
             self.manifest_file_text.place(relx=0.5, rely=0.8, anchor="center",
                                           relwidth = 1,
                                           relheight=0.1)
+    def calculateSolution(self):
+        if self.manifest is None:
+            # TODO: error popup
+            pass
+        else:
+            self.manifest_upload.place_forget()
+            if self.operation == "load":
+                #TODO: load/offload select screen
+                pass
+            else: # balance solution
+                # calculate solution without additional input
+                pass
+
+    def containerSelect(self):
+        pass
 
 
 
     def loadManifest(self):
         # deload operation selection screen
         self.operation_select.place_forget()
+        self.userMenu.place_forget()
+        self.logMenu.place_forget()
 
         # configure manifest upload screen
         self.manifest_upload = Frame(self.master)
@@ -153,13 +171,33 @@ class GUI:
                                              relief="flat",
                                              borderwidth=0,
                                              activebackground="#00ff14")
-
-
+        self.calculate_button_border = Frame(self.manifest_upload,
+                                             highlightbackground="black",
+                                             background="black",
+                                             bd=2)
+        self.calculate_button = Button(self.calculate_button_border,
+                                       text="Calculate Move Sequence",
+                                       font=("Arial", 10, "bold"),
+                                       wraplength=150,
+                                       relief="flat",
+                                       activebackground="#00ff14",
+                                       borderwidth=0,
+                                       command=self.calculateSolution)
+        self.container_select_button = Button(self.calculate_button_border,
+                                              text="Select Containers",
+                                              font=("Arial", 10, "bold"),
+                                              wraplength=150,
+                                              relief="flat",
+                                              activebackground="#00ff14",
+                                              borderwidth=0,
+                                              command=self.containerSelect)
 
         self.manifest_upload_text.place(relx=0.5, rely=0.1, anchor="center")
         self.manifest_upload_button_border.place(relx=0.5, rely=0.5, relwidth = 0.5, relheight=0.5, anchor="center")
         self.manifest_upload_button.place(relheight=1, relwidth=1)
+
         self.manifest_upload.place(relwidth=1, relheight=1)
+
 
         # redraw menubar over manifest_upload screen
         self.menuBar()
@@ -168,3 +206,18 @@ class GUI:
 
         if self.manifest_file is not None:
             self.manifest = manifest.Manifest(self.manifest_file.name)
+            # redisplay manifest_upload with button for next screen
+            self.manifest_upload.place_forget()
+            self.userMenu.place_forget()
+            self.logMenu.place_forget()
+            if self.operation == "load": # button to move to container select screen
+                self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
+                self.container_select_button.place(relheight=1, relwidth=1)
+                self.manifest_upload.place(relwidth=1, relheight=1)
+                self.menuBar()
+
+            else: # button to calculate solution for balance operation
+                self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
+                self.calculate_button.place(relheight=1, relwidth=1)
+                self.manifest_upload.place(relwidth=1, relheight=1)
+                self.menuBar()
