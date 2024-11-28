@@ -21,79 +21,95 @@ class Container:
 class Manifest:
     # the 2D grid representation of the ship's containers
     # ship dimensions: 12x8
-    grid = [[Container(0, "UNUSED", -1) for i in range(8)] for j in range(12)]
+    grid = [[Container(0, "UNUSED", -1) for c in range(12)] for r in range(8)]
     containerID = -1
 
     # initialize the manifest object by reading in a given manifest file
     def __init__(self, filename):
-        # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
-        self.filename = filename
-        file = open(self.filename, "r")
-        lines = file.readlines()
+        if filename[-4:] != ".txt":
+            print("[ERROR] Invalid input manifest file type. Please input a .txt file")
+        else:
+            # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
+            self.filename = filename
+            try:
+                file = open(self.filename, "r")
+                inFile = file.read()
+                file.seek(0)
+                lines = file.readlines()
+                numMatches = len(re.findall(r"\[[0-9]{2},[0-9]{2}\],\s\{[0-9]{5}\},\s.*", inFile))
+                if len(lines) == numMatches:
+                    # Sample manifest line: [01, 03], {00100}, Dog
+                    #                       [rr, cc], {weight}, name
+                    for line in lines:
+                        # 1. split the line by commas
+                        #    temp will store an array of strings split by the commas from line
+                        #    Ex. temp = {"[01", " 03]", " {00100}", " Dog"}
+                        temp = line.split(",")
 
-        # Sample manifest line: [01, 03], {00100}, Dog
-        #                       [yy, xx], {weight}, name
-        for line in lines:
-            # 1. split the line by commas
-            #    temp will store an array of strings split by the commas from line
-            #    Ex. temp = {"[01", " 03]", " {00100}", " Dog"}
-            temp = line.split(",")
+                        # 2. get substrings of temp items and store into their respective variables
+                        x = int(temp[0][1:])
+                        y = int(temp[1][:2])
+                        weight = re.search("[0-9]{5}", temp[2])
+                        # POTENTIAL PROBLEM: by using regex for description, we exclude the newline at the end of each line. This results in the exported manifest also not including the newline, so we have to manually re-add it back, except for on the last line. This assumption of removing the newline on the last line of the file could lead to a mismatched manifest if the original manifest included a newline on the last line.
+                        description = (re.search("[A-Za-z0-9]+.*", temp[3])).group()
+                        if description != "UNUSED" and description != "NAN":
+                            self.containerID += 1
+                            id = self.containerID
+                        else:
+                            id = -1
 
-            # 2. get substrings of temp items and store into their respective variables
-            x = int(temp[0][1:])
-            y = int(temp[1][:2])
-            weight = re.search("[0-9]{5}", temp[2])
-            # POTENTIAL PROBLEM: by using regex for description, we exclude the newline at the end of each line. This results in the exported manifest also not including the newline, so we have to manually re-add it back, except for on the last line. This assumption of removing the newline on the last line of the file could lead to a mismatched manifest if the original manifest included a newline on the last line.
-            description = (re.search("[A-Za-z0-9]+", temp[3])).group()
-            if description != "UNUSED" and description != "NAN":
-                id = self.generateID()
-            else:
-                id = -1
-
-            # 3. create a container object using the variables from step 2 and add it to the 2D grid at location [y-1][x-1] (zero indexing adjustment)
-            self.grid[y - 1][x - 1] = Container(int(weight.group()), description, id)
+                        # 3. create a container object using the variables from step 2 and add it to the 2D grid at location [y-1][x-1] (zero indexing adjustment)
+                        # column    -> y -> outer array     (grid[y][])
+                        # row       -> x -> inner array     (grid[][x])
+                        self.grid[x - 1][y - 1] = Container(int(weight.group()), description, id)
+                else:
+                    print(f"[ERROR] Input manifest {self.filename} has invalid format.")
+            except:
+                print(f"[ERROR] Could not open file {self.filename}.")
 
     # export the outbound manifest
     def exportManifest(self):
         # TODO: [LOG] exported the manifest with the name [outboundmanifestfilename]
         # creates a new output manifest
         output_file = self.filename[:-4] + "OUTBOUND.txt" # append "OUTBOUND" to end of manifest name
-        file = open(output_file, "w")
-        for i in range(8):
-            for j in range(12):
-                temp = self.grid[j][i]
-                # ensure that all coordinate locations have a leading zero (each coordinate is 2 digits)
-                padded_x = str(i + 1).rjust(2, "0")
-                padded_y = str(j + 1).rjust(2, "0")
-                # ensure that all weights have leading zeros (each weight is 5 digits)
-                padded_weight = str(temp.weight).rjust(5, "0")
+        try:
+            file = open(output_file, "w")
+            for r in range(8):
+                for c in range(12):
+                    temp = self.grid[r][c]
+                    # ensure that all coordinate locations have a leading zero (each coordinate is 2 digits)
+                    padded_x = str(r + 1).rjust(2, "0")
+                    padded_y = str(c + 1).rjust(2, "0")
+                    # ensure that all weights have leading zeros (each weight is 5 digits)
+                    padded_weight = str(temp.weight).rjust(5, "0")
 
-                # combine all the data into a singular manifest line
-                output = f"[{padded_x},{padded_y}], {{{padded_weight}}}, {temp.description}"
+                    # combine all the data into a singular manifest line
+                    output = f"[{padded_x},{padded_y}], {{{padded_weight}}}, {temp.description}"
 
-                # write this line to the manifest file
-                # check if we are writing the last line of the exported manifest. If so, do not include the newline
-                if i == 7 and j == 11:
-                    file.write(f"{output}")
-                else:
-                    file.write(f"{output}\n")
-        file.close()
+                    # write this line to the manifest file
+                    # check if we are writing the last line of the exported manifest. If so, do not include the newline
+                    if r == 7 and c == 11:
+                        file.write(f"{output}")
+                    else:
+                        file.write(f"{output}\n")
+            file.close()
+        except:
+            print(f"[ERROR] Failed to create outbound manifest file for {self.filename}.")
 
     # return a copy of the manifest
     def copyManifest(self):
-        return self.grid
+        return (self.grid, self.containerID)
+    
+    # override the current manifest (used by other classes)
+    def updateManifest(self, newManifest):
+        self.grid = newManifest
     
     # print the id's of the manifest (for terminal use only)
     def printManifest(self):
-        for i in range(7, -1, -1):
-            for j in range(12):
-                print(self.grid[j][i].id, end=" ")
+        for r in range(7, -1, -1):
+            for c in range(12):
+                print(str(self.grid[r][c].id).rjust(2, " "), end=" ")
             print("")
-
-    # returns the next ID needed to uniquely identify a container and will update the manifest class's ID global containerID variable
-    def generateID(self):
-        self.containerID += 1
-        return self.containerID
 
 
 #commented out and implementation moved to calculate.py

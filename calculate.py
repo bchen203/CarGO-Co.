@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../CargoCo')
+import manifest
 
 """"
 (takes in a 2D array as an input)
@@ -7,27 +10,14 @@
     move/load/offload from the manifest.py (snag and alter them to work)
 
 """
-#nabbed from another branch for testing purposes 
-#REMOVE LATER : container class
-class Container:
-    def __init__(self, container_weight, container_description, container_id):
-        self.weight = container_weight
-        # Note: reserved container names are UNUSED, NAN (will need to check if the operator inputs these names later on)
-        self.description = container_description
-        # Added id variable to uniquely identify containers (will be used in solution calculations)
-        self.id = container_id
-
-    def print(self):
-        print(f"container weight: {self.weight}")
-        print(f"container description: {self.description}")
-
-    def changeWeight(self, weight):
-        # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
-        self.weight = weight
 
 class Calculate:
-    def __init__(self,manifest_array):
+    containerID = -1
+    
+    def __init__(self,manifest_array,containerID):
         self.ship_bay_array = manifest_array
+        self.containerID = containerID
+
 
     #adapted from manifest.py code by Jake Blackwell (group decided to move implementation here)
     #checks if a move: passing in start location (rowStart,colStart) and end location (rowEnd,colEnd)
@@ -51,6 +41,7 @@ class Calculate:
         
         return False
     
+
     def is_end_legal(self,rowEnd,colEnd):
 
         if(rowEnd < 0 or rowEnd >= 8 or colEnd < 0 or colEnd >= 12): #checks if position is out of bounds
@@ -68,11 +59,10 @@ class Calculate:
         return False
 
 
-
-
     def is_legal_ship_move(self,rowStart,colStart,rowEnd,colEnd):
         return self.is_start_legal(rowStart,colStart) and self.is_end_legal(rowEnd,colEnd)
     
+
     #calculates manhattan distance between start location (rowStart,colStart) and end location (rowEnd,colEnd) - FOR ONLY LOCATIONS INSIDE SHIP
     def calculate_time(self,rowStart,colStart,rowEnd,colEnd):
         return abs(rowStart-rowEnd) + abs(colStart-colEnd)
@@ -86,7 +76,7 @@ class Calculate:
 
         if(self.is_legal_ship_move(rowStart,colStart,rowEnd,colEnd)):
             # TODO: [LOG] container [name] was moved from [startLocation] to [endLocation]
-            self.ship_bay_array[rowStart][colStart] = Container(0, "UNUSED",-1)
+            self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1)
             self.ship_bay_array[rowEnd][colEnd] = containerMoving
 
 
@@ -98,7 +88,7 @@ class Calculate:
             if(self.is_end_legal(rowEnd,colEnd)):
                     # TODO: [LOG] container [name] was loaded onto the ship. It is located at [rowEnd][colEnd]
                     # NOTE: a weight of -1 is given as a placeholder weight since the weight of the container will not be determined until the operator picks up the container during the instruction phase of the program
-                    self.ship_bay_array[rowEnd][colEnd] = Container(-1, containerDescription,10) # the id of 10 is temporary until generateID() is added
+                    self.ship_bay_array[rowEnd][colEnd] = manifest.Container(-1, containerDescription,self.generateID())
                 
         else:
             print("[ERROR] cannot load a container with the name \"UNUSED\" or \"NAN\"")
@@ -110,7 +100,7 @@ class Calculate:
     def offloadContainer(self, rowStart, colStart):
         if(self.is_start_legal(rowStart,colStart)):
                 # TODO: [LOG] container [name] was offloaded from the ship.
-                self.ship_bay_array[rowStart][colStart] = Container(0, "UNUSED",-1)
+                self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1)
 
     # Searches the manifest 2D array for placeable slots (ie, the first available layer of open spaces in each column)
     # Returns a list of 2-element tuples that represent the indices of placeable slots
@@ -131,4 +121,11 @@ class Calculate:
             if (foundInColumn):
                 break
                 
-        pass
+        
+
+
+
+    # returns the next ID needed to uniquely identify a container and will update the manifest class's ID global containerID variable
+    def generateID(self):
+        self.containerID += 1
+        return self.containerID
