@@ -21,7 +21,7 @@ class Container:
 class Manifest:
     # the 2D grid representation of the ship's containers
     # ship dimensions: 12x8
-    grid = [[Container(0, "UNUSED", -1) for r in range(12)] for c in range(8)]
+    grid = [[Container(0, "UNUSED", -1) for c in range(12)] for r in range(8)]
     containerID = -1
 
     # initialize the manifest object by reading in a given manifest file
@@ -53,7 +53,8 @@ class Manifest:
                         # POTENTIAL PROBLEM: by using regex for description, we exclude the newline at the end of each line. This results in the exported manifest also not including the newline, so we have to manually re-add it back, except for on the last line. This assumption of removing the newline on the last line of the file could lead to a mismatched manifest if the original manifest included a newline on the last line.
                         description = (re.search("[A-Za-z0-9]+.*", temp[3])).group()
                         if description != "UNUSED" and description != "NAN":
-                            id = self.generateID()
+                            self.containerID += 1
+                            id = self.containerID
                         else:
                             id = -1
 
@@ -97,7 +98,11 @@ class Manifest:
 
     # return a copy of the manifest
     def copyManifest(self):
-        return self.grid
+        return (self.grid, self.containerID)
+    
+    # override the current manifest (used by other classes)
+    def updateManifest(self, newManifest):
+        self.grid = newManifest
     
     # print the id's of the manifest (for terminal use only)
     def printManifest(self):
@@ -105,12 +110,6 @@ class Manifest:
             for c in range(12):
                 print(str(self.grid[r][c].id).rjust(2, " "), end=" ")
             print("")
-        
-
-    # returns the next ID needed to uniquely identify a container and will update the manifest class's ID global containerID variable
-    def generateID(self):
-        self.containerID += 1
-        return self.containerID
 
 
 #commented out and implementation moved to calculate.py
