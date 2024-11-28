@@ -220,7 +220,6 @@ else:
 
 print("\nTEST 19:")
 print("Test is successful if the 4th column contains the numbers: 3,4,5,6,8")
-print("and there is a 9 in the 8th column")
 print("Testing updateManifest function from Manifest class:")
 #TEST 19 updateManifest - update the manifest class with this manifest
 inputManifest.updateManifest(array)
