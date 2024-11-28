@@ -1,8 +1,28 @@
+import manifest
+import calculate
 
 
+def perform_balance_operation(manifest_array): #given a 2D array of the manifest, perform the balance operation
+    # First: Check if already balanced
+    is_ship_balanced(manifest_array)
 
-def perform_balance_operation(): #given a 2D array of the manifest, perform the balance operation
+    # Second: Calculate the solution
+    left = []
+    right = []
+    current_weight = [0,0]
+    remaining_containers = []
+    containers_on_ship = perform_balance_operation_brute_force_helper(left, right, current_weight, remaining_containers)
+    
+    # Third: which goal state will be easiest to achieve (which side will be side 1, which side will be side 2?)
+    # Might need to skip this for now
+
+    # Fourth: Figuring out where to place the containers
+    #calculate.findPlaceableSlots
+
+
+    # Fifth: Making the moves (updating 2D array through calculate.py)
     pass
+
 
 #Will return a solution
 def perform_balance_operation_brute_force_helper(current_left_containers, current_right_containers, current_weight, remaining_containers): #recursive brute force :')
@@ -39,7 +59,8 @@ def perform_balance_operation_brute_force_helper(current_left_containers, curren
 def get_partition(array): #Get the partition line (considering which side is left/right) returns last index of left side (inclusive)
     return len(array[0])/2
 
-def is_balanceable(containers, current_weight): #rewrite container_weights to be a list of containers
+#Given a list of containers and a tuple with the left and right side weights, figure out if everything is still sortable in the current state
+def is_balanceable(containers, current_weight): 
     container_weights = []
     for container in containers:
         container_weights.append(container.weight)
@@ -56,10 +77,12 @@ def is_balanceable(containers, current_weight): #rewrite container_weights to be
     else:
         return False
 
+# Given a left-side and right-side weight, returns True if balanced, False if not balanced.
 def is_balanced(port_weight, starboard_weight):
 
     return (max(port_weight, starboard_weight) / min(port_weight , starboard_weight) < 1.1)
 
+#Checks if a ship is balanced
 def is_ship_balanced(manifest_array): #manifest is a 2D array
     left_partition_inclusive = get_partition(manifest_array) 
 
@@ -69,6 +92,8 @@ def is_ship_balanced(manifest_array): #manifest is a 2D array
     for row in manifest_array: #assumign row-column?
         i = 0
         for container in row:
+            #skip if not a container (IE NAN or UNUSED)
+
             if i <= left_partition_inclusive:
                 port_weight += container.weight
             else:
@@ -76,8 +101,4 @@ def is_ship_balanced(manifest_array): #manifest is a 2D array
             i += 1
     
     return is_balanced(port_weight, starboard_weight)        
-    
-    #Adding all the port weights to port, and adding all the starboard weights to starboard, then running is_balanced
-    pass
 
-        

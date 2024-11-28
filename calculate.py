@@ -111,3 +111,24 @@ class Calculate:
         if(self.is_start_legal(rowStart,colStart)):
                 # TODO: [LOG] container [name] was offloaded from the ship.
                 self.ship_bay_array[rowStart][colStart] = Container(0, "UNUSED",-1)
+
+    # Searches the manifest 2D array for placeable slots (ie, the first available layer of open spaces in each column)
+    # Returns a list of 2-element tuples that represent the indices of placeable slots
+    def findPlaceableSlots(self):
+        foundInColumn = False
+        placeableSlots = []
+
+        for column in len(self.ship_bay_array[0]):
+            foundInColumn = False
+
+            for row in len(self.ship_bay_array):
+                if (row < len(self.ship_bay_array)):
+                    if self.ship_bay_array[row][column].description != "UNUSED":
+                        placeableSlots.append((row, column))
+                        foundInColumn = True
+                        break 
+
+            if (foundInColumn):
+                break
+                
+        pass
