@@ -1,5 +1,5 @@
 import sys
-sys.path.append('C:/Users/david/OneDrive/Desktop/CargoCo')
+sys.path.append('../CargoCo')
 import calculate
 import manifest
 
