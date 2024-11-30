@@ -1,47 +1,28 @@
-#import manifest.py
-
-#nabbed from another branch for testing purposes
-#REMOVE LATER
-class Container:
-    def __init__(self, container_weight, container_description):
-        self.weight = container_weight
-        # Note: reserved container names are UNUSED, NAN (will need to check if the operator inputs these names later on)
-        self.description = container_description
-
-    def print(self):
-        print(f"container weight: {self.weight}")
-        print(f"container description: {self.description}")
+import manifest
 
 
 class Loader:
     
     def __init__(self):
-        self.pending_loads = []
-        self.offload_list = []
+        self.pending_loads = {}
+        self.offload_loads = {}
 
     #adds a container from a truck into the load list
-    def add_pending_load(self,name,weight):
-        shown_weight = 0
-        if(weight < 0):
-            shown_weight = 0
-        elif(weight > 99999 ):
-            shown_weight = 99999
-        else:
-            shown_weight = weight
-        
-        shown_weight = round(shown_weight)
+    def add_pending_load(self,name):
 
-        truck_container = Container(shown_weight,name)
-        self.pending_loads.append(truck_container)
+        if name in self.pending_loads:
+            self.pending_loads[name] = self.pending_loads[name] + 1
+        else:
+            self.pending_loads[name] = 1
 
     #prints the load from truck list
     def print_pending_loads(self):
-        for truck_container in self.pending_loads:
-            print('{} | {} kg'.format(truck_container.description, truck_container.weight))
+        for key in self.pending_loads:
+            print('{} | {}'.format(key, self.pending_loads[key]))
     
     #removes a container from load from truck list
-    def remove_pending_loads(self,index):
-        self.pending_loads.pop(index)
+    def remove_pending_loads(self,name):
+        self.pending_loads.pop(name)
 
     #returns pending_loads
     def get_pending_loads(self):
@@ -50,34 +31,26 @@ class Loader:
 
 
     #adds a container from the ship into the offload list
-    def add_offload(self,name,weight):
-        shown_weight = 0
-        if(weight < 0):
-            shown_weight = 0
-        elif(weight > 99999 ):
-            shown_weight = 99999
+    def add_offload(self,name):
+        if name in self.offload_loads:
+            self.offload_loads[name] = self.offload_loads[name] + 1
         else:
-            shown_weight = weight
-        
-        shown_weight = round(shown_weight)
-
-        ship_container = Container(shown_weight,name)
-        self.offload_list.append(ship_container)
+            self.offload_loads[name] = 1
 
     #prints the offload from ship list
-    def print_offload_list(self):
-        for ship_container in self.offload_list:
-            print('{} | {} kg'.format(ship_container.description, ship_container.weight))
+    def print_offload_loads(self):
+        for key in self.offload_loads:
+            print('{} | {}'.format(key, self.offload_loads[key]))
     
     #removes a container from offload from ship list
-    def remove_offload_list(self,index):
-        self.offload_list.pop(index) 
+    def remove_offload_list(self,name):
+        self.offload_list.pop(name) 
         #MIGHT NEED TO CHANGE IMPLEMENTATION BECAUSE CONTAINER SELECTED ON GRID MAY NOT CORRESPOND
         #TO CONTAINER SELECTED FOR INSTRUCTION IN THE CASE OF DUPLICATE CONTAINERS
     
     #returns offload_list
-    def get_offload_list(self):
-        return self.offload_list
+    def get_offload_loads(self):
+        return self.offload_loads
     
 if __name__ == "__main__":
         
