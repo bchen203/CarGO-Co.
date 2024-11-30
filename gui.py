@@ -142,7 +142,63 @@ class GUI:
                 pass
 
     def containerSelect(self):
-        pass
+        self.manifest_upload.place_forget()
+        self.load_list = {}
+        self.offload_list = {}
+
+
+        self.container_select = Frame(self.master)
+
+        self.manifest_display = Frame(self.container_select)
+        self.manifest_label = Label(self.container_select, text="Select Containers to Load/Offload", font=("Arial", 30, "bold"))
+        grid = self.manifest.copyManifest()
+
+        for r in range(12):
+            for c in range(8):
+                if grid[c][r].description != "NAN" and grid[c][r].description != "UNUSED":
+                    self.offload_list[f"{grid[c][r].description}"] = 0
+                    print(self.offload_list)
+
+        self.containers = [[None for r in range(12)] for c in range(8)]
+
+        for r in range(12):
+            for c in range(8):
+                temp = Button(self.manifest_display, border=0, relief="flat", font=("Arial", 8))
+                temp.configure(text=grid[c][r].description)
+                if grid[c][r].description == "NAN":
+                    temp.configure(background="black",
+                                   foreground="white",
+                                   activebackground="black",
+                                   activeforeground="white")
+                elif grid[c][r].description != "UNUSED":
+                    temp.configure(background="red", command=lambda x=r, y=c: self.toggle_container(x, y))
+                self.containers[c][r] = temp
+
+        for r in range(7, -1, -1):
+            for c in range(12):
+                self.containers[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
+
+        self.manifest_display.place(relx=0.975, rely=0.5, relwidth=0.75, relheight=0.75, anchor="e")
+        self.manifest_label.place(relx=0.5, rely=0.075, anchor="center")
+        self.container_select.place(relwidth=1, relheight=1)
+        self.menuBar()
+
+
+    def toggle_container(self, x, y):
+        print(f"({x}, {y})")
+        description = self.manifest.copyManifest()[y][x].description
+        curr_offload = self.offload_list.get(description)
+        if self.containers[y][x].cget("bg") == "red":
+            self.containers[y][x].configure(background="green")
+            self.offload_list.update({description: curr_offload + 1}) # increase selected offload by 1
+
+        else:
+            self.containers[y][x].configure(background="red")
+            self.offload_list.update({description: curr_offload - 1}) # decrease selected offload by 1
+
+        print(self.offload_list)
+
+
 
 
 
