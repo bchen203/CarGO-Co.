@@ -150,7 +150,9 @@ class GUI:
         self.container_select = Frame(self.master)
 
         self.manifest_display = Frame(self.container_select)
-        self.manifest_label = Label(self.container_select, text="Select Containers to Load/Offload", font=("Arial", 30, "bold"))
+        self.manifest_label = Label(self.container_select,
+                                    text="Select Containers to Load/Offload",
+                                    font=("Arial", 30, "bold"))
         grid = self.manifest.copyManifest()
 
         for r in range(12):
@@ -161,18 +163,24 @@ class GUI:
 
         self.containers = [[None for r in range(12)] for c in range(8)]
 
-        for r in range(12):
-            for c in range(8):
-                temp = Button(self.manifest_display, border=0, relief="flat", font=("Arial", 8))
-                temp.configure(text=grid[c][r].description)
-                if grid[c][r].description == "NAN":
+
+        for r in range(8):
+            for c in range(12):
+                temp = Button(self.manifest_display,
+                              border=0,
+                              relief="flat",
+                              font=("Arial", 8))
+                temp.configure(text=grid[r][c].description)
+                if grid[r][c].description == "NAN":
                     temp.configure(background="black",
                                    foreground="white",
                                    activebackground="black",
                                    activeforeground="white")
-                elif grid[c][r].description != "UNUSED":
-                    temp.configure(background="red", command=lambda x=r, y=c: self.toggle_container(x, y))
-                self.containers[c][r] = temp
+                elif grid[r][c].description != "UNUSED":
+                    temp.configure(background="red",
+                                   activebackground="green",
+                                   command=lambda x=c, y=r: self.toggle_container(x, y))
+                self.containers[r][c] = temp
 
         for r in range(7, -1, -1):
             for c in range(12):
@@ -189,11 +197,11 @@ class GUI:
         description = self.manifest.copyManifest()[y][x].description
         curr_offload = self.offload_list.get(description)
         if self.containers[y][x].cget("bg") == "red":
-            self.containers[y][x].configure(background="green")
+            self.containers[y][x].configure(background="green", activebackground="red")
             self.offload_list.update({description: curr_offload + 1}) # increase selected offload by 1
 
         else:
-            self.containers[y][x].configure(background="red")
+            self.containers[y][x].configure(background="red", activebackground="green")
             self.offload_list.update({description: curr_offload - 1}) # decrease selected offload by 1
 
         print(self.offload_list)
