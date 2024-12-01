@@ -22,7 +22,9 @@ class Loader:
     
     #removes a container from load from truck list
     def remove_pending_loads(self,name):
-        self.pending_loads.pop(name)
+        self.pending_loads[name] = self.pending_loads[name] - 1
+        if self.pending_loads[name] <= 0:
+                self.pending_loads.pop(name)
 
     #returns pending_loads
     def get_pending_loads(self):
@@ -44,9 +46,11 @@ class Loader:
     
     #removes a container from offload from ship list
     def remove_offload_list(self,name):
-        self.offload_list.pop(name) 
-        #MIGHT NEED TO CHANGE IMPLEMENTATION BECAUSE CONTAINER SELECTED ON GRID MAY NOT CORRESPOND
-        #TO CONTAINER SELECTED FOR INSTRUCTION IN THE CASE OF DUPLICATE CONTAINERS
+        if self.offload_loads[name] > 0:
+            self.offload_loads[name] = self.offload_loads[name] - 1
+
+
+
     
     #returns offload_list
     def get_offload_loads(self):
