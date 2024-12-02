@@ -11,16 +11,24 @@ def perform_balance_operation(manifest_array): #given a 2D array of the manifest
     right = []
     current_weight = [0,0]
     remaining_containers = []
-    containers_on_ship = perform_balance_operation_brute_force_helper(left, right, current_weight, remaining_containers)
+    goal_position = perform_balance_operation_brute_force_helper(left, right, current_weight, remaining_containers)
     
     # Third: which goal state will be easiest to achieve (which side will be side 1, which side will be side 2?)
     # Might need to skip this for now
 
     # Fourth: Figuring out where to place the containers
-    #calculate.findPlaceableSlots
+    partition = get_partition()
+    for container in goal_position[0]:
+        pass
+
+    container_move_instructions = generate_container_moves(goal_position[0], goal_position[1])
+    
 
 
     # Fifth: Making the moves (updating 2D array through calculate.py)
+    for instruction in container_move_instructions:
+        pass
+
     pass
 
 
@@ -102,3 +110,6 @@ def is_ship_balanced(manifest_array): #manifest is a 2D array
     
     return is_balanced(port_weight, starboard_weight)        
 
+#Returns a list of moves, provided left-side and right-side arrays with containers.
+def generate_container_moves(): 
+    pass
