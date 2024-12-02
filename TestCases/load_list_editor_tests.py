@@ -1,5 +1,5 @@
 import sys
-sys.path.append('../CargoCo')
+sys.path.append('C:/Users/david/OneDrive/Desktop/CargoCo')
 import load_list_editor
 
 #Test 1: Adding new container names to Pending Loads List
@@ -24,8 +24,9 @@ else:
 
 print("\nPrintout of pending loads list:")
 pending.print_pending_loads()
-#Test 3: Removing existing container name for Pending Loads List
-print("\nTest 3: Removing existing container name for pending loads list")
+
+#Test 3: Removing a container name for Pending Loads List
+print("\nTest 3: Removing a container name for pending loads list")
 pending.remove_pending_loads("Money Robin Dee Banks")
 
 if not "Money Robin Dee Banks" in pending.pending_loads:
@@ -76,8 +77,8 @@ else:
 print("\nPrintout of offloads list:")
 loading.print_offload_list()
 
-#Test 8: Removing existing container name for Loading Loads List
-print("\nTest 8: Removing existing container name for loading loads list")
+#Test 8: Removing a container from a container name without duplicates for Loading Loads List
+print("\nTest 8: Removing a container from a container name without duplicates for loading loads list")
 loading.remove_offload_list("Tungsten Cubes")
 
 if loading.offload_list["Tungsten Cubes"] == 0:
@@ -101,8 +102,3 @@ if load_dictionary["Dallas Moon Shoes"] == 1:
     print("Test Passed")
 else:
     print("Test Failed")
-
-
-
-
-
