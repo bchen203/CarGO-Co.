@@ -22,11 +22,10 @@ def perform_balance_operation(manifest_array): #given a 2D array of the manifest
         pass
 
     container_move_instructions = generate_container_moves(goal_position[0], goal_position[1])
-    
-
 
     # Fifth: Making the moves (updating 2D array through calculate.py)
     for instruction in container_move_instructions:
+        #TODO: Add function call to update 2D array in calculate
         pass
 
     pass
@@ -108,8 +107,30 @@ def is_ship_balanced(manifest_array): #manifest is a 2D array
                 starboard_weight_weight += container.weight
             i += 1
     
-    return is_balanced(port_weight, starboard_weight)        
+    return is_balanced(port_weight, starboard_weight)   
+
+def get_side(container, manifest_array):
+
+    partition = get_partition(manifest_array)
+
+    #TODO: return 'left' or 'right' strings depending on container location
+    # Look into whether contaienrs have a position attached to them
+     
+
 
 #Returns a list of moves, provided left-side and right-side arrays with containers.
-def generate_container_moves(): 
+def generate_container_moves(left_containers, right_containers): 
+    
+
+    # some early thoughts:
+    #  - Prioritize top / higher containers
+    #  - Prioritize placing containers with as few moves as possible (ie, nearer to the middle)
+    #  - Avoid placing contaienrs on top of other contaienrs that need to be moved.
+    # Will need helper function to help with figuring out if a container is already on the left/right
+
+
+    
+
+
+    
     pass
