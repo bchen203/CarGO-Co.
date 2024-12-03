@@ -1,5 +1,5 @@
 import sys
-sys.path.append('C:/Users/david/OneDrive/Desktop/CargoCo')
+sys.path.append('../CargoCo')
 import load_list_editor
 
 #Test 1: Adding new container names to Pending Loads List
