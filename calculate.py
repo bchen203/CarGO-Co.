@@ -11,6 +11,20 @@ import manifest
 
 """
 
+class Instruction:
+    
+    def __init__(self, container_id, start_coords, end_coords):
+        self.container_id = container_id
+        self.starting_location = start_coords
+        self.ending_location = end_coords
+
+    def print(self):
+        print(f"Printing Instruction: ")
+        print(f"Container Id: {self.container_id}")
+        print(f"Starting Location: {self.starting_location[0]}, {self.starting_location[1]} ") 
+        print(f"Ending Location: {self.ending_location[0]}, {self.ending_location[1]} ") 
+    
+
 class Calculate:
     containerID = -1
     
@@ -76,8 +90,9 @@ class Calculate:
 
         if(self.is_legal_ship_move(rowStart,colStart,rowEnd,colEnd)):
             # TODO: [LOG] container [name] was moved from [startLocation] to [endLocation]
-            self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1)
+            self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1, rowStart, colStart)
             self.ship_bay_array[rowEnd][colEnd] = containerMoving
+            containerMoving.changeCoords(rowEnd, colEnd)
 
 
     # load containers onto the ship
@@ -88,7 +103,7 @@ class Calculate:
             if(self.is_end_legal(rowEnd,colEnd)):
                     # TODO: [LOG] container [name] was loaded onto the ship. It is located at [rowEnd][colEnd]
                     # NOTE: a weight of -1 is given as a placeholder weight since the weight of the container will not be determined until the operator picks up the container during the instruction phase of the program
-                    self.ship_bay_array[rowEnd][colEnd] = manifest.Container(-1, containerDescription,self.generateID())
+                    self.ship_bay_array[rowEnd][colEnd] = manifest.Container(-1, containerDescription, self.generateID(), rowEnd, colEnd)
                 
         else:
             print("[ERROR] cannot load a container with the name \"UNUSED\" or \"NAN\"")
@@ -100,7 +115,7 @@ class Calculate:
     def offloadContainer(self, rowStart, colStart):
         if(self.is_start_legal(rowStart,colStart)):
                 # TODO: [LOG] container [name] was offloaded from the ship.
-                self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1)
+                self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1, rowStart, colStart)
 
     # Searches the manifest 2D array for placeable slots (ie, the first available layer of open spaces in each column)
     # Returns a list of 2-element tuples that represent the indices of placeable slots
