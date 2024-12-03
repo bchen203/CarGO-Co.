@@ -22,6 +22,11 @@ class Container:
         # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
         self.weight = weight
 
+    def changeCoords(self, row, col):
+        #TODO: throw error if row/col is out of index
+        self.y = row
+        self.x = col
+
 
 class Manifest:
     # the 2D grid representation of the ship's containers

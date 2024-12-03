@@ -11,6 +11,20 @@ import manifest
 
 """
 
+class Instruction:
+    
+    def __init__(self, container_id, start_coords, end_coords):
+        self.container_id = container_id
+        self.starting_location = start_coords
+        self.ending_location = end_coords
+
+    def print(self):
+        print(f"Printing Instruction: ")
+        print(f"Container Id: {self.container_id}")
+        print(f"Starting Location: {self.starting_location[0]}, {self.starting_location[1]} ") 
+        print(f"Ending Location: {self.ending_location[0]}, {self.ending_location[1]} ") 
+    
+
 class Calculate:
     containerID = -1
     

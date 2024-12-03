@@ -1,7 +1,7 @@
 import sys
 sys.path.append('../CargoCo')
 import manifest
-# import calcuate
+import calculate
 
 
 
@@ -22,13 +22,21 @@ manifest_array = mani.copyManifest()[0]
 coordinate_1 = [0,1]
 coordinate_2 = [1,0]
 print(f"Testing Coordinate 1: {coordinate_1}")
-print(f"Manifest array: ")
-mani.printManifest()
 print("Container: ")
 manifest_array[coordinate_1[0]][coordinate_1[1]].print()
 
 print(f"Testing Coordinate 2: {coordinate_2}")
-print(f"Manifest array: ")
-mani.printManifest()
 print("Container: ")
 manifest_array[coordinate_2[0]][coordinate_2[1]].print()
+
+print(f"Manifest array: ")
+mani.printManifest()
+
+print("Container 2 should be Dog, container 1 should be Cat")
+
+
+#Test Case 3 - Instantiating and printing Instructions:
+print("Testing Case 3 -  Instantiating and printing Instructions")
+print("Created instruction with id 45, Start Location (0,1), and End Location (4,6)")
+new_instruction = calculate.Instruction(45, (0,1), (4, 6))
+new_instruction.print()
