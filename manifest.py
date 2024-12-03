@@ -2,16 +2,21 @@ import re
 
 
 class Container:
-    def __init__(self, container_weight, container_description, container_id):
+    def __init__(self, container_weight, container_description, container_id, row, col):
         self.weight = container_weight
         # Note: reserved container names are UNUSED, NAN (will need to check if the operator inputs these names later on)
         self.description = container_description
         # Added id variable to uniquely identify containers (will be used in solution calculations)
         self.id = container_id
+        # Location Data, in terms of array location
+        self.y = row
+        self.x = col
 
     def print(self):
         print(f"container weight: {self.weight}")
         print(f"container description: {self.description}")
+        print(f"Container location (y,x): {self.y}, {self.x}")
+        
 
     def changeWeight(self, weight):
         # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
@@ -21,7 +26,7 @@ class Container:
 class Manifest:
     # the 2D grid representation of the ship's containers
     # ship dimensions: 12x8
-    grid = [[Container(0, "UNUSED", -1) for c in range(12)] for r in range(8)]
+    grid = [[Container(0, "UNUSED", -1, r, c) for c in range(12)] for r in range(8)]
     containerID = -1
 
     # initialize the manifest object by reading in a given manifest file
@@ -61,7 +66,7 @@ class Manifest:
                         # 3. create a container object using the variables from step 2 and add it to the 2D grid at location [y-1][x-1] (zero indexing adjustment)
                         # column    -> y -> outer array     (grid[y][])
                         # row       -> x -> inner array     (grid[][x])
-                        self.grid[x - 1][y - 1] = Container(int(weight.group()), description, id)
+                        self.grid[x - 1][y - 1] = Container(int(weight.group()), description, id, x-1, y-1)
                 else:
                     print(f"[ERROR] Input manifest {self.filename} has invalid format.")
             except:
