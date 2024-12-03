@@ -40,3 +40,26 @@ print("Testing Case 3 -  Instantiating and printing Instructions")
 print("Created instruction with id 45, Start Location (0,1), and End Location (4,6)")
 new_instruction = calculate.Instruction(45, (0,1), (4, 6))
 new_instruction.print()
+
+#Test Case 4 - Testing Calculate.py
+print("Testing Case 4 - Calculate.py")
+calculator = calculate.Calculate(mani.copyManifest()[0], mani.copyManifest()[1])
+#current Manifest
+print("Current Array: ")
+mani.printManifest()
+calculator.loadContainer("Bird Toys", 1,1)
+print("Loading 'Bird Toys' to 1,1 ")
+mani.updateManifest(calculator.ship_bay_array)
+mani.printManifest()
+containerInfo = calculator.ship_bay_array[1][1]
+print(f"Container Info:")
+containerInfo.print()
+print("Container ID: ", containerInfo.id)
+
+print("Moving 'Bird Toys' from 1,1 to 2,0")
+calculator.moveContainer(1, 1, 2, 0)
+mani.updateManifest(calculator.ship_bay_array)
+mani.printManifest()
+containerInfo = calculator.ship_bay_array[2][0]
+print(f"Container Info: ")
+containerInfo.print()

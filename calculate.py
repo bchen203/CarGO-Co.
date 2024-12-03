@@ -90,8 +90,9 @@ class Calculate:
 
         if(self.is_legal_ship_move(rowStart,colStart,rowEnd,colEnd)):
             # TODO: [LOG] container [name] was moved from [startLocation] to [endLocation]
-            self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1)
+            self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1, rowStart, colStart)
             self.ship_bay_array[rowEnd][colEnd] = containerMoving
+            containerMoving.changeCoords(rowEnd, colEnd)
 
 
     # load containers onto the ship
@@ -102,7 +103,7 @@ class Calculate:
             if(self.is_end_legal(rowEnd,colEnd)):
                     # TODO: [LOG] container [name] was loaded onto the ship. It is located at [rowEnd][colEnd]
                     # NOTE: a weight of -1 is given as a placeholder weight since the weight of the container will not be determined until the operator picks up the container during the instruction phase of the program
-                    self.ship_bay_array[rowEnd][colEnd] = manifest.Container(-1, containerDescription,self.generateID())
+                    self.ship_bay_array[rowEnd][colEnd] = manifest.Container(-1, containerDescription, self.generateID(), rowEnd, colEnd)
                 
         else:
             print("[ERROR] cannot load a container with the name \"UNUSED\" or \"NAN\"")
@@ -114,7 +115,7 @@ class Calculate:
     def offloadContainer(self, rowStart, colStart):
         if(self.is_start_legal(rowStart,colStart)):
                 # TODO: [LOG] container [name] was offloaded from the ship.
-                self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1)
+                self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1, rowStart, colStart)
 
 
     # returns the next ID needed to uniquely identify a container and will update the manifest class's ID global containerID variable
