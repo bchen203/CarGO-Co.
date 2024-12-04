@@ -121,13 +121,29 @@ class GUI:
         self.manifest_file = filedialog.askopenfile(mode="r", filetypes=[("Text Files", "*.txt")])
 
         if self.manifest_file is not None:
+            self.manifest = manifest.Manifest(self.manifest_file.name)
+            # redisplay manifest_upload with button for next screen
+            self.manifest_upload.place_forget()
+            self.userMenu.place_forget()
+            self.logMenu.place_forget()
+            if self.operation == "load":  # button to move to container select screen
+                self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
+                self.container_select_button.place(relheight=1, relwidth=1)
+                self.manifest_upload.place(relwidth=1, relheight=1)
+
+            else:  # button to calculate solution for balance operation
+                self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
+                self.calculate_button.place(relheight=1, relwidth=1)
+                self.manifest_upload.place(relwidth=1, relheight=1)
+
+
             # display selected file with full path
             self.manifest_file_text = Label(self.manifest_upload,
                                             font=[("Arial", 16)])
             self.manifest_file_text.configure(text=self.manifest_file.name, background="red")
-            self.manifest_file_text.place(relx=0.5, rely=0.8, anchor="center",
-                                          relwidth = 1,
-                                          relheight=0.1)
+            self.manifest_file_text.place(relx=0.5, rely=0.8, anchor="center", relwidth = 1, relheight=0.1)
+            self.menuBar()
+
     def calculateSolution(self):
         if self.manifest is None:
             # TODO: error popup
@@ -153,38 +169,48 @@ class GUI:
         self.manifest_label = Label(self.container_select,
                                     text="Select Containers to Load/Offload",
                                     font=("Arial", 30, "bold"))
-        grid = self.manifest.copyManifest()
+        self.grid = self.manifest.copyManifest()
 
         for r in range(12):
             for c in range(8):
-                if grid[c][r].description != "NAN" and grid[c][r].description != "UNUSED":
-                    self.offload_list[f"{grid[c][r].description}"] = 0
-                    print(self.offload_list)
+                if self.grid[c][r].description != "NAN" and self.grid[c][r].description != "UNUSED":
+                    self.offload_list[f"{self.grid[c][r].description}"] = 0
 
-        self.containers = [[None for r in range(12)] for c in range(8)]
+        # buttons for selecting containers for offload
+        self.container_buttons = [[None for r in range(12)] for c in range(8)]
+        # use for button borders to display as grid layout
+        button_frames = [[Frame(self.manifest_display, highlightbackground="black", background="black", bd=2) for r in range(12)] for c in range(8)]
 
-
+        # intialize buttons for container offload, maps buttons to manifest grid
         for r in range(8):
             for c in range(12):
-                temp = Button(self.manifest_display,
+                temp = Button(button_frames[r][c],
                               border=0,
                               relief="flat",
-                              font=("Arial", 8))
-                temp.configure(text=grid[r][c].description)
-                if grid[r][c].description == "NAN":
-                    temp.configure(background="black",
+                              font=("Arial", 10, "bold"))
+                temp.configure(text=self.grid[r][c].description[0:14]) # only display first 15 characters of container descriptions
+                if self.grid[r][c].description == "NAN":
+                    temp.configure(background="#3A3A3A",
                                    foreground="white",
-                                   activebackground="black",
+                                   activebackground="#3A3A3A",
                                    activeforeground="white")
-                elif grid[r][c].description != "UNUSED":
+                elif self.grid[r][c].description != "UNUSED":
                     temp.configure(background="red",
                                    activebackground="green",
+                                   # wraplength=50,
+                                   # justify="left",
+                                   # anchor="w",
                                    command=lambda x=c, y=r: self.toggle_container(x, y))
-                self.containers[r][c] = temp
+                    #TODO: fix grid indices
+                    #grid indices are reversed from what they should be
+                    temp.bind("<Enter>", lambda event, x=r, y=c: self.displayContainerInfo(event, x, y))
+                    temp.bind("<Leave>", lambda event, x=r, y=c: self.removeContainerInfo(event, x, y))
+                self.container_buttons[r][c] = temp
 
         for r in range(7, -1, -1):
             for c in range(12):
-                self.containers[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
+                self.container_buttons[r][c].place(relwidth=1, relheight=1)
+                button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
 
         self.manifest_display.place(relx=0.975, rely=0.5, relwidth=0.75, relheight=0.75, anchor="e")
         self.manifest_label.place(relx=0.5, rely=0.075, anchor="center")
@@ -193,19 +219,38 @@ class GUI:
 
 
     def toggle_container(self, x, y):
-        print(f"({x}, {y})")
         description = self.manifest.copyManifest()[y][x].description
         curr_offload = self.offload_list.get(description)
-        if self.containers[y][x].cget("bg") == "red":
-            self.containers[y][x].configure(background="green", activebackground="red")
+        if self.container_buttons[y][x].cget("bg") == "red":
+            self.container_buttons[y][x].configure(background="#00ff14", activebackground="red")
             self.offload_list.update({description: curr_offload + 1}) # increase selected offload by 1
 
         else:
-            self.containers[y][x].configure(background="red", activebackground="green")
+            self.container_buttons[y][x].configure(background="red", activebackground="#00ff14")
             self.offload_list.update({description: curr_offload - 1}) # decrease selected offload by 1
 
-        print(self.offload_list)
 
+    def displayContainerInfo(self, event, x, y):
+        self.container_info_border = Frame(self.container_select, bd=4, background="black")
+        self.container_info = Frame(self.container_info_border)
+        self.container_info_title = Label(self.container_info, text="Container Information", font=("Arial", 14, "bold"))
+        self.container_info_description = Label(self.container_info,
+                                                text=self.grid[x][y].description,
+                                                font=("Arial", 12, "bold"),
+                                                wraplength=200)
+        self.container_info_weight = Label(self.container_info,
+                                           text=f"{self.grid[x][y].weight} kg",
+                                           font=("Arial", 12, "bold"),
+                                           justify="left")
+        # self.container_info_description.configure(text= Weight: {self.grid[x][y].weight} kg", justify="left", wraplength=60)
+
+        self.container_info_title.pack()
+        self.container_info_description.pack()
+        self.container_info_weight.pack()
+        self.container_info.place(relwidth=1, relheight=1)
+        self.container_info_border.place(relx=0.02, rely=0.65, relwidth=0.2, relheight=0.2)
+    def removeContainerInfo(self, event, x, y):
+        self.container_info_border.place_forget()
 
 
 
@@ -266,22 +311,3 @@ class GUI:
         # redraw menubar over manifest_upload screen
         self.menuBar()
         self.select_manifest_file()
-
-
-        if self.manifest_file is not None:
-            self.manifest = manifest.Manifest(self.manifest_file.name)
-            # redisplay manifest_upload with button for next screen
-            self.manifest_upload.place_forget()
-            self.userMenu.place_forget()
-            self.logMenu.place_forget()
-            if self.operation == "load": # button to move to container select screen
-                self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
-                self.container_select_button.place(relheight=1, relwidth=1)
-                self.manifest_upload.place(relwidth=1, relheight=1)
-                self.menuBar()
-
-            else: # button to calculate solution for balance operation
-                self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
-                self.calculate_button.place(relheight=1, relwidth=1)
-                self.manifest_upload.place(relwidth=1, relheight=1)
-                self.menuBar()
