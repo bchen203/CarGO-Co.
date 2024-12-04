@@ -2,9 +2,14 @@ import manifest
 import calculate
 
 
+
 def perform_balance_operation(manifest_array): #given a 2D array of the manifest, perform the balance operation
     # First: Check if already balanced
     is_ship_balanced(manifest_array)
+
+
+    #TODO First-Point-Five: Check if balanceable
+    
 
     # Second: Calculate the solution
     left = []
@@ -109,12 +114,14 @@ def is_ship_balanced(manifest_array): #manifest is a 2D array
     
     return is_balanced(port_weight, starboard_weight)   
 
-def get_side(container, manifest_array):
 
+def get_side(container, manifest_array):
     partition = get_partition(manifest_array)
 
-    #TODO: return 'left' or 'right' strings depending on container location
-    # Look into whether contaienrs have a position attached to them
+    if container.x <= partition:
+        return "left"
+    else:
+        return "right"
      
 
 
@@ -128,8 +135,9 @@ def generate_container_moves(left_containers, right_containers):
     #  - Avoid placing contaienrs on top of other contaienrs that need to be moved.
     # Will need helper function to help with figuring out if a container is already on the left/right
 
-
     
+
+
 
 
     
