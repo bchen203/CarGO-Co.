@@ -171,55 +171,55 @@ class GUI:
                                     font=("Arial", 30, "bold"))
         self.grid = self.manifest.copyManifest()
 
-        for r in range(12):
-            for c in range(8):
-                if self.grid[c][r].description != "NAN" and self.grid[c][r].description != "UNUSED":
-                    self.offload_list[f"{self.grid[c][r].description}"] = 0
+        for r in range(8):
+            for c in range(12):
+                if self.grid[r][c].description != "NAN" and self.grid[r][c].description != "UNUSED":
+                    self.offload_list[f"{self.grid[r][c].description}"] = 0
 
         # buttons for selecting containers for offload
         self.container_buttons = [[None for r in range(12)] for c in range(8)]
-        # use for button borders to display as grid layout
-        button_frames = [[Frame(self.manifest_display, highlightbackground="black", background="black", bd=2) for r in range(12)] for c in range(8)]
+        self.configureGridDisplay(self.manifest_display, self.grid)
 
-        # intialize buttons for container offload, maps buttons to manifest grid
+
         for r in range(8):
             for c in range(12):
-                temp = Button(button_frames[r][c],
-                              border=0,
-                              relief="flat",
-                              font=("Arial", 10, "bold"))
-                temp.configure(text=self.grid[r][c].description[0:14]) # only display first 15 characters of container descriptions
-                if self.grid[r][c].description == "NAN":
-                    temp.configure(background="#3A3A3A",
-                                   foreground="white",
-                                   activebackground="#3A3A3A",
-                                   activeforeground="white")
-                elif self.grid[r][c].description != "UNUSED":
-                    temp.configure(background="red",
-                                   activebackground="green",
-                                   # wraplength=50,
-                                   # justify="left",
-                                   # anchor="w",
-                                   command=lambda x=c, y=r: self.toggle_container(x, y))
-                    #TODO: fix grid indices
-                    #grid indices are reversed from what they should be
-                    temp.bind("<Enter>", lambda event, x=r, y=c: self.displayContainerInfo(event, x, y))
-                    temp.bind("<Leave>", lambda event, x=r, y=c: self.removeContainerInfo(event, x, y))
-                self.container_buttons[r][c] = temp
+                # configure container selection toggle and hover for complete container info
+                if self.container_buttons[r][c].cget("text") != "NAN" and self.container_buttons[r][c].cget("text") != "UNUSED":
+                    self.container_buttons[r][c].configure(activebackground="#00ff14", command=lambda x=c, y=r: self.toggle_container(x, y))
+                    self.container_buttons[r][c].bind("<Enter>", lambda event, x=r, y=c: self.displayContainerInfo(event, x, y))
+                    self.container_buttons[r][c].bind("<Leave>", lambda event, x=r, y=c: self.removeContainerInfo(event, x, y))
 
         for r in range(7, -1, -1):
             for c in range(12):
                 self.container_buttons[r][c].place(relwidth=1, relheight=1)
-                button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
+                self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
 
         self.manifest_display.place(relx=0.975, rely=0.5, relwidth=0.75, relheight=0.75, anchor="e")
         self.manifest_label.place(relx=0.5, rely=0.075, anchor="center")
         self.container_select.place(relwidth=1, relheight=1)
         self.menuBar()
 
+    # create frames/buttons to display manifest grid
+    def configureGridDisplay(self, parentFrame, grid):
+        self.container_button_frames = [[Frame(parentFrame, highlightbackground="black", background="black", bd=2) for r in range(12)] for c in range(8)]
+        # configure buttons to match current state of grid
+        for r in range(8):
+            for c in range(12):
+                temp = Button(self.container_button_frames[r][c], border=0, relief="flat", font=("Arial", 10, "bold"))
+                temp.configure(text=grid[r][c].description[0:14])  # only display first 15 characters of container descriptions
+                # configure NAN locations
+                if grid[r][c].description == "NAN":
+                    temp.configure(background="#3A3A3A",
+                                   foreground="white",
+                                   activebackground="#3A3A3A",
+                                   activeforeground="white")
+                # configure actual containers
+                elif grid[r][c].description != "UNUSED":
+                    temp.configure(background="red", activebackground="red")
+                self.container_buttons[r][c] = temp
 
     def toggle_container(self, x, y):
-        description = self.manifest.copyManifest()[y][x].description
+        description = self.grid[y][x].description
         curr_offload = self.offload_list.get(description)
         if self.container_buttons[y][x].cget("bg") == "red":
             self.container_buttons[y][x].configure(background="#00ff14", activebackground="red")
