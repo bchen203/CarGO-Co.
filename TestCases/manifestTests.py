@@ -18,6 +18,8 @@ def validateOutboundFormat(fileName):
 
   inFile = importedFile.read()
   outFile = exportedFile.read()
+  importedFile.close()
+  exportedFile.close()
 
   if inFile != outFile:
     "[TEST FAILED] Input manifest does not match output manifest"

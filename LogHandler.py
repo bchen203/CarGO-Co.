@@ -44,6 +44,11 @@ def writeToLogSafe(logMessage):
     #TODO sanitize any inputs with non-ascii
     writeToLogFile(messageWithPrefix)
 
+def getLogContents():
+    with open(logFileName) as logFile:
+        logContents = logFile.read()
+    return logContents
+
 #Each log:
 def logOperatorSignIn(operatorName):
     global lastOperatorName
@@ -58,7 +63,10 @@ def logOperatorComment(logMessage):
     pass
 
 def logManifestUpload(shipName, numContainers): #Manifest HMMAlgeciras.txt is opened, there are 12 containers on the ship
-    writeToLogSafe(f"Manifest {shipName}.txt is opened, there are {numContainers} containers on the ship.")
+    if numContainers == 1:
+        writeToLogSafe(f"Manifest {shipName}.txt is opened, there is {numContainers} container on the ship.")
+    else:
+        writeToLogSafe(f"Manifest {shipName}.txt is opened, there are {numContainers} containers on the ship.")
 
 def logLoadUnloadOperation(containerName, isLoad):
     if isLoad:#Loading: “2024-01-30: 11:08 “Walmart Christmas Cat Toys” is onloaded.”
@@ -158,7 +166,7 @@ def realisticLog(firstOperator, secondOperator, shipName, containerLoad, contain
     logEndOfYearShutdown()
 
 
-realisticLog("Zachary Snackary", "Haocheng Mai", "HMSJellycatJack", "Walmart Boxes", "Walmart Polygonal Toy")
+#realisticLog("Zachary Snackary", "Haocheng Mai", "HMSJellycatJack", "Walmart Boxes", "Walmart Polygonal Toy")
         
 
         
