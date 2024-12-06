@@ -14,10 +14,8 @@ class GUI:
         self.operation = ""
         self.currUser = None
         self.frames = [] # store all pages of gui to display
-        
+
         self.selectOperation()
-        #self.operation = "load"
-        #self.loadManifest()
         self.signIn()
 
     def menuBar(self):
@@ -44,7 +42,7 @@ class GUI:
         #TODO: [LOG] implicit sign out
         #prevUser = self.currUser
         currUser = simpledialog.askstring(title="User Sign In", prompt="Please enter your name to sign in")
-        
+
         while((currUser is None and self.currUser is None) or (currUser is not None and (currUser.strip() == ""))):
             if(currUser is None and self.currUser is None):
                 messagebox.showerror("Error", "Please enter your name to sign in")
@@ -57,13 +55,13 @@ class GUI:
             #TODO: [LOG] sign in
             LogHandler.logOperatorSignIn(self.currUser)
             pass
-        
+
 
         self.placeMenuBar()
 
     def shutDown(self):
         #TODO: [Log] shutdown port & program for annual maintainence
-        confirmShutDown = messagebox.askquestion("Shut Down", "Are you sure you want to shut down for the year?", icon="warning") 
+        confirmShutDown = messagebox.askquestion("Shut Down", "Are you sure you want to shut down for the year?", icon="warning")
         if confirmShutDown == "yes":
             LogHandler.logEndOfYearShutdown()
             self.master.destroy()
@@ -82,7 +80,7 @@ class GUI:
         #TODO: retrieve log file
         # NOTE: might need to change directory to read log from desktop
         logConents = LogHandler.getLogContents()
-        
+
         self.logWindow = Toplevel()
         self.logWindow.grab_set() # ensure that other windows cannot be modified while this one is open
         self.logWindow.geometry("1500x900")
@@ -93,15 +91,15 @@ class GUI:
                                            text=LogHandler.generateFileName(),
                                            font=("Arial", 20, "bold"))
         self.log_scrollbar = Scrollbar(self.log_listbox,
-                                       command=self.log_listbox.yview) 
+                                       command=self.log_listbox.yview)
         self.log_listbox.config(yscrollcommand = self.log_scrollbar.set)
 
         for line in logConents.splitlines():
             self.log_listbox.insert(END, line)
         self.log_listbox.see(END)
-        
+
         self.log_text.place(relx=0.5, rely=0.03, anchor="center")
-        self.log_scrollbar.pack(side = RIGHT, fill = BOTH) 
+        self.log_scrollbar.pack(side = RIGHT, fill = BOTH)
         self.log_listbox.place(relx=0.5, rely=0.5, relheight=0.9, relwidth=0.9, anchor="center")
         self.logWindow.mainloop()
         pass
@@ -182,7 +180,7 @@ class GUI:
                 self.manifest_upload.place(relwidth=1, relheight=1)
                 self.menuBar()
 
-                
+
 
             else: # button to calculate solution for balance operation
                 self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
@@ -202,6 +200,7 @@ class GUI:
             # TODO: error popup
             pass
         else:
+            self.manifest_upload.place_forget()
             if self.operation == "load":
                 #TODO: load/offload select screen
                 self.container_select.place_forget()
@@ -223,38 +222,30 @@ class GUI:
         self.manifest_label = Label(self.container_select,
                                     text="Select Containers to Load/Offload",
                                     font=("Arial", 30, "bold"))
-        grid = self.manifest.copyManifest()
+        self.grid = self.manifest.copyManifest()
 
-        for r in range(12):
-            for c in range(8):
-                if grid[c][r].description != "NAN" and grid[c][r].description != "UNUSED":
-                    self.offload_list[f"{grid[c][r].description}"] = 0
-                    print(self.offload_list)
+        for r in range(8):
+            for c in range(12):
+                if self.grid[r][c].description != "NAN" and self.grid[r][c].description != "UNUSED":
+                    self.offload_list[f"{self.grid[r][c].description}"] = 0
 
-        self.containers = [[None for r in range(12)] for c in range(8)]
+        # buttons for selecting containers for offload
+        self.container_buttons = [[None for r in range(12)] for c in range(8)]
+        self.configureGridDisplay(self.manifest_display, self.grid)
 
 
         for r in range(8):
             for c in range(12):
-                temp = Button(self.manifest_display,
-                              border=0,
-                              relief="flat",
-                              font=("Arial", 8))
-                temp.configure(text=grid[r][c].description)
-                if grid[r][c].description == "NAN":
-                    temp.configure(background="black",
-                                   foreground="white",
-                                   activebackground="black",
-                                   activeforeground="white")
-                elif grid[r][c].description != "UNUSED":
-                    temp.configure(background="red",
-                                   activebackground="green",
-                                   command=lambda x=c, y=r: self.toggle_container(x, y))
-                self.containers[r][c] = temp
+                # configure container selection toggle and hover for complete container info
+                if self.container_buttons[r][c].cget("text") != "NAN" and self.container_buttons[r][c].cget("text") != "UNUSED":
+                    self.container_buttons[r][c].configure(activebackground="#00ff14", command=lambda x=c, y=r: self.toggle_container(x, y))
+                    self.container_buttons[r][c].bind("<Enter>", lambda event, x=r, y=c: self.displayContainerInfo(event, x, y))
+                    self.container_buttons[r][c].bind("<Leave>", lambda event, x=r, y=c: self.removeContainerInfo(event, x, y))
 
         for r in range(7, -1, -1):
             for c in range(12):
-                self.containers[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
+                self.container_buttons[r][c].place(relwidth=1, relheight=1)
+                self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
 
         self.manifest_display.place(relx=0.975, rely=0.5, relwidth=0.75, relheight=0.75, anchor="e")
         self.manifest_label.place(relx=0.5, rely=0.075, anchor="center")
@@ -262,22 +253,60 @@ class GUI:
         self.container_select.place(relwidth=1, relheight=1)
         self.menuBar()
 
+    # create frames/buttons to display manifest grid
+    def configureGridDisplay(self, parentFrame, grid):
+        self.container_button_frames = [[Frame(parentFrame, highlightbackground="black", background="black", bd=2) for r in range(12)] for c in range(8)]
+        # configure buttons to match current state of grid
+        for r in range(8):
+            for c in range(12):
+                temp = Button(self.container_button_frames[r][c], border=0, relief="flat", font=("Arial", 10, "bold"))
+                temp.configure(text=grid[r][c].description[0:14])  # only display first 15 characters of container descriptions
+                # configure NAN locations
+                if grid[r][c].description == "NAN":
+                    temp.configure(background="#3A3A3A",
+                                   foreground="white",
+                                   activebackground="#3A3A3A",
+                                   activeforeground="white")
+                # configure actual containers
+                elif grid[r][c].description != "UNUSED":
+                    temp.configure(background="red", activebackground="red")
+                self.container_buttons[r][c] = temp
 
     def toggle_container(self, x, y):
-        print(f"({x}, {y})")
-        description = self.manifest.copyManifest()[y][x].description
+        description = self.grid[y][x].description
         curr_offload = self.offload_list.get(description)
-        if self.containers[y][x].cget("bg") == "red":
-            self.containers[y][x].configure(background="green", activebackground="red")
+        if self.container_buttons[y][x].cget("bg") == "red":
+            self.container_buttons[y][x].configure(background="#00ff14", activebackground="red")
             self.offload_list.update({description: curr_offload + 1}) # increase selected offload by 1
 
         else:
-            self.containers[y][x].configure(background="red", activebackground="green")
+            self.container_buttons[y][x].configure(background="red", activebackground="#00ff14")
             self.offload_list.update({description: curr_offload - 1}) # decrease selected offload by 1
-        
-        self.updatePendingOffloads()
-        print(self.offload_list)
 
+        self.updatePendingOffloads()
+
+
+    def displayContainerInfo(self, event, x, y):
+        self.container_info_border = Frame(self.container_select, bd=4, background="black")
+        self.container_info = Frame(self.container_info_border)
+        self.container_info_title = Label(self.container_info, text="Container Information", font=("Arial", 14, "bold"))
+        self.container_info_description = Label(self.container_info,
+                                                text=self.grid[x][y].description,
+                                                font=("Arial", 12, "bold"),
+                                                wraplength=200)
+        self.container_info_weight = Label(self.container_info,
+                                           text=f"{self.grid[x][y].weight} kg",
+                                           font=("Arial", 12, "bold"),
+                                           justify="left")
+        # self.container_info_description.configure(text= Weight: {self.grid[x][y].weight} kg", justify="left", wraplength=60)
+
+        self.container_info_title.pack()
+        self.container_info_description.pack()
+        self.container_info_weight.pack()
+        self.container_info.place(relwidth=1, relheight=1)
+        self.container_info_border.place(relx=0.02, rely=0.65, relwidth=0.2, relheight=0.2)
+    def removeContainerInfo(self, event, x, y):
+        self.container_info_border.place_forget()
 
     def renderLoadOffloadButtons(self):
         # helper function to define and place the buttons that will be used during load/offload operations
@@ -293,7 +322,7 @@ class GUI:
                                              relief="flat",
                                              borderwidth=0,
                                              activebackground="#00CD14")
-        
+
         self.pending_loads_button_border = Frame(self.container_select,
                                                    highlightbackground="black",
                                                    background="black",
@@ -305,7 +334,7 @@ class GUI:
                                              relief="flat",
                                              borderwidth=0,
                                              activebackground="#DBDBDB")
-        
+
         self.pending_offloads_button_border = Frame(self.container_select,
                                                    highlightbackground="black",
                                                    background="black",
@@ -388,7 +417,7 @@ class GUI:
         for containerDescription in self.load_list:
             for dupes in range(self.load_list.get(containerDescription)):
                 self.pending_loads_listbox.insert(END, containerDescription)
-        
+
         self.pending_loads_delete_button_border = Frame(self.pendingLoadsWindow,
                                                    highlightbackground="black",
                                                    background="black",
@@ -402,10 +431,10 @@ class GUI:
                                              borderwidth=0,
                                              activebackground="#C90000")
         self.pending_loads_scrollbar = Scrollbar(self.pending_loads_listbox,
-                                       command=self.pending_loads_listbox.yview) 
+                                       command=self.pending_loads_listbox.yview)
         self.pending_loads_listbox.config(yscrollcommand = self.pending_loads_scrollbar.set)
 
-        self.pending_loads_scrollbar.pack(side = RIGHT, fill = BOTH) 
+        self.pending_loads_scrollbar.pack(side = RIGHT, fill = BOTH)
         self.pending_loads_listbox.place(relx=0.5, rely=0.05, relheight=0.8, relwidth=0.6, anchor="n")
         self.pending_loads_delete_button_border.place(relx=0.5, rely=0.95, relheight=0.095, relwidth=0.3, anchor="s")
         self.pending_loads_delete_button.place(relheight=1, relwidth=1)
@@ -422,10 +451,10 @@ class GUI:
             for dupes in range(self.offload_list.get(containerDescription)):
                 self.pending_offloads_listbox.insert(END, containerDescription)
         self.pending_offloads_scrollbar = Scrollbar(self.pending_offloads_listbox,
-                                       command=self.pending_offloads_listbox.yview) 
+                                       command=self.pending_offloads_listbox.yview)
         self.pending_offloads_listbox.config(yscrollcommand = self.pending_offloads_scrollbar.set)
 
-        self.pending_offloads_scrollbar.pack(side = RIGHT, fill = BOTH) 
+        self.pending_offloads_scrollbar.pack(side = RIGHT, fill = BOTH)
         self.pending_offloads_listbox.place(relx=0.5, rely=0.05, relheight=0.8, relwidth=0.6, anchor="n")
         self.pendingOffloadsWindow.mainloop()
 
@@ -437,7 +466,7 @@ class GUI:
             #print(container2DeleteDescription)
             # remove container description from listbox
             self.pending_loads_listbox.delete(delIndex)
-            # decrement the number of dupes of the container description from dict. if there are no more dupes, remove the container description entirely 
+            # decrement the number of dupes of the container description from dict. if there are no more dupes, remove the container description entirely
             if container2DeleteDescription in self.load_list:
                 curr_load_dupe = self.load_list.get(container2DeleteDescription)
                 if(curr_load_dupe - 1 == 0):
