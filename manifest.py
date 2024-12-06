@@ -1,5 +1,5 @@
 import re
-
+import LogHandler
 
 class Container:
     def __init__(self, container_weight, container_description, container_id):
@@ -29,13 +29,13 @@ class Manifest:
         if filename[-4:] != ".txt":
             print("[ERROR] Invalid input manifest file type. Please input a .txt file")
         else:
-            # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
             self.filename = filename
             try:
                 file = open(self.filename, "r")
                 inFile = file.read()
                 file.seek(0)
                 lines = file.readlines()
+                file.close()
                 numMatches = len(re.findall(r"\[[0-9]{2},[0-9]{2}\],\s\{[0-9]{5}\},\s.*", inFile))
                 if len(lines) == numMatches:
                     # Sample manifest line: [01, 03], {00100}, Dog
@@ -61,6 +61,8 @@ class Manifest:
                         # column    -> y -> outer array     (grid[y][])
                         # row       -> x -> inner array     (grid[][x])
                         self.grid[x - 1][y - 1] = Container(int(weight.group()), description, id)
+                    # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
+                    LogHandler.logManifestUpload((self.filename[self.filename.rfind('/')+1:])[:-4], self.containerID+1)
                 else:
                     print(f"[ERROR] Input manifest {self.filename} has invalid format.")
             except:
