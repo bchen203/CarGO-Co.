@@ -31,12 +31,13 @@ def load_instructions(root_node):
                 node_list[current_instruction_num] = current_node
                 current_node = current_node.parent
                 current_instruction_num -= 1
+            return node_list #returns list of nodes which in order, contains every instruction and array state
 
 
-        for start_column in range(0,12): #selecting starting pos
+        for start_column in range(12): #selecting starting pos
             start_space = get_top_container(current_node.current_array,start_column)
             if(start_space != False):
-                for dest_column in range(0,12): #selecting end pos
+                for dest_column in range(12): #selecting end pos
                     if(start_column != dest_column):
                         end_space = get_supported_empty_space(current_node.current_array,dest_column)
                         if(end_space != False):
@@ -50,7 +51,7 @@ def load_instructions(root_node):
                             successor_cost = get_time(start_space.y,start_space.x,end_space.y,end_space.x)
                             if(not is_repeated_move(successor,visited_nodes)):
                                 heapq.heappush(unvisited_nodes,(current_cost + successor_cost,successor))
-                                
+
                 #creating successor moving from ship to truck (only requires a start_column)
                 #end pos for a ship to truck pos is (8,0)
                 if(start_space in current_node.current_list.offload_list):
@@ -67,7 +68,7 @@ def load_instructions(root_node):
         #creating a successor where we move a container from truck to ship
         for dest_column in range(0,12):
             end_space = get_supported_empty_space(current_node.current_array,dest_column)
-            container_to_load = grab_truck_container(current_node.current_list)
+            container_to_load = get_truck_container(current_node.current_list)
             if(end_space != False):
                 successor_array = current_node.current_array.copy()
                 calculator = calculate.Calculate(successor_array,0)
@@ -81,6 +82,8 @@ def load_instructions(root_node):
         
         #stuff after making all the successors
         visited_nodes.add((current_cost,current_node))
+
+    return False #for when no solution is possible (should probably never happen)
 
 
                             
@@ -118,10 +121,14 @@ def is_in_offloads(current_transfer_list,container):
 def is_repeated_move(tree_node,visited_nodes):
     for node in visited_nodes:
         visited_array = node.current_array
+        is_identical = True
         for row in range(8):
             for column in range(12):
-                if tree_node.current_array[row,column].container_description == visited_array[row,column].container_description:
-                    return True
+                if tree_node.current_array[row,column].container_description != visited_array[row,column].container_description:
+                    is_identical = False
+
+        if(is_identical):
+            return True
     return False
 
 #inside the column of an array, returns topmost container
@@ -155,7 +162,7 @@ def get_supported_empty_space(array,column):
                 return False
         current_row -= 1
 
-    return array[column][current_row]
+    return array[column][0]
     #when column is empty
 
 #finds the time cost of an instruction
@@ -169,7 +176,21 @@ def get_time(startRow,startCol,endRow,endCol):
     time += abs(startRow-endRow) + abs(startCol-endCol)
     return time
 
-#grabs the name of a container that needs to be moved from truck to ship
-def grab_truck_container(transfer_list):
+#gets the name of a container that needs to be moved from truck to ship
+def get_truck_container(transfer_list):
     load_list = transfer_list.get_pending_loads()
     return load_list.keys()[0]
+
+
+#TESTING THE SUBFUNCTIONS
+
+#TEST 1 is_finished function - should return false
+
+#TEST 2 is_finished function - should return true
+
+#TEST 3 is_in_offloads function - should return false
+
+#TEST 4 is_in_offloads function - should return true
+
+#TEST 5 is_repeated_move function - should return false
+
