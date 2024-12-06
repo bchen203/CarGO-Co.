@@ -194,3 +194,27 @@ def get_truck_container(transfer_list):
 
 #TEST 5 is_repeated_move function - should return false
 
+#TEST 6 is_repeated_move function - should return true
+
+#TEST 7 get_top_container function - should return false (empty column)
+
+#TEST 8 get_top_container function - should return false (column with only 'NAN')
+
+#TEST 9 get_top_container function - returns a container
+
+#TEST 10 get_supported_empty_space function - should return false (entirely filled column)
+
+#TEST 11 get_supported_empty_space function - should return 'UNUSED' container (position is above y = 0)
+
+#TEST 12 get_supported_empty_space function - should return 'UNUSED' container (position is y = 0)
+
+#TEST 13 get_time - returns correct time (start pos is 8,0)
+
+#TEST 14 get_time - returns correct time (end pos is 8,0)
+
+#TEST 15 get_time - returns correct time (neither pos is 8,0)
+
+#TEST 16 get_truck_container - returns a container name
+
+#TEST 17 get_truck_container- returns ???? (empty list)
+
