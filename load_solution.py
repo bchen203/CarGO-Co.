@@ -17,7 +17,7 @@ def load_instructions(root_node):
     unvisited_nodes = [(cost,root_node)]
     heapq.heapify(unvisited_nodes)
 
-    visited_nodes = set()
+    visited_nodes = []
     #check if is_finished
     while(unvisited_nodes):
         current_cost,current_node = unvisited_nodes[0]
@@ -81,7 +81,7 @@ def load_instructions(root_node):
                 heapq.heappush(unvisited_nodes,(current_cost+successor_cost,successor) )
         
         #stuff after making all the successors
-        visited_nodes.add((current_cost,current_node))
+        visited_nodes.append(current_node)
 
     return False #for when no solution is possible (should probably never happen)
 
@@ -112,7 +112,7 @@ def is_finished(tree_node):
 
 #checks if a given container is in the current offloads list
 def is_in_offloads(current_transfer_list,container):
-    if container.container_description in current_transfer_list.offload_list:
+    if container.description in current_transfer_list.offload_list:
         return True
     else:
         return False
@@ -124,7 +124,7 @@ def is_repeated_move(tree_node,visited_nodes):
         is_identical = True
         for row in range(8):
             for column in range(12):
-                if tree_node.current_array[row,column].container_description != visited_array[row,column].container_description:
+                if tree_node.current_array[row][column].description != visited_array[row][column].description:
                     is_identical = False
 
         if(is_identical):
@@ -183,18 +183,83 @@ def get_truck_container(transfer_list):
 
 
 #TESTING THE SUBFUNCTIONS
+arr = [[manifest.Container(0, "UNUSED", -1, r, c) for c in range(12)] for r in range(8)]
+list = load_list_editor.Loader()
+list.add_offload("Cory Luggage")
+instruction = calculate.Instruction(0,(0,0),(0,1))
+test_node = Tree_Node(arr,list,instruction,None,0)
 
 #TEST 1 is_finished function - should return false
+print("TEST 1")
+if is_finished(test_node):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
+
+test_node.current_list.remove_offload_list("Cory Luggage")
+test_node.current_list.add_pending_load("Poe Packings")
+
+if is_finished(test_node):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
 
 #TEST 2 is_finished function - should return true
-
+print("TEST 2")
+test_node.current_list.remove_pending_loads("Poe Packings")
+if is_finished(test_node):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 #TEST 3 is_in_offloads function - should return false
+print("TEST 3")
+test_container = manifest.Container(0,"Mini Marshmallow Moths",0,0,0)
+if is_in_offloads(test_node.current_list,test_container):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
 
 #TEST 4 is_in_offloads function - should return true
+print("TEST 4")
+test_node.current_list.add_offload("Mini Marshmallow Moths")
+if is_in_offloads(test_node.current_list,test_container):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 
 #TEST 5 is_repeated_move function - should return false
+print("TEST 5")
+test_visited_nodes = []
+if is_repeated_move(test_node,test_visited_nodes):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
+
+test_manifest = manifest.Manifest("SampleManifests/ShipCase1.txt")
+ship_case1, v = test_manifest.copyManifest()
+
+second_node = Tree_Node(ship_case1,list,instruction,None,0)
+test_visited_nodes.append(second_node)
+
+if is_repeated_move(test_node,test_visited_nodes):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
 
 #TEST 6 is_repeated_move function - should return true
+print("TEST 5")
+test_visited_nodes.append(second_node)
+if is_repeated_move(second_node,test_visited_nodes):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
+
+ship_case1[1][2].changeWeight(5)
+third_node = Tree_Node(ship_case1,list,instruction,None,0)
+if is_repeated_move(third_node,test_visited_nodes):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 
 #TEST 7 get_top_container function - should return false (empty column)
 
