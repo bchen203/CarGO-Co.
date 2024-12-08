@@ -135,34 +135,37 @@ def is_repeated_move(tree_node,visited_nodes):
 def get_top_container(array,column):
     current_row = 7
     while(current_row >= 0):
-        if array[column][current_row].description == "UNUSED":
+        if array[current_row][column].description == "UNUSED":
             pass 
             #when current location is empty
-        elif array[column][current_row].description == "NAN":
+        elif array[current_row][column].description == "NAN":
+            #print("returned NAN")
             return False
             #when current space has NAN
             #idk figure out a way to make it work
         else:
-            return array[column][current_row]
+            #print("returned container")
+            return array[current_row][column]
         current_row -= 1
+    #print("returned unused")
     return False
-    #when column is empty
+    
 
 #finds a suitable destination space (returns container class with 'UNUSED') for a container in a given column
 def get_supported_empty_space(array,column):
     current_row = 7
     while(current_row >= 0):
-        if array[column][current_row].description == "UNUSED":
+        if array[current_row][column].description == "UNUSED":
             pass 
             #when current location is empty
         else:
             if(current_row < 7):
-                return array[column][current_row+1]
+                return array[current_row+1][column]
             else:
                 return False
         current_row -= 1
 
-    return array[column][0]
+    return array[0][column]
     #when column is empty
 
 #finds the time cost of an instruction
@@ -179,7 +182,11 @@ def get_time(startRow,startCol,endRow,endCol):
 #gets the name of a container that needs to be moved from truck to ship
 def get_truck_container(transfer_list):
     load_list = transfer_list.get_pending_loads()
-    return load_list.keys()[0]
+    if(load_list):
+        for key in load_list:
+            return key
+    else:
+        return False
 
 
 #TESTING THE SUBFUNCTIONS
@@ -262,24 +269,89 @@ else:
     print("Test Failed!")
 
 #TEST 7 get_top_container function - should return false (empty column)
+print("TEST 7")
+test_container = get_top_container(ship_case1,3)
+
+if(test_container):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
 
 #TEST 8 get_top_container function - should return false (column with only 'NAN')
+print("TEST 8")
+test_container = get_top_container(ship_case1,11)
+
+if(test_container):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
 
 #TEST 9 get_top_container function - returns a container
+print("TEST 9")
+test_container = get_top_container(ship_case1,1)
+
+if(test_container):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 
 #TEST 10 get_supported_empty_space function - should return false (entirely filled column)
+print("Test 10")
+test_manifest4 = manifest.Manifest("SampleManifests/ShipCase4.txt")
+ship_case4, v = test_manifest4.copyManifest()
+test_container = get_supported_empty_space(ship_case4,4)
+
+if(test_container):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
 
 #TEST 11 get_supported_empty_space function - should return 'UNUSED' container (position is above y = 0)
-
+print("Test 11")
+test_container = get_supported_empty_space(ship_case4,0)
+if(test_container):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 #TEST 12 get_supported_empty_space function - should return 'UNUSED' container (position is y = 0)
-
+print("Test 12")
+test_container = get_supported_empty_space(ship_case1,3)
+if(test_container):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 #TEST 13 get_time - returns correct time (start pos is 8,0)
+print("Test 13")
+time_sum = get_time(8,0,0,0)
+if(time_sum == 10):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 
 #TEST 14 get_time - returns correct time (end pos is 8,0)
-
+print("Test 14")
+time_sum = get_time(0,0,8,0)
+if(time_sum == 10):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 #TEST 15 get_time - returns correct time (neither pos is 8,0)
-
+print("Test 15")
+time_sum = get_time(1,2,3,4)
+if(time_sum == 4):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
 #TEST 16 get_truck_container - returns a container name
-
-#TEST 17 get_truck_container- returns ???? (empty list)
-
+list = load_list_editor.Loader()
+list.add_pending_load("Very Heavy Rocks")
+if get_truck_container(list):
+    print("Test Passed!")
+else:
+    print("Test Failed!")
+#TEST 17 get_truck_container- returns false (empty list)
+list = load_list_editor.Loader()
+if get_truck_container(list):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
