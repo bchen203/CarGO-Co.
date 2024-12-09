@@ -1,15 +1,16 @@
 import manifest
 import calculate
-
-
+import heapq
 
 def perform_balance_operation(manifest_array): #given a 2D array of the manifest, perform the balance operation
-    # First: Check if already balanced
-    is_ship_balanced(manifest_array)
+    # First: Check if already balanced. If so, do nothing!
+    if (is_ship_balanced(manifest_array)):
+        return [] #empty set of instructions
+
 
 
     #TODO First-Point-Five: Check if balanceable
-    
+
 
     # Second: Calculate the solution
     left = []
@@ -23,8 +24,8 @@ def perform_balance_operation(manifest_array): #given a 2D array of the manifest
 
     # Fourth: Figuring out where to place the containers
     partition = get_partition()
-    for container in goal_position[0]:
-        pass
+    # for container in goal_position[0]:
+    #     pass
 
     container_move_instructions = generate_container_moves(goal_position[0], goal_position[1])
 
@@ -35,6 +36,9 @@ def perform_balance_operation(manifest_array): #given a 2D array of the manifest
 
     pass
 
+def perform_balance_operation_uniform_cost():
+   #For each possible move at each state,
+   pass
 
 #Will return a solution
 def perform_balance_operation_brute_force_helper(current_left_containers, current_right_containers, current_weight, remaining_containers): #recursive brute force :')
@@ -77,7 +81,7 @@ def is_balanceable(containers, current_weight):
     for container in containers:
         container_weights.append(container.weight)
 
-    sorted_weights = sorted(container_weights)
+    sorted_weights = sorted(container_weights).reverse()
     for container in sorted_weights:
         if current_weight[0] > current_weight[1]:
             current_weight[1] += container
@@ -135,10 +139,6 @@ def generate_container_moves(left_containers, right_containers):
     #  - Avoid placing contaienrs on top of other contaienrs that need to be moved.
     # Will need helper function to help with figuring out if a container is already on the left/right
 
-    
-
-
-
-
+    #
     
     pass
