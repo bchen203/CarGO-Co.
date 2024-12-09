@@ -9,6 +9,7 @@ class BalanceOperator():
     def __init__(self, calculator, manifestObject):
         self.calculator = calculator
         self.manifestObject = manifestObject
+        self.instructionList = []
 
     def perform_balance_operation(self, manifest_array): #given a 2D array of the manifest, perform the balance operation
         # First: Check if already balanced. If so, do nothing!
@@ -26,6 +27,7 @@ class BalanceOperator():
         # for instruction in solution_array:
         #     self.calculator.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0],  instruction.ending_location[1])
         #     pass
+        self.instructionList = solution_array
 
         return solution_array
 
@@ -184,3 +186,7 @@ class BalanceOperator():
         
         return self.is_balanced(port_weight, starboard_weight)   
 
+    #returns instruction list, matching call to load/offload solution
+    def get_instruction_list(self):
+        #TODO: Add a check for whether a solution has been generated?
+        return self.instructionList

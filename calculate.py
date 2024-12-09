@@ -23,6 +23,12 @@ class Instruction:
         print(f"Container Id: {self.container_id}")
         print(f"Starting Location: {self.starting_location[0]}, {self.starting_location[1]} ") 
         print(f"Ending Location: {self.ending_location[0]}, {self.ending_location[1]} ") 
+
+    def __lt__(self, other):
+        return other
+    
+    def __gt__(self, other):
+        return other
     
 
 class Calculate:
