@@ -21,25 +21,11 @@ class BalanceOperator():
 
 
         # Second: Calculate the solution
-        left = []
-        right = []
-        current_weight = [0,0]
-        remaining_containers = []
-        goal_position = perform_balance_operation_brute_force_helper(left, right, current_weight, remaining_containers)
+        solution_array = self.perform_balance_operation_brute_force_helper(self.calculator.ship_bay_array)
         
-        # Third: which goal state will be easiest to achieve (which side will be side 1, which side will be side 2?)
-        # Might need to skip this for now
-
-        # Fourth: Figuring out where to place the containers
-        partition = get_partition()
-        # for container in goal_position[0]:
-        #     pass
-
-        container_move_instructions = generate_container_moves(goal_position[0], goal_position[1])
-
-        # Fifth: Making the moves (updating 2D array through calculate.py)
-        for instruction in container_move_instructions:
-            #TODO: Add function call to update 2D array in calculate
+        # Third: Making the moves (updating 2D array through calculate.py)
+        for instruction in solution_array:
+            self.calculator.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0],  instruction.ending_location[1])
             pass
 
         pass
@@ -140,7 +126,7 @@ class BalanceOperator():
             else:
                 current_weight[0] += container
 
-        if (is_balanced(current_weight[0], current_weight[1])):
+        if (self.is_balanced(current_weight[0], current_weight[1])):
             return True
         else:
             return False
@@ -152,7 +138,7 @@ class BalanceOperator():
 
     #Checks if a ship is balanced
     def is_ship_balanced(self, manifest_array): #manifest is a 2D array
-        left_partition_inclusive = get_partition(manifest_array) 
+        left_partition_inclusive = self.get_partition(manifest_array) 
 
         port_weight = 0
         starboard_weight = 0
@@ -168,29 +154,5 @@ class BalanceOperator():
                     starboard_weight_weight += container.weight
                 i += 1
         
-        return is_balanced(port_weight, starboard_weight)   
+        return self.is_balanced(port_weight, starboard_weight)   
 
-
-    def get_side(self, container, manifest_array):
-        partition = get_partition(manifest_array)
-
-        if container.x <= partition:
-            return "left"
-        else:
-            return "right"
-        
-
-
-    #Returns a list of moves, provided left-side and right-side arrays with containers.
-    def generate_container_moves(self, left_containers, right_containers): 
-        
-
-        # some early thoughts:
-        #  - Prioritize top / higher containers
-        #  - Prioritize placing containers with as few moves as possible (ie, nearer to the middle)
-        #  - Avoid placing contaienrs on top of other contaienrs that need to be moved.
-        # Will need helper function to help with figuring out if a container is already on the left/right
-
-        #
-        
-        pass
