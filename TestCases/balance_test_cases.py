@@ -4,14 +4,16 @@ import manifest
 import calculate
 import balance_operator
 
+
 #Going to grab some of the test cases provided as an example. For now, writing test cases for the balance solution calculator, will copy over other tests after:
 print("Test Case 1: Ship is already Balanced")
 mani = manifest.Manifest("SampleManifests/BalanceTestPreBalanced.txt")
 manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
+balance_operator_object = balance_operator.BalanceOperator(calculator, mani)
 
 
-instructions = balance_operator.perform_balance_operation(calculator.ship_bay_array)
+instructions = balance_operator_object.perform_balance_operation(calculator.ship_bay_array)
 if instructions == []:
     print("TEST PASSED")
 else:
@@ -25,7 +27,7 @@ manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
 
-instructions = balance_operator.perform_balance_operation(calculator.ship_bay_array)
+instructions = balance_operator_object.perform_balance_operation(calculator.ship_bay_array)
 if instructions == None: #will add SIFT later
     print("TEST PASSED")
 else:
@@ -38,11 +40,13 @@ mani = manifest.Manifest("SampleManifests/BalanceTest1Manifest.txt")
 manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
-instructions = balance_operator.perform_balance_operation(calculator.ship_bay_array)
+instructions = balance_operator_object.perform_balance_operation(calculator.ship_bay_array)
+
+print(instructions)
 for instruction in instructions:
     calculator.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0], instruction.ending_location[1])
 
-if balance_operator.is_ship_balanced(calculator.ship_bay_array):  
+if balance_operator_object.is_ship_balanced(calculator.ship_bay_array):  
     print("TEST PASSED")
 else:
     print("Test FAILED")
@@ -55,11 +59,11 @@ mani = manifest.Manifest("SampleManifests/BalanceTest2Manifest.txt")
 manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
-instructions = balance_operator.perform_balance_operation(calculator.ship_bay_array)
+instructions = balance_operator_object.perform_balance_operation(calculator.ship_bay_array)
 for instruction in instructions:
     calculator.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0], instruction.ending_location[1])
 
-if balance_operator.is_ship_balanced(calculator.ship_bay_array):  
+if balance_operator_object.is_ship_balanced(calculator.ship_bay_array):  
     print("TEST PASSED")
 else:
     print("Test FAILED")
@@ -71,11 +75,11 @@ mani = manifest.Manifest("SampleManifests/BalanceTest3Manifest.txt")
 manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
-instructions = balance_operator.perform_balance_operation(calculator.ship_bay_array)
+instructions = balance_operator_object.perform_balance_operation(calculator.ship_bay_array)
 for instruction in instructions:
     calculator.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0], instruction.ending_location[1])
 
-if balance_operator.is_ship_balanced(calculator.ship_bay_array):  
+if balance_operator_object.is_ship_balanced(calculator.ship_bay_array):  
     print("TEST PASSED")
 else:
     print("Test FAILED")

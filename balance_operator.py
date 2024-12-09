@@ -16,11 +16,11 @@ class BalanceOperator():
             return [] #empty set of instructions
 
         #First-Point-Five: Check if balanceable
-        if (not self.is_ship_balanceable()):
+        if (not self.is_ship_balanceable(manifest_array)):
             return None
 
         # Second: Calculate the solution
-        solution_array = self.perform_balance_operation_brute_force_helper(self.calculator.ship_bay_array)
+        solution_array = self.perform_balance_operation_uniform_cost(self.calculator.ship_bay_array)
         
         # Third: Making the moves (updating 2D array through calculate.py)
         for instruction in solution_array:
@@ -118,7 +118,9 @@ class BalanceOperator():
         for container in containers:
             container_weights.append(container.weight)
 
-        sorted_weights = sorted(container_weights).reverse()
+        sorted_weights = (sorted(container_weights))
+        sorted_weights.reverse()
+        
         for container in sorted_weights:
             if current_weight[0] > current_weight[1]:
                 current_weight[1] += container
@@ -139,12 +141,16 @@ class BalanceOperator():
                 if not (container.description == "UNUSED" or container.description ==  "NAN"):
                     list_of_containers.append(container)
 
-        current_weight = (0,0)
+
+        current_weight = [0,0]
 
         return self.is_balanceable(list_of_containers, current_weight)
 
     # Given a left-side and right-side weight, returns True if balanced, False if not balanced.
     def is_balanced(self, port_weight, starboard_weight):
+
+        if(port_weight < 1 or starboard_weight < 1): #catching 0 and below
+            return False
 
         return (max(port_weight, starboard_weight) / min(port_weight , starboard_weight) < 1.1)
 
@@ -163,7 +169,7 @@ class BalanceOperator():
                 if i <= left_partition_inclusive:
                     port_weight += container.weight
                 else:
-                    starboard_weight_weight += container.weight
+                    starboard_weight += container.weight
                 i += 1
         
         return self.is_balanced(port_weight, starboard_weight)   
