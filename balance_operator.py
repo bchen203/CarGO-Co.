@@ -65,7 +65,10 @@ class BalanceOperator():
             curInstructionsArray = current_state[1]
 
             for instruction in curInstructionsArray: #applying current instructions, will need to reverse after
-                calculate.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0], instruction.ending_location[1])
+                self.calculator.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0], instruction.ending_location[1])
+
+            if self.is_ship_balanced(self.calculator.ship_bay_array): #break if balanced
+                return curInstructionsArray
 
             #Find each possible move, from each possible container:
             movable_containers = []
