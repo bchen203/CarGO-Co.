@@ -61,27 +61,31 @@ class BalanceOperator():
         while(True): #break on finding a solution
             current_state = heapq.heappop(instruction_heap)
             temp_array = manifest_array #saving array.
+            curInstructionTime = current_state[0]
+            curInstructionsArray = current_state[1]
 
-            for instruction in current_state[1]: #applying current instructions, will need to reverse after
+            for instruction in curInstructionsArray: #applying current instructions, will need to reverse after
                 calculate.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0], instruction.ending_location[1])
 
             #Find each possible move, from each possible container:
             movable_containers = []
             for column in range(self.calculator.ship_bay_array[0]):
                 curContainer = self.calculator.get_top_container(self.calculator.ship_bay_array, column)
-                if not curContainer == False:
+                if not curContainer == False: #False if none in that column
                     movable_containers.append(curContainer)
 
             for container in movable_containers:
                 for column in range(self.calculator.ship_bay_array[0]):
-                    if not self.get_supported_empty_space(self.calculator.ship_bay_array, column) == False:
-
-                
+                    current_goal_slot = self.get_supported_empty_space(self.calculator.ship_bay_array, column)
+                    if not current_goal_slot == False: #False if none exists in that column
+                        curInstruction = self.calculator.Instruction(container.id, (container.y, container.x), (current_goal_slot.y, current_goal_slot.x))
+                        instructionTime = self.calculator.get_time(curInstruction.starting_location[0], curInstruction.starting_location[1], curInstruction.ending_location[0], curInstruction.ending_location[1])
+                        curInstructionsArray.append(curInstruction)
+                        heapq.heappush(instruction_heap, (curInstructionTime+instructionTime, curInstructionsArray)) #Pushing updated time and instruction array.
 
             #Reversing the changes:
-            for instruction in current_state[1]:
+            for instruction in curInstructionsArray:
                 calculate.moveContainer(instruction.ending_location[0], instruction.ending_location[1], instruction.starting_location[0], instruction.starting_location[1])
-
 
         pass
 
