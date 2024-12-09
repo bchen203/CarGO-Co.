@@ -36,9 +36,34 @@ def perform_balance_operation(manifest_array): #given a 2D array of the manifest
 
     pass
 
-def perform_balance_operation_uniform_cost():
-   #For each possible move at each state,
-   pass
+def perform_balance_operation_uniform_cost(manifest_array):
+    #Need a heapqueue that has tuples (Total Time, [Array of instructions])
+    instruction_heap = []
+
+    heapq.heappush(instruction_heap, (0, [])) #Getting started, I'd like to write it so that the loop can handle it w/o special setup
+
+   # First, check if balanced (done in the function that calls this)
+   # Then, explore every single possible move, generating an instruction and pushing that and it's total time to the heapqueue
+   # For each tuple in the heapqueue, do the following loop:
+   # Pop move with least time. A
+   # Apply imstructions to the grid based on the list of instructions
+   # Find all possible moves, push all of them to the heapqueue, based on the old list of instructions
+   # Move on
+
+    while(True): #break on finding a solution
+        current_state = heapq.heappop(instruction_heap)
+        temp_array = manifest_array
+
+        for instruction in current_state[1]: #applying current instructions, will need to reverse after
+            calculate.moveContainer(instruction.start_coords[0], instruction.start_coords[1], instruction.end_coords[0], instruction.end_coords[1])
+
+        
+
+   
+
+
+
+    pass
 
 #Will return a solution
 def perform_balance_operation_brute_force_helper(current_left_containers, current_right_containers, current_weight, remaining_containers): #recursive brute force :')
