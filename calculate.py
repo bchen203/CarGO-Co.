@@ -122,3 +122,52 @@ class Calculate:
     def generateID(self):
         self.containerID += 1
         return self.containerID
+    
+
+#inside the column of an array, returns topmost container
+def get_top_container(array,column):
+    current_row = 7
+    while(current_row >= 0):
+        if array[current_row][column].description == "UNUSED":
+            pass 
+            #when current location is empty
+        elif array[current_row][column].description == "NAN":
+            #print("returned NAN")
+            return False
+            #when current space has NAN
+            #idk figure out a way to make it work
+        else:
+            #print("returned container")
+            return array[current_row][column]
+        current_row -= 1
+    #print("returned unused")
+    return False
+    
+
+#finds a suitable destination space (returns container class with 'UNUSED') for a container in a given column
+def get_supported_empty_space(array,column):
+    current_row = 7
+    while(current_row >= 0):
+        if array[current_row][column].description == "UNUSED":
+            pass 
+            #when current location is empty
+        else:
+            if(current_row < 7):
+                return array[current_row+1][column]
+            else:
+                return False
+        current_row -= 1
+
+    return array[0][column]
+    #when column is empty
+
+#finds the time cost of an instruction
+def get_time(startRow,startCol,endRow,endCol):
+    time = 0
+    if(startRow == 8 and startCol == 0):
+        time += 2 #time to move from ship to truck
+    elif(endRow == 8 and endCol == 0):
+        time += 2 #time to move from truck to ship
+
+    time += abs(startRow-endRow) + abs(startCol-endCol)
+    return time
