@@ -15,10 +15,9 @@ class BalanceOperator():
         if (self.is_ship_balanced(manifest_array)):
             return [] #empty set of instructions
 
-
-
-        #TODO First-Point-Five: Check if balanceable
-
+        #First-Point-Five: Check if balanceable
+        if (not self.is_ship_balanceable()):
+            return None
 
         # Second: Calculate the solution
         solution_array = self.perform_balance_operation_brute_force_helper(self.calculator.ship_bay_array)
@@ -130,6 +129,19 @@ class BalanceOperator():
             return True
         else:
             return False
+
+    #Given a manifest, checks whether the ship is balanceable:
+    def is_ship_balanceable(self, manifest_array):
+        list_of_containers = []
+
+        for row in manifest_array:
+            for container in row: 
+                if not (container.description == "UNUSED" or container.description ==  "NAN"):
+                    list_of_containers.append(container)
+
+        current_weight = (0,0)
+
+        return self.is_balanceable(list_of_containers, current_weight)
 
     # Given a left-side and right-side weight, returns True if balanced, False if not balanced.
     def is_balanced(self, port_weight, starboard_weight):

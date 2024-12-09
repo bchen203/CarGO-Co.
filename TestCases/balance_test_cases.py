@@ -46,6 +46,7 @@ if balance_operator.is_ship_balanced(calculator.ship_bay_array):
     print("TEST PASSED")
 else:
     print("Test FAILED")
+mani.exportManifest()
 
 
 #Test 4:
@@ -62,6 +63,7 @@ if balance_operator.is_ship_balanced(calculator.ship_bay_array):
     print("TEST PASSED")
 else:
     print("Test FAILED")
+mani.exportManifest()
 
 #Test 5:
 print("Test Case 5: Small expected balancing case")
@@ -77,3 +79,5 @@ if balance_operator.is_ship_balanced(calculator.ship_bay_array):
     print("TEST PASSED")
 else:
     print("Test FAILED")
+
+mani.exportManifest()
