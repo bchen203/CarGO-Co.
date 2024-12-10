@@ -15,7 +15,7 @@ class Tree_Node:
 #paramater - one should be a calculate class
 #paramater - one should store an instruction list
 #make a start function that makes load_instruction easier to call
-
+#change load_instructions() to return a list of instructions, rather than list of Tree_Nodes
 
 #root node has no instruction and no parent
 #instruction num of -1
