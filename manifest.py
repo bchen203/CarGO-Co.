@@ -18,7 +18,6 @@ class Container:
         print(f"container description: {self.description}")
         print(f"Container location (y,x): {self.y}, {self.x}")
 
-
     def changeWeight(self, weight):
         # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
         self.weight = weight
