@@ -25,7 +25,7 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
     unvisited_nodes = [(cost,successor_number,root_node)]
     successor_number += 1
     heapq.heapify(unvisited_nodes)
-
+    once = 1
     visited_nodes = []
     #check if is_finished
     while(unvisited_nodes):
@@ -46,7 +46,10 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
         for start_column in range(12): #selecting starting pos
             start_space = get_top_container(current_node.current_array,start_column)
             if(start_space != False):
+                if(once):
+                    print('{},{},{} start space'.format(start_space.y,start_space.x,start_space.description))
                 for dest_column in range(12): #selecting end pos
+                    
                     if(start_column != dest_column):
                         end_space = get_supported_empty_space(current_node.current_array,dest_column)
                         if(end_space != False):
@@ -54,6 +57,9 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
                             #ADD DOUBLE CHECKING THAT ARRAY STATE IS NOT REPEATED
                             successor_array = current_node.current_array.copy()
                             calculator = calculate.Calculate(successor_array,0)
+
+                           # if(once):
+                            #    print('{},{} goes to {},{}'.format(start_space.y,start_space.x,end_space.y,end_space.x))
                             calculator.moveContainer(start_space.y,start_space.x,end_space.y,end_space.x)
                             successor_instruction = calculate.Instruction(0,(start_space.y,start_space.x),(end_space.y,end_space.x)  )
                             successor = Tree_Node(successor_array,current_node.current_list,successor_instruction,current_node,current_node.instruction_num + 1)
@@ -64,6 +70,7 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
 
                 #creating successor moving from ship to truck (only requires a start_column)
                 #end pos for a ship to truck pos is (8,0)
+                
                 if(start_space in current_node.current_list.offload_list):
                     successor_array = current_node.current_array.copy()
                     calculator = calculate.Calculate(successor_array,0)
@@ -75,8 +82,9 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
                     successor_cost = get_time(start_space.y,start_space.x,8,0)
                     heapq.heappush(unvisited_nodes,(current_cost + successor_cost,successor_number,successor))
                     successor_number += 1
-
+        
         #creating a successor where we move a container from truck to ship
+        '''
         for dest_column in range(0,12):
             end_space = get_supported_empty_space(current_node.current_array,dest_column)
             container_to_load = get_truck_container(current_node.current_list)
@@ -85,15 +93,22 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
                 calculator = calculate.Calculate(successor_array,0)
                 calculator.loadContainer(container_to_load,end_space.y,end_space.x)
                 successor_instruction = calculate.Instruction(0,(8,0),(end_space.y,end_space.x))
-                successor_list = current_node.current_list.copy
-                successor_list.remove_pending_loads(end_space.description)
+                successor_list = current_node.current_list.copy()
+                successor_list.remove_pending_loads(container_to_load)
                 successor = Tree_Node(successor_array,successor_list,successor_instruction,current_node,current_node.instruction_num + 1)
                 successor_cost = get_time(8,0,end_space.y,end_space.x)
                 heapq.heappush(unvisited_nodes,(current_cost+successor_cost,successor_number,successor) )
                 successor_number += 1
-        
+        '''
         #stuff after making all the successors
         visited_nodes.append(current_node)
+
+        #TEST STUFF
+        if(once):
+            for unvisited in unvisited_nodes:
+                unvisited_instruction = unvisited[2].instruction
+               # print('{} goes to {}'.format(unvisited_instruction.starting_location, unvisited_instruction.ending_location))
+            once = 0
 
     return False #for when no solution is possible (should probably never happen)
 

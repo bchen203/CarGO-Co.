@@ -23,9 +23,10 @@ class Loader:
     
     #removes a container from load from truck list
     def remove_pending_loads(self,name):
-        if not name in self.pending_loads:
-            print('{} is not in pending loads'.format(name))
+        if not name in self.pending_loads.keys():
+            #print('{} is not in pending loads'.format(name))
             return
+        print('{} is in pending loads'.format(name))
         self.pending_loads[name] = self.pending_loads[name] - 1
         if self.pending_loads[name] <= 0:
                 self.pending_loads.pop(name)
