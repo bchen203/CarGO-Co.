@@ -4,6 +4,7 @@ from tkinter import simpledialog
 from tkinter import messagebox
 import manifest
 import LogHandler
+import calculate
 
 class GUI:
 
@@ -170,6 +171,8 @@ class GUI:
 
         if self.manifest_file is not None:
             self.manifest = manifest.Manifest(self.manifest_file.name)
+            array, containerID = self.manifest.copyManifest()
+            self.calc = calculate.Calculate(array, containerID)
             # redisplay manifest_upload with button for next screen
             self.manifest_upload.place_forget()
             self.userMenu.place_forget()
@@ -198,9 +201,9 @@ class GUI:
     def calculateSolution(self):
         if self.manifest is None:
             # TODO: error popup
+            messagebox.showerror("Error", f"No manifest file found")
             pass
         else:
-            self.manifest_upload.place_forget()
             if self.operation == "load":
                 #TODO: load/offload select screen
                 self.container_select.place_forget()
@@ -209,6 +212,113 @@ class GUI:
                 # calculate solution without additional input
                 self.manifest_upload.place_forget()
                 pass
+            
+            InstructionList = []
+            preGridList = []
+            postGridList = []
+
+            for i in range(len(InstructionList)):
+                preGridList.append(self.calc.ship_bay_array)
+                self.calc.performInstruction(InstructionList[i])
+                postGridList.append(self.calc.ship_bay_array)
+                self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], InstructionList[i]))
+            
+            #TESTING renderInstructionFrame below
+            postManifest_file = "SampleManifests/customManifest.txt"
+            postManifest = manifest.Manifest(postManifest_file)
+            post = postManifest.copyManifest()[0]
+            self.renderInstructionFrame(self.calc.ship_bay_array, post, None)
+
+    def renderInstructionFrame(self, preGrid, postGrid, currInstruction):
+        self.instruction_frame = Frame(self.master)
+
+        self.pre_manifest_display = Frame(self.instruction_frame)
+        self.post_manifest_display = Frame(self.instruction_frame)
+        self.instruction_label = Label(self.instruction_frame,
+                                    text="Instructions",
+                                    font=("Arial", 30, "bold"))
+        # TODO: dynamically update based on current move number (default/move=0 -> "Overview", move>0 -> "Move move/moveTotal")
+        self.instruction_step = Label(self.instruction_frame,
+                                    text="Overview",
+                                    font=("Arial", 15, "bold"))
+        self.instruction_top_divider = Canvas(self.instruction_frame, background="black")
+        self.instruction_description = Label(self.instruction_frame,
+                                    text="There are 21 moves to complete.\nThis will take an estimated 52 minutes to complete.",
+                                    font=("Arial", 15))
+        self.instruction_step_divider = Canvas(self.instruction_frame, background="black")
+        self.instruction_vertical_divider = Canvas(self.instruction_frame, background="black")
+        self.instruction_bottom_divider = Canvas(self.instruction_frame, background="black")
+        self.instruction_move_eta = Label(self.instruction_frame,
+                                    text="ETA: 0 minutes",
+                                    font=("Arial", 20, "bold"))
+
+        self.instruction_next_button_border = Frame(self.instruction_frame,
+                                             highlightbackground="black",
+                                             background="black",
+                                             bd=3)
+        self.instruction_next_button = Button(self.instruction_next_button_border,
+                                       background="#00ff14",
+                                       text="Next >",
+                                       font=("Arial", 15, "bold"),
+                                       wraplength=150,
+                                       relief="flat",
+                                       activebackground="#00CD14",
+                                       borderwidth=0,
+                                       command=self.getNextInstruction)
+
+        # Don't need offload_list for rendering instructions
+        # for r in range(8):
+        #     for c in range(12):
+        #         if self.preGrid[r][c].description != "NAN" and self.preGrid[r][c].description != "UNUSED":
+        #             self.offload_list[f"{self.preGrid[r][c].description}"] = 0
+
+        # buttons for selecting containers for offload
+        #self.container_buttons = [[None for r in range(12)] for c in range(8)]
+        self.configureGridDisplay(self.pre_manifest_display, preGrid)
+
+        # disable clicking and hover functionality for container_buttons
+        # TODO: check if this errors out if starting from balance containers
+        for r in range(8):
+            for c in range(12):
+                # configure container selection toggle and hover for complete container info
+                if self.container_buttons[r][c].cget("text") != "NAN" and self.container_buttons[r][c].cget("text") != "UNUSED":
+                    self.container_buttons[r][c].configure(activebackground="#BCBCBC")
+                    self.container_buttons[r][c].unbind("<Enter>")
+                    self.container_buttons[r][c].unbind("<Leave>")
+
+        # NOTE: to highlight a specific container
+        #   self.container_buttons[r][c].configure(background=color, activebackground=color)
+
+        for r in range(7, -1, -1):
+            for c in range(12):
+                self.container_buttons[r][c].place(relwidth=1, relheight=1)
+                self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
+        self.pre_manifest_display.place(relx=0.075, rely=0.58, relwidth=0.40, relheight=0.40, anchor="w")
+        
+        self.configureGridDisplay(self.post_manifest_display, postGrid)
+        for r in range(7, -1, -1):
+            for c in range(12):
+                self.container_buttons[r][c].place(relwidth=1, relheight=1)
+                self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
+        self.post_manifest_display.place(relx=0.925, rely=0.58, relwidth=0.40, relheight=0.40, anchor="e")
+        
+        self.instruction_label.place(relx=0.5, rely=0.075, anchor="center")
+        self.instruction_step.place(relx=0.5, rely=0.12, anchor="center")
+        #self.renderLoadOffloadButtons()
+        self.instruction_top_divider.place(relx=0.5, rely=0.15, relwidth=1.1, relheight=0.008, anchor="center")
+        self.instruction_description.place(relx=0.5, rely=0.25, anchor="center")
+        self.instruction_step_divider.place(relx=0.5, rely=0.35, relwidth=1.1, relheight=0.008, anchor="center")
+        self.instruction_vertical_divider.place(relx=0.5, rely=0.58, relwidth=0.0052, relheight=0.455, anchor="center")
+        self.instruction_bottom_divider.place(relx=0.5, rely=0.81, relwidth=1.1, relheight=0.008, anchor="center")
+        self.instruction_move_eta.place(relx=0.5, rely=0.90, anchor="center")
+
+        self.instruction_next_button_border.place(relx=0.885, rely=0.90, relheight=0.06, relwidth=0.08, anchor="center")
+        self.instruction_next_button.place(relheight=1, relwidth=1)
+        self.instruction_frame.place(relwidth=1, relheight=1)
+        self.menuBar()
+
+    def getNextInstruction(self):
+        pass
 
     def containerSelect(self):
         self.manifest_upload.place_forget()
@@ -222,7 +332,7 @@ class GUI:
         self.manifest_label = Label(self.container_select,
                                     text="Select Containers to Load/Offload",
                                     font=("Arial", 30, "bold"))
-        self.grid = self.manifest.copyManifest()
+        self.grid = self.manifest.copyManifest()[0]
 
         for r in range(8):
             for c in range(12):
@@ -238,7 +348,7 @@ class GUI:
             for c in range(12):
                 # configure container selection toggle and hover for complete container info
                 if self.container_buttons[r][c].cget("text") != "NAN" and self.container_buttons[r][c].cget("text") != "UNUSED":
-                    self.container_buttons[r][c].configure(activebackground="#00ff14", command=lambda x=c, y=r: self.toggle_container(x, y))
+                    self.container_buttons[r][c].configure(activebackground="red", command=lambda x=c, y=r: self.toggle_container(x, y))
                     self.container_buttons[r][c].bind("<Enter>", lambda event, x=r, y=c: self.displayContainerInfo(event, x, y))
                     self.container_buttons[r][c].bind("<Leave>", lambda event, x=r, y=c: self.removeContainerInfo(event, x, y))
 
@@ -269,18 +379,18 @@ class GUI:
                                    activeforeground="white")
                 # configure actual containers
                 elif grid[r][c].description != "UNUSED":
-                    temp.configure(background="red", activebackground="red")
+                    temp.configure(background="#BCBCBC", activebackground="#BCBCBC")
                 self.container_buttons[r][c] = temp
 
     def toggle_container(self, x, y):
         description = self.grid[y][x].description
         curr_offload = self.offload_list.get(description)
-        if self.container_buttons[y][x].cget("bg") == "red":
-            self.container_buttons[y][x].configure(background="#00ff14", activebackground="red")
+        if self.container_buttons[y][x].cget("bg") == "#BCBCBC":
+            self.container_buttons[y][x].configure(background="red", activebackground="#BCBCBC")
             self.offload_list.update({description: curr_offload + 1}) # increase selected offload by 1
 
         else:
-            self.container_buttons[y][x].configure(background="red", activebackground="#00ff14")
+            self.container_buttons[y][x].configure(background="#BCBCBC", activebackground="red")
             self.offload_list.update({description: curr_offload - 1}) # decrease selected offload by 1
 
         self.updatePendingOffloads()
@@ -305,6 +415,7 @@ class GUI:
         self.container_info_weight.pack()
         self.container_info.place(relwidth=1, relheight=1)
         self.container_info_border.place(relx=0.02, rely=0.65, relwidth=0.2, relheight=0.2)
+    
     def removeContainerInfo(self, event, x, y):
         self.container_info_border.place_forget()
 

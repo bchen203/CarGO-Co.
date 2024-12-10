@@ -1,3 +1,6 @@
+import sys
+sys.path.append('../CargoCo')
+import manifest
 
 """"
 (takes in a 2D array as an input)
@@ -7,27 +10,28 @@
     move/load/offload from the manifest.py (snag and alter them to work)
 
 """
-#nabbed from another branch for testing purposes 
-#REMOVE LATER : container class
-class Container:
-    def __init__(self, container_weight, container_description, container_id):
-        self.weight = container_weight
-        # Note: reserved container names are UNUSED, NAN (will need to check if the operator inputs these names later on)
-        self.description = container_description
-        # Added id variable to uniquely identify containers (will be used in solution calculations)
-        self.id = container_id
+
+class Instruction:
+    
+    def __init__(self, container_id, start_coords, end_coords):
+        self.container_id = container_id
+        self.starting_location = start_coords
+        self.ending_location = end_coords
 
     def print(self):
-        print(f"container weight: {self.weight}")
-        print(f"container description: {self.description}")
-
-    def changeWeight(self, weight):
-        # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
-        self.weight = weight
+        print(f"Printing Instruction: ")
+        print(f"Container Id: {self.container_id}")
+        print(f"Starting Location: {self.starting_location[0]}, {self.starting_location[1]} ") 
+        print(f"Ending Location: {self.ending_location[0]}, {self.ending_location[1]} ") 
+    
 
 class Calculate:
-    def __init__(self,manifest_array):
+    containerID = -1
+    
+    def __init__(self,manifest_array,containerID):
         self.ship_bay_array = manifest_array
+        self.containerID = containerID
+
 
     #adapted from manifest.py code by Jake Blackwell (group decided to move implementation here)
     #checks if a move: passing in start location (rowStart,colStart) and end location (rowEnd,colEnd)
@@ -51,6 +55,7 @@ class Calculate:
         
         return False
     
+
     def is_end_legal(self,rowEnd,colEnd):
 
         if(rowEnd < 0 or rowEnd >= 8 or colEnd < 0 or colEnd >= 12): #checks if position is out of bounds
@@ -68,11 +73,10 @@ class Calculate:
         return False
 
 
-
-
     def is_legal_ship_move(self,rowStart,colStart,rowEnd,colEnd):
         return self.is_start_legal(rowStart,colStart) and self.is_end_legal(rowEnd,colEnd)
     
+
     #calculates manhattan distance between start location (rowStart,colStart) and end location (rowEnd,colEnd) - FOR ONLY LOCATIONS INSIDE SHIP
     def calculate_time(self,rowStart,colStart,rowEnd,colEnd):
         return abs(rowStart-rowEnd) + abs(colStart-colEnd)
@@ -86,8 +90,9 @@ class Calculate:
 
         if(self.is_legal_ship_move(rowStart,colStart,rowEnd,colEnd)):
             # TODO: [LOG] container [name] was moved from [startLocation] to [endLocation]
-            self.ship_bay_array[rowStart][colStart] = Container(0, "UNUSED",-1)
+            self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1, rowStart, colStart)
             self.ship_bay_array[rowEnd][colEnd] = containerMoving
+            containerMoving.changeCoords(rowEnd, colEnd)
 
 
     # load containers onto the ship
@@ -98,7 +103,7 @@ class Calculate:
             if(self.is_end_legal(rowEnd,colEnd)):
                     # TODO: [LOG] container [name] was loaded onto the ship. It is located at [rowEnd][colEnd]
                     # NOTE: a weight of -1 is given as a placeholder weight since the weight of the container will not be determined until the operator picks up the container during the instruction phase of the program
-                    self.ship_bay_array[rowEnd][colEnd] = Container(-1, containerDescription,10) # the id of 10 is temporary until generateID() is added
+                    self.ship_bay_array[rowEnd][colEnd] = manifest.Container(-1, containerDescription, self.generateID(), rowEnd, colEnd)
                 
         else:
             print("[ERROR] cannot load a container with the name \"UNUSED\" or \"NAN\"")
@@ -110,4 +115,88 @@ class Calculate:
     def offloadContainer(self, rowStart, colStart):
         if(self.is_start_legal(rowStart,colStart)):
                 # TODO: [LOG] container [name] was offloaded from the ship.
-                self.ship_bay_array[rowStart][colStart] = Container(0, "UNUSED",-1)
+                self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1, rowStart, colStart)
+
+
+    # returns the next ID needed to uniquely identify a container and will update the manifest class's ID global containerID variable
+    def generateID(self):
+        self.containerID += 1
+        return self.containerID
+    
+    def performInstruction(self, currInstruction):
+        # needs to determine what operation is being performed:
+        currOperation = self.determineInstruction(currInstruction)
+        if currOperation == "load":
+            #TODO: replace description with container name derived from currInstruction.container_id if needed
+            #TODO: make sure starting_location and ending_location are tuples in the form of (row,col)
+            self.loadContainer(currInstruction.description, currInstruction.ending_location[0], currInstruction.ending_location[1])
+        elif currOperation == "offload":
+            self.offloadContainer(currInstruction.starting_location[0], currInstruction.starting_location[1])
+        elif currOperation == "balance": # could also be any container movement
+            self.moveContainer(currInstruction.starting_location[0], currInstruction.starting_location[1], currInstruction.ending_location[0], currInstruction.ending_location[1])
+        else: 
+            print("[ERROR] could not calculate instruction")
+    
+    # needs to determine what operation is being performed:
+    #    load (loadContainer):          start position must be some invalid location
+    #    offload (offloadContainer):    end position must be some invalid location
+    #    balance (moveConatiner):       start and end position must be valid locations
+    # NOTE: only thing we need to note in the future is whether we are loading or offloading from the buffer or a truck (could be done with an instruction flag for buffer)
+    def determineInstruction(self, currInstruction):
+        if currInstruction.starting_location[0] == 8 and currInstruction.starting_location[1] == 0:
+            return "load"
+        elif currInstruction.ending_location[0] == 8 and currInstruction.ending_location[1] == 0:
+            return "offload"
+        elif self.is_start_legal(currInstruction.starting_location[0], currInstruction.starting_location[1]) and self.is_end_legal(currInstruction.starting_location[0], currInstruction.starting_location[1]):
+            return "balance"
+        else:
+            print("[ERROR] could not determine current instruction")
+
+
+#inside the column of an array, returns topmost container
+def get_top_container(array,column):
+    current_row = 7
+    while(current_row >= 0):
+        if array[current_row][column].description == "UNUSED":
+            pass 
+            #when current location is empty
+        elif array[current_row][column].description == "NAN":
+            #print("returned NAN")
+            return False
+            #when current space has NAN
+            #idk figure out a way to make it work
+        else:
+            #print("returned container")
+            return array[current_row][column]
+        current_row -= 1
+    #print("returned unused")
+    return False
+    
+
+#finds a suitable destination space (returns container class with 'UNUSED') for a container in a given column
+def get_supported_empty_space(array,column):
+    current_row = 7
+    while(current_row >= 0):
+        if array[current_row][column].description == "UNUSED":
+            pass 
+            #when current location is empty
+        else:
+            if(current_row < 7):
+                return array[current_row+1][column]
+            else:
+                return False
+        current_row -= 1
+
+    return array[0][column]
+    #when column is empty
+
+#finds the time cost of an instruction
+def get_time(startRow,startCol,endRow,endCol):
+    time = 0
+    if(startRow == 8 and startCol == 0):
+        time += 2 #time to move from ship to truck
+    elif(endRow == 8 and endCol == 0):
+        time += 2 #time to move from truck to ship
+
+    time += abs(startRow-endRow) + abs(startCol-endCol)
+    return time

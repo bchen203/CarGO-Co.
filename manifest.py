@@ -1,27 +1,38 @@
 import re
 import LogHandler
+from copy import deepcopy
 
 class Container:
-    def __init__(self, container_weight, container_description, container_id):
+    def __init__(self, container_weight, container_description, container_id, row, col):
         self.weight = container_weight
         # Note: reserved container names are UNUSED, NAN (will need to check if the operator inputs these names later on)
         self.description = container_description
         # Added id variable to uniquely identify containers (will be used in solution calculations)
         self.id = container_id
+        # Location Data, in terms of array location
+        self.y = row
+        self.x = col
 
     def print(self):
         print(f"container weight: {self.weight}")
         print(f"container description: {self.description}")
+        print(f"Container location (y,x): {self.y}, {self.x}")
+
 
     def changeWeight(self, weight):
         # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
         self.weight = weight
 
+    def changeCoords(self, row, col):
+        #TODO: throw error if row/col is out of index
+        self.y = row
+        self.x = col
+
 
 class Manifest:
     # the 2D grid representation of the ship's containers
     # ship dimensions: 12x8
-    grid = [[Container(0, "UNUSED", -1) for r in range(12)] for c in range(8)]
+    grid = [[Container(0, "UNUSED", -1, r, c) for c in range(12)] for r in range(8)]
     containerID = -1
 
     # initialize the manifest object by reading in a given manifest file
@@ -53,14 +64,15 @@ class Manifest:
                         # POTENTIAL PROBLEM: by using regex for description, we exclude the newline at the end of each line. This results in the exported manifest also not including the newline, so we have to manually re-add it back, except for on the last line. This assumption of removing the newline on the last line of the file could lead to a mismatched manifest if the original manifest included a newline on the last line.
                         description = (re.search("[A-Za-z0-9]+.*", temp[3])).group()
                         if description != "UNUSED" and description != "NAN":
-                            id = self.generateID()
+                            self.containerID += 1
+                            id = self.containerID
                         else:
                             id = -1
 
                         # 3. create a container object using the variables from step 2 and add it to the 2D grid at location [y-1][x-1] (zero indexing adjustment)
                         # column    -> y -> outer array     (grid[y][])
                         # row       -> x -> inner array     (grid[][x])
-                        self.grid[x - 1][y - 1] = Container(int(weight.group()), description, id)
+                        self.grid[x - 1][y - 1] = Container(int(weight.group()), description, id, x-1, y-1)
                     # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
                     LogHandler.logManifestUpload((self.filename[self.filename.rfind('/')+1:])[:-4], self.containerID+1)
                 else:
@@ -99,7 +111,11 @@ class Manifest:
 
     # return a copy of the manifest
     def copyManifest(self):
-        return self.grid
+        return (deepcopy(self.grid), self.containerID)
+
+    # override the current manifest (used by other classes)
+    def updateManifest(self, newManifest):
+        self.grid = newManifest
     
     # print the id's of the manifest (for terminal use only)
     def printManifest(self):
@@ -107,12 +123,6 @@ class Manifest:
             for c in range(12):
                 print(str(self.grid[r][c].id).rjust(2, " "), end=" ")
             print("")
-        
-
-    # returns the next ID needed to uniquely identify a container and will update the manifest class's ID global containerID variable
-    def generateID(self):
-        self.containerID += 1
-        return self.containerID
 
 
 #commented out and implementation moved to calculate.py
