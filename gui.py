@@ -2,9 +2,11 @@ from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
 from tkinter import messagebox
+from copy import deepcopy
 import manifest
 import LogHandler
 import calculate
+import balance_operator
 
 class GUI:
 
@@ -55,7 +57,6 @@ class GUI:
             self.userMenu.configure(text=self.currUser)
             #TODO: [LOG] sign in
             LogHandler.logOperatorSignIn(self.currUser)
-            pass
 
 
         self.placeMenuBar()
@@ -75,7 +76,6 @@ class GUI:
         if comment is not None:
             # TODO: [LOG] add comment to log file
             LogHandler.logOperatorComment(comment)
-            pass
 
     def viewLog(self):
         #TODO: retrieve log file
@@ -103,7 +103,6 @@ class GUI:
         self.log_scrollbar.pack(side = RIGHT, fill = BOTH)
         self.log_listbox.place(relx=0.5, rely=0.5, relheight=0.9, relwidth=0.9, anchor="center")
         self.logWindow.mainloop()
-        pass
 
 
     def selectOperation(self):
@@ -199,64 +198,68 @@ class GUI:
                                           relwidth = 1,
                                           relheight=0.1)
     def calculateSolution(self):
+        self.InstructionList = []
+        self.currInstruction = 0
         if self.manifest is None:
             # TODO: error popup
             messagebox.showerror("Error", f"No manifest file found")
-            pass
         else:
             if self.operation == "load":
                 #TODO: load/offload select screen
                 self.container_select.place_forget()
-                pass
             else: # balance solution
                 # calculate solution without additional input
+                balancer = balance_operator.BalanceOperator(self.calc, self.manifest)
+                self.InstructionList = balancer.perform_balance_operation(self.calc.ship_bay_array)
+                #for instruction in self.InstructionList:
+                #    instruction.print()
                 self.manifest_upload.place_forget()
-                pass
             
-            InstructionList = []
+            
             preGridList = []
             postGridList = []
 
-            for i in range(len(InstructionList)):
-                preGridList.append(self.calc.ship_bay_array)
-                self.calc.performInstruction(InstructionList[i])
-                postGridList.append(self.calc.ship_bay_array)
-                self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], InstructionList[i]))
-            
+            for i in range(len(self.InstructionList)):
+                preGridList.append(deepcopy(self.calc.ship_bay_array))
+                self.calc.performInstruction(self.InstructionList[i])
+                postGridList.append(deepcopy(self.calc.ship_bay_array))
+                self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.InstructionList[i]))
+            self.getNextInstruction()
+            self.menuBar()
             #TESTING renderInstructionFrame below
-            postManifest_file = "SampleManifests/customManifest.txt"
-            postManifest = manifest.Manifest(postManifest_file)
-            post = postManifest.copyManifest()[0]
-            self.renderInstructionFrame(self.calc.ship_bay_array, post, None)
+            # postManifest_file = "SampleManifests/customManifest.txt"
+            # postManifest = manifest.Manifest(postManifest_file)
+            # post = postManifest.copyManifest()[0]
+            # self.renderInstructionFrame(self.calc.ship_bay_array, post, None)
 
     def renderInstructionFrame(self, preGrid, postGrid, currInstruction):
-        self.instruction_frame = Frame(self.master)
+        instruction_frame = Frame(self.master)
 
-        self.pre_manifest_display = Frame(self.instruction_frame)
-        self.post_manifest_display = Frame(self.instruction_frame)
-        self.instruction_label = Label(self.instruction_frame,
+        pre_manifest_display = Frame(instruction_frame)
+        post_manifest_display = Frame(instruction_frame)
+        instruction_label = Label(instruction_frame,
                                     text="Instructions",
                                     font=("Arial", 30, "bold"))
         # TODO: dynamically update based on current move number (default/move=0 -> "Overview", move>0 -> "Move move/moveTotal")
-        self.instruction_step = Label(self.instruction_frame,
+        instruction_step = Label(instruction_frame,
                                     text="Overview",
                                     font=("Arial", 15, "bold"))
-        self.instruction_top_divider = Canvas(self.instruction_frame, background="black")
-        self.instruction_description = Label(self.instruction_frame,
-                                    text="There are 21 moves to complete.\nThis will take an estimated 52 minutes to complete.",
+        instruction_top_divider = Canvas(instruction_frame, background="black")
+        instruction_description = Label(instruction_frame,
+                                    text=f"There are 21 moves to complete.\nThis will take an estimated 52 minutes to complete.\n{len(self.frames)}",
                                     font=("Arial", 15))
-        self.instruction_step_divider = Canvas(self.instruction_frame, background="black")
-        self.instruction_vertical_divider = Canvas(self.instruction_frame, background="black")
-        self.instruction_bottom_divider = Canvas(self.instruction_frame, background="black")
-        self.instruction_move_eta = Label(self.instruction_frame,
+        instruction_step_divider = Canvas(instruction_frame, background="black")
+        instruction_vertical_divider = Canvas(instruction_frame, background="black")
+        instruction_bottom_divider = Canvas(instruction_frame, background="black")
+        instruction_move_eta = Label(instruction_frame,
                                     text="ETA: 0 minutes",
                                     font=("Arial", 20, "bold"))
 
-        self.instruction_next_button_border = Frame(self.instruction_frame,
+        instruction_next_button_border = Frame(instruction_frame,
                                              highlightbackground="black",
                                              background="black",
                                              bd=3)
-        self.instruction_next_button = Button(self.instruction_next_button_border,
+        instruction_next_button = Button(instruction_next_button_border,
                                        background="#00ff14",
                                        text="Next >",
                                        font=("Arial", 15, "bold"),
@@ -274,7 +277,7 @@ class GUI:
 
         # buttons for selecting containers for offload
         #self.container_buttons = [[None for r in range(12)] for c in range(8)]
-        self.configureGridDisplay(self.pre_manifest_display, preGrid)
+        self.configureGridDisplay(pre_manifest_display, preGrid)
 
         # disable clicking and hover functionality for container_buttons
         # TODO: check if this errors out if starting from balance containers
@@ -293,32 +296,43 @@ class GUI:
             for c in range(12):
                 self.container_buttons[r][c].place(relwidth=1, relheight=1)
                 self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
-        self.pre_manifest_display.place(relx=0.075, rely=0.58, relwidth=0.40, relheight=0.40, anchor="w")
+        pre_manifest_display.place(relx=0.075, rely=0.58, relwidth=0.40, relheight=0.40, anchor="w")
         
-        self.configureGridDisplay(self.post_manifest_display, postGrid)
+        self.configureGridDisplay(post_manifest_display, postGrid)
         for r in range(7, -1, -1):
             for c in range(12):
                 self.container_buttons[r][c].place(relwidth=1, relheight=1)
                 self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
-        self.post_manifest_display.place(relx=0.925, rely=0.58, relwidth=0.40, relheight=0.40, anchor="e")
+        post_manifest_display.place(relx=0.925, rely=0.58, relwidth=0.40, relheight=0.40, anchor="e")
         
-        self.instruction_label.place(relx=0.5, rely=0.075, anchor="center")
-        self.instruction_step.place(relx=0.5, rely=0.12, anchor="center")
-        #self.renderLoadOffloadButtons()
-        self.instruction_top_divider.place(relx=0.5, rely=0.15, relwidth=1.1, relheight=0.008, anchor="center")
-        self.instruction_description.place(relx=0.5, rely=0.25, anchor="center")
-        self.instruction_step_divider.place(relx=0.5, rely=0.35, relwidth=1.1, relheight=0.008, anchor="center")
-        self.instruction_vertical_divider.place(relx=0.5, rely=0.58, relwidth=0.0052, relheight=0.455, anchor="center")
-        self.instruction_bottom_divider.place(relx=0.5, rely=0.81, relwidth=1.1, relheight=0.008, anchor="center")
-        self.instruction_move_eta.place(relx=0.5, rely=0.90, anchor="center")
+        instruction_label.place(relx=0.5, rely=0.075, anchor="center")
+        instruction_step.place(relx=0.5, rely=0.12, anchor="center")
+        instruction_top_divider.place(relx=0.5, rely=0.15, relwidth=1.1, relheight=0.008, anchor="center")
+        instruction_description.place(relx=0.5, rely=0.25, anchor="center")
+        instruction_step_divider.place(relx=0.5, rely=0.35, relwidth=1.1, relheight=0.008, anchor="center")
+        instruction_vertical_divider.place(relx=0.5, rely=0.58, relwidth=0.0052, relheight=0.455, anchor="center")
+        instruction_bottom_divider.place(relx=0.5, rely=0.81, relwidth=1.1, relheight=0.008, anchor="center")
+        instruction_move_eta.place(relx=0.5, rely=0.90, anchor="center")
 
-        self.instruction_next_button_border.place(relx=0.885, rely=0.90, relheight=0.06, relwidth=0.08, anchor="center")
-        self.instruction_next_button.place(relheight=1, relwidth=1)
-        self.instruction_frame.place(relwidth=1, relheight=1)
-        self.menuBar()
+        instruction_next_button_border.place(relx=0.885, rely=0.90, relheight=0.06, relwidth=0.08, anchor="center")
+        instruction_next_button.place(relheight=1, relwidth=1)
+        #instruction_frame.place(relwidth=1, relheight=1)
+        return instruction_frame
+        #self.menuBar()
 
     def getNextInstruction(self):
-        pass
+        if(self.currInstruction == len(self.frames)):
+            messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
+            self.frames[self.currInstruction-1].place_forget()
+            self.frames = []
+            self.selectOperation()
+        else:
+            if(self.currInstruction != 0):
+                self.frames[self.currInstruction-1].place_forget()
+            instruction_frame = self.frames[self.currInstruction]
+            instruction_frame.place(relwidth=1, relheight=1)
+            #self.menuBar()
+            self.currInstruction += 1
 
     def containerSelect(self):
         self.manifest_upload.place_forget()
@@ -340,7 +354,6 @@ class GUI:
                     self.offload_list[f"{self.grid[r][c].description}"] = 0
 
         # buttons for selecting containers for offload
-        self.container_buttons = [[None for r in range(12)] for c in range(8)]
         self.configureGridDisplay(self.manifest_display, self.grid)
 
 
@@ -365,11 +378,12 @@ class GUI:
 
     # create frames/buttons to display manifest grid
     def configureGridDisplay(self, parentFrame, grid):
+        self.container_buttons = [[None for r in range(12)] for c in range(8)]
         self.container_button_frames = [[Frame(parentFrame, highlightbackground="black", background="black", bd=2) for r in range(12)] for c in range(8)]
         # configure buttons to match current state of grid
         for r in range(8):
             for c in range(12):
-                temp = Button(self.container_button_frames[r][c], border=0, relief="flat", font=("Arial", 10, "bold"))
+                temp = Button(self.container_button_frames[r][c], border=0, relief="flat", font=("Arial", 8, "bold"))
                 temp.configure(text=grid[r][c].description[0:14])  # only display first 15 characters of container descriptions
                 # configure NAN locations
                 if grid[r][c].description == "NAN":

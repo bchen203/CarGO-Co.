@@ -69,10 +69,10 @@ class Calculate:
              return False
         
         if self.ship_bay_array[rowEnd][colEnd].description == "UNUSED": #checks if end pos is empty
-                    if rowEnd == 0 or self.ship_bay_array[rowEnd-1][colEnd].description != "UNUSED": #DAVID: checks to see if container would be floating at end pos
-                        return True
-                    else:
-                        print("[ERROR] cannot move container to location where it is floating")
+            if rowEnd == 0 or self.ship_bay_array[rowEnd-1][colEnd].description != "UNUSED": #DAVID: checks to see if container would be floating at end pos
+                return True
+            else:
+                print("[ERROR] cannot move container to location where it is floating")
         else:
             print("[ERROR] cannot move a container to an occupied location")
         
@@ -153,7 +153,9 @@ class Calculate:
     
     def performInstruction(self, currInstruction):
         # needs to determine what operation is being performed:
+        currInstruction.print()
         currOperation = self.determineInstruction(currInstruction)
+        print(currOperation)
         if currOperation == "load":
             #TODO: replace description with container name derived from currInstruction.container_id if needed
             #TODO: make sure starting_location and ending_location are tuples in the form of (row,col)
@@ -175,7 +177,7 @@ class Calculate:
             return "load"
         elif currInstruction.ending_location[0] == 8 and currInstruction.ending_location[1] == 0:
             return "offload"
-        elif self.is_start_legal(currInstruction.starting_location[0], currInstruction.starting_location[1]) and self.is_end_legal(currInstruction.starting_location[0], currInstruction.starting_location[1]):
+        elif self.is_legal_ship_move(currInstruction.starting_location[0], currInstruction.starting_location[1], currInstruction.ending_location[0], currInstruction.ending_location[1]):
             return "balance"
         else:
             print("[ERROR] could not determine current instruction")
