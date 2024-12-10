@@ -10,17 +10,26 @@ class Tree_Node:
         self.parent = parent # parent tree node
         self.instruction_num = instruction_num
 
+#TO DO LIST:
+#convert it to a class
+#paramater - one should be a calculate class
+#paramater - one should store an instruction list
+#make a start function that makes load_instruction easier to call
+
+
 #root node has no instruction and no parent
 #instruction num of -1
-def load_instructions(root_node):
+def load_instructions(root_node): #should output a list of INSTRUCTIONS
+    successor_number = 0
     cost = 0
-    unvisited_nodes = [(cost,root_node)]
+    unvisited_nodes = [(cost,successor_number,root_node)]
+    successor_number += 1
     heapq.heapify(unvisited_nodes)
 
     visited_nodes = []
     #check if is_finished
     while(unvisited_nodes):
-        current_cost,current_node = unvisited_nodes[0]
+        current_cost,v,current_node = unvisited_nodes[0]
         unvisited_nodes.pop(0)
 
         if(is_finished(current_node)):
@@ -50,7 +59,8 @@ def load_instructions(root_node):
                             successor = Tree_Node(successor_array,current_node.current_list,successor_instruction,current_node,current_node.instruction_num + 1)
                             successor_cost = get_time(start_space.y,start_space.x,end_space.y,end_space.x)
                             if(not is_repeated_move(successor,visited_nodes)):
-                                heapq.heappush(unvisited_nodes,(current_cost + successor_cost,successor))
+                                heapq.heappush(unvisited_nodes,(current_cost + successor_cost,successor_number,successor))
+                                successor_number += 1
 
                 #creating successor moving from ship to truck (only requires a start_column)
                 #end pos for a ship to truck pos is (8,0)
@@ -60,10 +70,11 @@ def load_instructions(root_node):
                     calculator.offloadContainer(start_space.y,start_space.x)
                     successor_instruction = calculate.Instruction(0,(start_space.y,start_space.x),(8,0))
                     successor_list = current_node.current_list.copy()
-                    successor_list.remove_offload_list(start_space.container_description)
+                    successor_list.remove_offload_list(start_space.description)
                     successor = Tree_Node(successor_array,successor_list,successor_instruction,current_node,current_node.instruction_num + 1)
                     successor_cost = get_time(start_space.y,start_space.x,8,0)
-                    heapq.heappush(unvisited_nodes,(current_cost + successor_cost,successor))
+                    heapq.heappush(unvisited_nodes,(current_cost + successor_cost,successor_number,successor))
+                    successor_number += 1
 
         #creating a successor where we move a container from truck to ship
         for dest_column in range(0,12):
@@ -72,13 +83,14 @@ def load_instructions(root_node):
             if(end_space != False):
                 successor_array = current_node.current_array.copy()
                 calculator = calculate.Calculate(successor_array,0)
-                calculator.loadContainer(container_to_load.y,container_to_load.x)
+                calculator.loadContainer(container_to_load,end_space.y,end_space.x)
                 successor_instruction = calculate.Instruction(0,(8,0),(end_space.y,end_space.x))
-                successor_list = current_node.current_list.copy()
-                successor_list.remove_pending_loads(end_space.container_description)
+                successor_list = current_node.current_list.copy
+                successor_list.remove_pending_loads(end_space.description)
                 successor = Tree_Node(successor_array,successor_list,successor_instruction,current_node,current_node.instruction_num + 1)
                 successor_cost = get_time(8,0,end_space.y,end_space.x)
-                heapq.heappush(unvisited_nodes,(current_cost+successor_cost,successor) )
+                heapq.heappush(unvisited_nodes,(current_cost+successor_cost,successor_number,successor) )
+                successor_number += 1
         
         #stuff after making all the successors
         visited_nodes.append(current_node)
@@ -90,7 +102,6 @@ def load_instructions(root_node):
 
 
 
-    #each successor is the result of a single instruction and contains said instruction within it
 
    
 
@@ -135,6 +146,7 @@ def is_repeated_move(tree_node,visited_nodes):
 def get_top_container(array,column):
     current_row = 7
     while(current_row >= 0):
+        
         if array[current_row][column].description == "UNUSED":
             pass 
             #when current location is empty
@@ -355,3 +367,32 @@ if get_truck_container(list):
     print("Test Failed!")
 else:
     print("Test Passed!")
+
+#ACTUAL TESTS FOR THE LOAD SOLUTION
+#THE MEAT
+#TEST 18 load_instruction - already solved array
+testing_manifest = manifest.Manifest("SampleManifests/ShipCase1.txt")
+testing_list = load_list_editor.Loader()
+testing_node = Tree_Node(testing_manifest.copyManifest(),testing_list, None,None,-1 )
+
+instruction_list = load_instructions(testing_node)
+if(instruction_list):
+    print("Test Failed!")
+else:
+    print("Test Passed!")
+
+#TEST 19 load_instruction - needs to unload one thing
+
+testing_manifest = manifest.Manifest("SampleManifests/ShipCase1.txt")
+testing_manifest.printManifest()
+testing_array = testing_manifest.copyManifest()[0].copy()
+#print(len(testing_array))
+testing_list = load_list_editor.Loader()
+testing_list.add_offload("Cat")
+testing_node = Tree_Node(testing_array,testing_list, None,None,-1 )
+
+instruction_list = load_instructions(testing_node)
+if(instruction_list):
+    print("Test Passed!")
+else:
+    print("Test Failed!")

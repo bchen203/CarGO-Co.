@@ -61,5 +61,14 @@ class Loader:
     def get_offload_list(self):
         return self.offload_list
     
+    def copy(self):
+        copy = Loader()
+        for key in self.pending_loads:
+            copy.pending_loads[key] = self.pending_loads[key]
+        for key in self.offload_list:
+            copy.offload_list[key] = self.offload_list[key]
+        
+        return copy
+    
 
 
