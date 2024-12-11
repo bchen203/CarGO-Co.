@@ -10,7 +10,7 @@
 3) This file [CarGoCoProjectPitchCORRECTED](https://drive.google.com/file/d/1SwNXSIQbf5PmzQHZAJMXbSK73pQisVSl/view?usp=drive_link) contains a new version of the pitch, with all the corrections, amendments and deletions suggested by Mr. Keogh (and/or Dr. Keogh)
 4) This file [] shows evidence of our efforts to design our software.
 5) This file [] which shows evidence of our efforts to test our software.
-6) This URL [] points to a GitHub repository of our code.
+6) This URL (https://github.com/bchen203/CargoCo)[https://github.com/bchen203/CargoCo] points to a GitHub repository of our code.
 7) This YouTube video, that shows our software solving one balance, and one transfer test case (our choices, of the test cases Mr. Keogh gave us).
 8) This text file, is the [Logfile] log that was created by our software, during the making of the YouTube video in the previous bullet point.
 9) We would like to point out the following limitations:
