@@ -38,47 +38,53 @@ def testCase(shipName, containerNameSample):
         
 
     #Operator Comment:
+    try:
+        #Another signin/out, with a previous operator:
+        LogHandler.logOperatorComment("I THINK SOMETHING IS WRONG!")
+        print("Test 6: Operator signing with previous operator works")
+    except:
+        print("Test 6 Failed: Operator comment throws an error")
 
     #Balance Log
     try:
         LogHandler.logBalanceOperation("Dog", True)
         LogHandler.logBalanceOperation("Fake", False)
-        print("Test 6: logging balance does not throw an error")
+        print("Test 7: logging balance does not throw an error")
     except:
-        print("Test 6 Failed: logging balance fails")
+        print("Test 7 Failed: logging balance fails")
     
 
     #Load/Unload
     try:
         LogHandler.logLoadUnloadOperation("Cat toys", True)
         LogHandler.logLoadUnloadOperation("Dog Toys", False)
-        print("Test 7: logging logging load/offload does not throw an error")
+        print("Test 8: logging logging load/offload does not throw an error")
     except:
-        print("Test 7 Failed: logging load/offload fails")
+        print("Test 8 Failed: logging load/offload fails")
     
 
     #Finish Cycle
     try:
         LogHandler.logFinishCycle("HMSJellyCatJack")
-        print("Test 8: Finish Cycle does not throw an error")
+        print("Test 9: Finish Cycle does not throw an error")
     except:
-        print("Test 8 Failed: Finish Cycle fails")
+        print("Test 9 Failed: Finish Cycle fails")
 
 
     #Shut down port for the year.
     try:
         LogHandler.logEndOfYearShutdown()
-        print("Test 9: end of year shutdown does not throw an error")
+        print("Test 10: end of year shutdown does not throw an error")
     except:
-        print("Test 9 Failed: end of year shutdown  fails")
+        print("Test 10 Failed: end of year shutdown  fails")
     
 
     #making sure signout works
     try:
         LogHandler.logOperatorSignIn("Haocheng Mai")
-        print("Test 10: Signin with no previous operator after a shutdown throws no errors")
+        print("Test 11: Signin with no previous operator after a shutdown throws no errors")
     except:
-        print("Test 10 Failed: sign-in fails")
+        print("Test 11 Failed: sign-in fails")
     
 
     
