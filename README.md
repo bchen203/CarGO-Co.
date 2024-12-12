@@ -5,12 +5,12 @@
  - David Huang, dhuan084@ucr.edu
  - Everlee Mai, emai006@ucr.edu
 
-1) This file [CarGoCo.pdf] contains evidence of our efforts to plan our elicitation of requirements from Mr. Keogh, and any notes taken during the elicitation.
-2) This file [CarGoCoProjectPitchORIGINAL.pdf](https://drive.google.com/file/d/1SwNXSIQbf5PmzQHZAJMXbSK73pQisVSl/view?usp=drive_link) contains our original pitch to Mr. Keogh, which was delivered on 6:30pm on Monday, November 4th, 2024.
-3) This file [CarGoCoProjectPitchCORRECTED](https://drive.google.com/file/d/1SwNXSIQbf5PmzQHZAJMXbSK73pQisVSl/view?usp=drive_link) contains a new version of the pitch, with all the corrections, amendments and deletions suggested by Mr. Keogh (and/or Dr. Keogh)
-4) This file [] shows evidence of our efforts to design our software.
+1) This file [CarGO_Co.pdf](https://drive.google.com/file/d/1k8azH72ajFuV4qa9EQ2fr0EouEPoD1Xb/view?usp=drive_link) contains evidence of our efforts to plan our elicitation of requirements from Mr. Keogh, and any notes taken during the elicitation.
+2) This file [CarGO_CoProjectPitchORIGINAL.pdf](https://drive.google.com/file/d/1SwNXSIQbf5PmzQHZAJMXbSK73pQisVSl/view?usp=drive_link) contains our original pitch to Mr. Keogh, which was delivered on 6:30pm on Monday, November 4th, 2024.
+3) This file [CarGO_CoProjectPitchCORRECTED](https://drive.google.com/file/d/1yilMQILYlT_vgx3kC1Zy8xW9L-lFb603/view?usp=drive_link) contains a new version of the pitch, with all the corrections, amendments and deletions suggested by Mr. Keogh (and/or Dr. Keogh)
+4) This file [CarGO_CoDesign.pdf](https://drive.google.com/file/d/1qTYpUInC99jKFFq8VghlI2QfDRS0sfge/view?usp=drive_link) shows evidence of our efforts to design our software.
 5) This file [] which shows evidence of our efforts to test our software.
-6) This URL (https://github.com/bchen203/CargoCo)[https://github.com/bchen203/CargoCo] points to a GitHub repository of our code.
+6) This URL [https://github.com/bchen203/CargoCo](https://github.com/bchen203/CargoCo) points to a GitHub repository of our code.
 7) This YouTube video, that shows our software solving one balance, and one transfer test case (our choices, of the test cases Mr. Keogh gave us).
 8) This text file, is the [Logfile] log that was created by our software, during the making of the YouTube video in the previous bullet point.
 9) We would like to point out the following limitations:
