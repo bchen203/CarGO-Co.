@@ -125,6 +125,7 @@ class GUI:
         confirmShutDown = messagebox.askquestion("Shut Down", "Are you sure you want to shut down for the year?", icon="warning")
         if confirmShutDown == "yes":
             LogHandler.logEndOfYearShutdown()
+            self.save_state = {}
             self.updateJSON({"shutdown": True})
             self.master.destroy()
 
