@@ -181,6 +181,14 @@ class Calculate:
             return "balance"
         else:
             print("[ERROR] could not determine current instruction")
+    
+    def getNumAvailableSpaces(self):
+        availableSpaces = 0
+        for r in range(8):
+            for c in range(12):
+                if self.ship_bay_array[r][c].description == "UNUSED":
+                    availableSpaces += 1
+        return availableSpaces
 
 
 #inside the column of an array, returns topmost container

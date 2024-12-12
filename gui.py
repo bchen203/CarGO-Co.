@@ -494,9 +494,16 @@ class GUI:
             self.offload_list.update({description: curr_offload + 1}) # increase selected offload by 1
             self.offload_positions.append((y, x))
         else:
-            self.container_buttons[y][x].configure(background="#BCBCBC", activebackground="red")
-            self.offload_list.update({description: curr_offload - 1}) # decrease selected offload by 1
-            self.offload_positions.remove((y, x))
+            array, containerID = self.manifest.copyManifest()
+            calcTemp = calculate.Calculate(array, containerID)
+            pendingLoadsNum = sum(self.load_list.values())
+            pendingOffloadsNum = sum(self.offload_list.values())
+            if(calcTemp.getNumAvailableSpaces() - pendingLoadsNum + pendingOffloadsNum <= 0):
+                messagebox.showerror("Error", f"Cannot deselect offloaded container, the ship is at full capacity. Please remove a container from the pending loads list to continue.")
+            else:
+                self.container_buttons[y][x].configure(background="#BCBCBC", activebackground="red")
+                self.offload_list.update({description: curr_offload - 1}) # decrease selected offload by 1
+                self.offload_positions.remove((y, x))
         self.updateJSON({"offload_list": self.offload_list, "offload_positions": self.offload_positions})
         self.updatePendingOffloads()
 
@@ -608,19 +615,26 @@ class GUI:
         self.pending_offloads_button.config(text = pendingOffloadsText)
 
     def loadContainerPrompt(self):
-        loadContainerDescription = simpledialog.askstring(title="Load Container", prompt="Please enter a description for the container")
-        while(loadContainerDescription is not None and (loadContainerDescription.strip() == "" or loadContainerDescription.strip().upper() == "UNUSED" or loadContainerDescription.strip().upper() == "NAN")):
-            messagebox.showerror("Error", f"\"{loadContainerDescription}\" is an invalid container description")
+        array, containerID = self.manifest.copyManifest()
+        calcTemp = calculate.Calculate(array, containerID)
+        pendingLoadsNum = sum(self.load_list.values())
+        pendingOffloadsNum = sum(self.offload_list.values())
+        if(calcTemp.getNumAvailableSpaces() - pendingLoadsNum + pendingOffloadsNum <= 0):
+            messagebox.showerror("Error", f"Cannot load any more containers, the ship is at full capacity")
+        else:
             loadContainerDescription = simpledialog.askstring(title="Load Container", prompt="Please enter a description for the container")
-        if loadContainerDescription is not None:
-            if loadContainerDescription in self.load_list:
-                curr_load_dupe = self.load_list.get(loadContainerDescription)
-                self.load_list.update({loadContainerDescription: curr_load_dupe + 1}) # increase selected load by 1
-            else:
-                self.load_list[f"{loadContainerDescription}"] = 1
+            while(loadContainerDescription is not None and (loadContainerDescription.strip() == "" or loadContainerDescription.strip().upper() == "UNUSED" or loadContainerDescription.strip().upper() == "NAN")):
+                messagebox.showerror("Error", f"\"{loadContainerDescription}\" is an invalid container description")
+                loadContainerDescription = simpledialog.askstring(title="Load Container", prompt="Please enter a description for the container")
+            if loadContainerDescription is not None:
+                if loadContainerDescription in self.load_list:
+                    curr_load_dupe = self.load_list.get(loadContainerDescription)
+                    self.load_list.update({loadContainerDescription: curr_load_dupe + 1}) # increase selected load by 1
+                else:
+                    self.load_list[f"{loadContainerDescription}"] = 1
 
-            self.updateJSON({"load_list": self.load_list})
-            self.updatePendingLoads()
+                self.updateJSON({"load_list": self.load_list})
+                self.updatePendingLoads()
 
     def displayPendingLoadsList(self):
         self.pendingLoadsWindow = Toplevel()
