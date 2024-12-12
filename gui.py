@@ -34,7 +34,7 @@ class GUI:
                 self.updateJSON({"shutdown": False})
             else:
                 self.recover = True
-                self.updateJSON({"shutdown": False})
+                # self.updateJSON({"shutdown": False})
                 LogHandler.writeToLogSafe("Program recovered from crash.")
 
                 self.currUser = self.save_state.get("currUser")
@@ -62,10 +62,11 @@ class GUI:
                         self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
                         self.currInstruction = self.save_state.get("currInstruction")
                         self.instructionList = self.save_state.get("instructionList")
-                        self.instructionList = [calculate.Instruction(instruction.get("container_id"),
-                                                                      tuple(instruction.get("starting_location")),
-                                                                      tuple(instruction.get("ending_location")))
-                                                for instruction in self.instructionList]
+                        if self.instructionList:
+                            self.instructionList = [calculate.Instruction(instruction.get("container_id"),
+                                                                          tuple(instruction.get("starting_location")),
+                                                                          tuple(instruction.get("ending_location")))
+                                                    for instruction in self.instructionList]
                         array, containerID = self.manifest.copyManifest()
                         self.calc = calculate.Calculate(array, containerID)
 
@@ -277,7 +278,10 @@ class GUI:
                 # calculate solution without additional input
                 balancer = balance_operator.BalanceOperator(self.calc, self.manifest)
                 self.instructionList = balancer.perform_balance_operation(self.calc.ship_bay_array)
-                self.save_state.update({"currScreen": "displayInstructions", "instructionList": [instruction.__dict__ for instruction in self.instructionList]})
+                self.updateJSON({"currScreen": "displayInstructions"})
+                if self.instructionList:
+                    self.updateJSON({"instructionList": [instruction.__dict__ for instruction in self.instructionList]})
+
                 #for instruction in self.InstructionList:
                 #    instruction.print()
                 if not self.recover:
@@ -294,14 +298,17 @@ class GUI:
     def displayInstructions(self, index=None):
         preGridList = []
         postGridList = []
-        for i in range(len(self.instructionList)):
-            preGridList.append(deepcopy(self.calc.ship_bay_array))
-            self.calc.performInstruction(self.instructionList[i])
-            postGridList.append(deepcopy(self.calc.ship_bay_array))
-            self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.instructionList[i]))
+        if self.instructionList:
+            for i in range(len(self.instructionList)):
+                preGridList.append(deepcopy(self.calc.ship_bay_array))
+                self.calc.performInstruction(self.instructionList[i])
+                postGridList.append(deepcopy(self.calc.ship_bay_array))
+                self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.instructionList[i]))
 
-        if index and index < len(self.instructionList):
-            self.frames[index].place(relwidth=1, relheight=1)
+            if index and index < len(self.instructionList):
+                self.frames[index].place(relwidth=1, relheight=1)
+            else:
+                self.getNextInstruction()
         else:
             self.getNextInstruction()
         self.menuBar()
@@ -397,7 +404,7 @@ class GUI:
     def getNextInstruction(self):
         if(self.currInstruction == len(self.frames)):
             messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
-            if not self.recover:
+            if not self.recover and self.currInstruction:
                 self.frames[self.currInstruction-1].place_forget()
             self.frames = []
             self.initializeJSON()
