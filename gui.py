@@ -31,8 +31,10 @@ class GUI:
             if self.save_state.get("shutdown"):
                 self.selectOperation()
                 self.signIn()
+                self.updateJSON({"shutdown": False})
             else:
                 self.recover = True
+                self.updateJSON({"shutdown": False})
                 LogHandler.writeToLogSafe("Program recovered from crash.")
 
                 self.currUser = self.save_state.get("currUser")
@@ -46,6 +48,8 @@ class GUI:
                         self.operation = self.save_state.get("operation")
                         self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
                         self.containerSelect()
+                        self.updatePendingLoads()
+                        self.updatePendingOffloads()
                     case "calculateSolution":
                         self.operation = self.save_state.get("operation")
                         self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
