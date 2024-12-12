@@ -54,8 +54,8 @@ else:
 #      offloader.add_offload("Dallas Moon Shoes")
 #       offloader.add_offload("Tungsten Cubes")
 
-#Test 6: Adding new container names to Loading Loads List
-print("\nTest 6: Adding new container names to loading loads list")
+#Test 6: Adding new container names to Offloads List
+print("\nTest 6: Adding new container names to offloads list")
 loading = load_list_editor.Loader()
 loading.add_offload("Dallas Moon Shoes")
 loading.add_offload("Tungsten Cubes")
@@ -65,8 +65,8 @@ if "Dallas Moon Shoes" in loading.offload_list and "Tungsten Cubes" in loading.o
 else:
     print("Test Failed")
 
-#Test 7: Adding existing container name to Loading Loads List
-print("\nTest 7: Adding existing container name to loading loads list")
+#Test 7: Adding existing container name to offloads List
+print("\nTest 7: Adding existing container name to offloads list")
 loading.add_offload("Dallas Moon Shoes")
 
 if loading.offload_list["Dallas Moon Shoes"] == 2:
@@ -77,8 +77,8 @@ else:
 print("\nPrintout of offloads list:")
 loading.print_offload_list()
 
-#Test 8: Removing a container from a container name without duplicates for Loading Loads List
-print("\nTest 8: Removing a container from a container name without duplicates for loading loads list")
+#Test 8: Removing a container from a container name without duplicates for offloads List
+print("\nTest 8: Removing a container from a container name without duplicates for offloads list")
 loading.remove_offload_list("Tungsten Cubes")
 
 if loading.offload_list["Tungsten Cubes"] == 0:
@@ -87,16 +87,16 @@ else:
     print("Test Failed")
 
 
-#Test 9: Removing one instance of a container name with duplicates for Loading Loads List
-print("\nTest 9: Removing one instance of a container name with duplicates for loading loads list")
+#Test 9: Removing one instance of a container name with duplicates for offloads List
+print("\nTest 9: Removing one instance of a container name with duplicates for offloads list")
 loading.remove_offload_list("Dallas Moon Shoes")
 if loading.offload_list["Dallas Moon Shoes"] == 1:
     print("Test Passed")
 else:
     print("Test Failed")
 
-#Test 10: Get Loading Dictionary
-print("\nTest 10: Getting loading dictionary")
+#Test 10: Get offloads Dictionary
+print("\nTest 10: Getting offloads dictionary")
 load_dictionary = loading.get_offload_list()
 if load_dictionary["Dallas Moon Shoes"] == 1:
     print("Test Passed")
