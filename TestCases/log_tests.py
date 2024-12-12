@@ -27,34 +27,59 @@ def testCase(shipName, containerNameSample):
         LogHandler.logOperatorSignIn("Allison Burgers")
         print("Test 4: Operator signin with no previous operator works")
     except:
-        print("Test 4 Failed: Operator signin with no previous operator works")
+        print("Test 4 Failed: Operator signin with no previous operator fails")
 
     try:
         #Another signin/out, with a previous operator:
         LogHandler.logOperatorSignIn("Jamilton Snagwich")
         print("Test 5: Operator signing with previous operator works")
     except:
-        print("Test 5 Failed: Operator signing with previous operator works")
+        print("Test 5 Failed: Operator signing with previous operator fails")
         
 
     #Operator Comment:
 
     #Balance Log
-    LogHandler.logBalanceOperation("Dog", True)
-    LogHandler.logBalanceOperation("Fake", False)
+    try:
+        LogHandler.logBalanceOperation("Dog", True)
+        LogHandler.logBalanceOperation("Fake", False)
+        print("Test 6: logging balance does not throw an error")
+    except:
+        print("Test 6 Failed: logging balance fails")
+    
 
     #Load/Unload
-    LogHandler.logLoadUnloadOperation("Cat toys", True)
-    LogHandler.logLoadUnloadOperation("Dog Toys", False)
+    try:
+        LogHandler.logLoadUnloadOperation("Cat toys", True)
+        LogHandler.logLoadUnloadOperation("Dog Toys", False)
+        print("Test 7: logging logging load/offload does not throw an error")
+    except:
+        print("Test 7 Failed: logging load/offload fails")
+    
 
     #Finish Cycle
-    LogHandler.logFinishCycle("HMSJellyCatJack")
+    try:
+        LogHandler.logFinishCycle("HMSJellyCatJack")
+        print("Test 8: Finish Cycle does not throw an error")
+    except:
+        print("Test 8 Failed: Finish Cycle fails")
+
 
     #Shut down port for the year.
-    LogHandler.logEndOfYearShutdown()
+    try:
+        LogHandler.logEndOfYearShutdown()
+        print("Test 9: end of year shutdown does not throw an error")
+    except:
+        print("Test 9 Failed: end of year shutdown  fails")
+    
 
     #making sure signout works
-    LogHandler.logOperatorSignIn("Haocheng Mai")
+    try:
+        LogHandler.logOperatorSignIn("Haocheng Mai")
+        print("Test 10: Signin with no previous operator after a shutdown throws no errors")
+    except:
+        print("Test 10 Failed: sign-in fails")
+    
 
     
 def realisticLog(firstOperator, secondOperator, shipName, containerLoad, containerOffload):
