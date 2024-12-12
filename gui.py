@@ -1,3 +1,4 @@
+import time
 from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
@@ -20,18 +21,61 @@ class GUI:
         self.currUser = None
         self.frames = [] # store all pages of gui to display
         self.save_state = {}
+        self.recover = False
 
-        try:
-            if os.path.isfile("./save_state.json"):
-                with open("save_state.json", "r") as save_state:
-                    save_state_string = save_state.read()
-                    self.save_state = json.loads(save_state_string)
+        if os.path.isfile("save_state.json"):
+            with open("save_state.json", "r") as save_state_file:
+                save_state_string = save_state_file.read()
+                self.save_state = json.loads(save_state_string)
+                self.recover = True
+                save_state_file.close()
 
-            else: # first time opening program
-                self.selectOperation()
-                self.signIn()
-        except "Error":
-            print("An error has occured")
+            self.currUser = self.save_state.get("currUser")
+            currScreen = self.save_state.get("currScreen")
+
+            match currScreen: # place_forget() causes crash for screens beyond selectOperation
+                case "loadManifest":
+                    self.operation = self.save_state.get("operation")
+                    self.loadManifest()
+                case "containerSelect":
+                    self.operation = self.save_state.get("operation")
+                    self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+                    self.containerSelect()
+                case "calculateSolution":
+                    self.operation = self.save_state.get("operation")
+                    self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+
+                    if self.operation == "load":
+                        self.offload_list = self.save_state.get("offload_list")
+                        self.load_list = self.save_state.get("load_list")
+                    self.calculateSolution()
+                case "displayInstructions":
+                    self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+                    self.currInstruction = self.save_state.get("currInstruction")
+                    self.instructionList = self.save_state.get("instructionList")
+                    self.instructionList = [calculate.Instruction(instruction.get("container_id"),
+                                                                  tuple(instruction.get("starting_location")),
+                                                                  tuple(instruction.get("ending_location")))
+                                            for instruction in self.instructionList]
+
+                    array, containerID = self.manifest.copyManifest()
+                    self.calc = calculate.Calculate(array, containerID)
+
+                    preGridList = []
+                    postGridList = []
+
+                    for i in range(len(self.instructionList)):
+                        preGridList.append(deepcopy(self.calc.ship_bay_array))
+                        self.calc.performInstruction(self.instructionList[i])
+                        postGridList.append(deepcopy(self.calc.ship_bay_array))
+                        self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.instructionList[i]))
+                    self.frames[self.save_state.get("currInstruction")].place(relwidth=1, relheight=1)
+                case _: # default to selectOperation
+                    self.selectOperation()
+
+        else: # first time opening program
+            self.selectOperation()
+            self.signIn()
 
 
 
@@ -52,8 +96,15 @@ class GUI:
         self.master.bind("<Configure>", lambda event: self.placeMenuBar())
 
     def placeMenuBar(self):
+        self.removeMenuBar()
         self.userMenu.place(x=self.master.winfo_width() - self.userMenu.winfo_reqwidth(), y=0)
         self.logMenu.place(x=0, y=0)
+
+    def removeMenuBar(self):
+        if self.userMenu:
+            self.userMenu.place_forget()
+        if self.logMenu:
+            self.logMenu.place_forget()
 
     def signIn(self):
         #TODO: [LOG] implicit sign out
@@ -188,8 +239,6 @@ class GUI:
             self.manifest = manifest.Manifest(self.manifest_file.name)
             self.updateJSON({"manifest_file": self.manifest_file.name})
 
-            array, containerID = self.manifest.copyManifest()
-            self.calc = calculate.Calculate(array, containerID)
             # redisplay manifest_upload with button for next screen
             self.manifest_upload.place_forget()
             self.userMenu.place_forget()
@@ -217,6 +266,8 @@ class GUI:
                                           relheight=0.1)
     def calculateSolution(self):
         self.updateJSON({"currScreen": "calculateSolution", "currInstruction": 0})
+        array, containerID = self.manifest.copyManifest()
+        self.calc = calculate.Calculate(array, containerID)
         self.instructionList = []
         self.currInstruction = 0
         if self.manifest is None:
@@ -225,7 +276,8 @@ class GUI:
         else:
             if self.operation == "load":
                 #TODO: load/offload select screen
-                self.container_select.place_forget()
+                if not self.recover:
+                    self.container_select.place_forget()
             else: # balance solution
                 # calculate solution without additional input
                 balancer = balance_operator.BalanceOperator(self.calc, self.manifest)
@@ -233,7 +285,8 @@ class GUI:
                 self.save_state.update({"currScreen": "displayInstructions", "instructionList": [instruction.__dict__ for instruction in self.instructionList]})
                 #for instruction in self.InstructionList:
                 #    instruction.print()
-                self.manifest_upload.place_forget()
+                if not self.recover:
+                    self.manifest_upload.place_forget()
             
             
             preGridList = []
@@ -343,40 +396,57 @@ class GUI:
     def getNextInstruction(self):
         if(self.currInstruction == len(self.frames)):
             messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
-            self.frames[self.currInstruction-1].place_forget()
+            if not self.recover:
+                self.frames[self.currInstruction-1].place_forget()
             self.frames = []
             self.initializeJSON()
             self.selectOperation()
         else:
             if(self.currInstruction != 0):
-                self.frames[self.currInstruction-1].place_forget()
+                if not self.recover:
+                    self.frames[self.currInstruction-1].place_forget()
             instruction_frame = self.frames[self.currInstruction]
             instruction_frame.place(relwidth=1, relheight=1)
             #self.menuBar()
-            self.currInstruction += 1
             self.updateJSON({"currInstruction": self.currInstruction})
+            self.currInstruction += 1
 
     def containerSelect(self):
         self.updateJSON({"currScreen": "containerSelect"})
-        self.manifest_upload.place_forget()
-        self.load_list = {}
-        self.offload_list = {}
-        self.offload_positions = [] # only use for recovering from save state
+        self.grid = self.manifest.copyManifest()[0]
+        if not self.recover:
+            self.manifest_upload.place_forget()
 
-
+            self.load_list = {}
+            self.offload_list = {}
+            self.offload_positions = [] # only use for recovering from save state
+            for r in range(8):
+                for c in range(12):
+                    if self.grid[r][c].description != "NAN" and self.grid[r][c].description != "UNUSED":
+                        self.offload_list[f"{self.grid[r][c].description}"] = 0
+            self.updateJSON({"offload_list": self.offload_list})
+        else:
+            self.load_list = self.save_state.get("load_list")
+            self.offload_list = self.save_state.get("offload_list")
+            self.offload_positions = self.save_state.get("offload_positions")
+            if not self.load_list:
+                self.load_list = {}
+            if not self.offload_list:
+                self.offload_list = {}
+                for r in range(8):
+                    for c in range(12):
+                        if self.grid[r][c].description != "NAN" and self.grid[r][c].description != "UNUSED":
+                            self.offload_list[f"{self.grid[r][c].description}"] = 0
+            if not self.offload_positions:
+                self.offload_positions = []
+            else:
+                self.offload_positions = [tuple(pair) for pair in self.offload_positions]
         self.container_select = Frame(self.master)
 
         self.manifest_display = Frame(self.container_select)
         self.manifest_label = Label(self.container_select,
                                     text="Select Containers to Load/Offload",
                                     font=("Arial", 30, "bold"))
-        self.grid = self.manifest.copyManifest()[0]
-
-        for r in range(8):
-            for c in range(12):
-                if self.grid[r][c].description != "NAN" and self.grid[r][c].description != "UNUSED":
-                    self.offload_list[f"{self.grid[r][c].description}"] = 0
-        self.updateJSON({"offload_list": self.offload_list})
 
         # buttons for selecting containers for offload
         self.configureGridDisplay(self.manifest_display, self.grid)
@@ -389,7 +459,11 @@ class GUI:
                     self.container_buttons[r][c].configure(activebackground="red", command=lambda x=c, y=r: self.toggle_container(x, y))
                     self.container_buttons[r][c].bind("<Enter>", lambda event, x=r, y=c: self.displayContainerInfo(x, y))
                     self.container_buttons[r][c].bind("<Leave>", lambda event: self.removeContainerInfo())
-
+        if self.recover:
+            if self.offload_positions:
+                for i in range(len(self.offload_positions)):
+                    r, c = self.offload_positions[i]
+                    self.container_buttons[r][c].configure(background="red", activebackground="#BCBCBC")
         for r in range(7, -1, -1):
             for c in range(12):
                 self.container_buttons[r][c].place(relwidth=1, relheight=1)
@@ -556,7 +630,6 @@ class GUI:
 
             self.updateJSON({"load_list": self.load_list})
             self.updatePendingLoads()
-            print(self.load_list)
 
     def displayPendingLoadsList(self):
         self.pendingLoadsWindow = Toplevel()
@@ -636,9 +709,10 @@ class GUI:
     def loadManifest(self):
         self.updateJSON({"operation": self.operation, "currScreen": "loadManifest"})
         # deload operation selection screen
-        self.operation_select.place_forget()
-        self.userMenu.place_forget()
-        self.logMenu.place_forget()
+        if not self.recover:
+            self.operation_select.place_forget()
+            self.userMenu.place_forget()
+            self.logMenu.place_forget()
 
         # configure manifest upload screen
         self.manifest_upload = Frame(self.master)
