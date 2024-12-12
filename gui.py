@@ -1,4 +1,3 @@
-import time
 from tkinter import *
 from tkinter import filedialog
 from tkinter import simpledialog
@@ -28,42 +27,47 @@ class GUI:
                 save_state_string = save_state_file.read()
                 self.save_state = json.loads(save_state_string)
                 save_state_file.close()
-            self.recover = True
-            LogHandler.writeToLogSafe("Program recovered from crash.")
 
-            self.currUser = self.save_state.get("currUser")
-            currScreen = self.save_state.get("currScreen")
+            if self.save_state.get("shutdown"):
+                self.selectOperation()
+                self.signIn()
+            else:
+                self.recover = True
+                LogHandler.writeToLogSafe("Program recovered from crash.")
 
-            match currScreen: # place_forget() causes crash for screens beyond selectOperation
-                case "loadManifest":
-                    self.operation = self.save_state.get("operation")
-                    self.loadManifest()
-                case "containerSelect":
-                    self.operation = self.save_state.get("operation")
-                    self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
-                    self.containerSelect()
-                case "calculateSolution":
-                    self.operation = self.save_state.get("operation")
-                    self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+                self.currUser = self.save_state.get("currUser")
+                currScreen = self.save_state.get("currScreen")
 
-                    if self.operation == "load":
-                        self.offload_list = self.save_state.get("offload_list")
-                        self.load_list = self.save_state.get("load_list")
-                    self.calculateSolution()
-                case "displayInstructions":
-                    self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
-                    self.currInstruction = self.save_state.get("currInstruction")
-                    self.instructionList = self.save_state.get("instructionList")
-                    self.instructionList = [calculate.Instruction(instruction.get("container_id"),
-                                                                  tuple(instruction.get("starting_location")),
-                                                                  tuple(instruction.get("ending_location")))
-                                            for instruction in self.instructionList]
-                    array, containerID = self.manifest.copyManifest()
-                    self.calc = calculate.Calculate(array, containerID)
+                match currScreen: # place_forget() causes crash for screens beyond selectOperation
+                    case "loadManifest":
+                        self.operation = self.save_state.get("operation")
+                        self.loadManifest()
+                    case "containerSelect":
+                        self.operation = self.save_state.get("operation")
+                        self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+                        self.containerSelect()
+                    case "calculateSolution":
+                        self.operation = self.save_state.get("operation")
+                        self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
 
-                    self.displayInstructions(self.currInstruction)
-                case _: # default to selectOperation
-                    self.selectOperation()
+                        if self.operation == "load":
+                            self.offload_list = self.save_state.get("offload_list")
+                            self.load_list = self.save_state.get("load_list")
+                        self.calculateSolution()
+                    case "displayInstructions":
+                        self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+                        self.currInstruction = self.save_state.get("currInstruction")
+                        self.instructionList = self.save_state.get("instructionList")
+                        self.instructionList = [calculate.Instruction(instruction.get("container_id"),
+                                                                      tuple(instruction.get("starting_location")),
+                                                                      tuple(instruction.get("ending_location")))
+                                                for instruction in self.instructionList]
+                        array, containerID = self.manifest.copyManifest()
+                        self.calc = calculate.Calculate(array, containerID)
+
+                        self.displayInstructions(self.currInstruction)
+                    case _: # default to selectOperation
+                        self.selectOperation()
 
         else: # first time opening program
             self.selectOperation()
@@ -117,6 +121,7 @@ class GUI:
         confirmShutDown = messagebox.askquestion("Shut Down", "Are you sure you want to shut down for the year?", icon="warning")
         if confirmShutDown == "yes":
             LogHandler.logEndOfYearShutdown()
+            self.updateJSON({"shutdown": True})
             self.master.destroy()
 
     def addLogComment(self):
