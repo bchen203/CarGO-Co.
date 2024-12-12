@@ -27,8 +27,9 @@ class GUI:
             with open("save_state.json", "r") as save_state_file:
                 save_state_string = save_state_file.read()
                 self.save_state = json.loads(save_state_string)
-                self.recover = True
                 save_state_file.close()
+            self.recover = True
+            LogHandler.writeToLogSafe("Program recovered from crash.")
 
             self.currUser = self.save_state.get("currUser")
             currScreen = self.save_state.get("currScreen")
@@ -57,19 +58,10 @@ class GUI:
                                                                   tuple(instruction.get("starting_location")),
                                                                   tuple(instruction.get("ending_location")))
                                             for instruction in self.instructionList]
-
                     array, containerID = self.manifest.copyManifest()
                     self.calc = calculate.Calculate(array, containerID)
 
-                    preGridList = []
-                    postGridList = []
-
-                    for i in range(len(self.instructionList)):
-                        preGridList.append(deepcopy(self.calc.ship_bay_array))
-                        self.calc.performInstruction(self.instructionList[i])
-                        postGridList.append(deepcopy(self.calc.ship_bay_array))
-                        self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.instructionList[i]))
-                    self.frames[self.save_state.get("currInstruction")].place(relwidth=1, relheight=1)
+                    self.displayInstructions(self.currInstruction)
                 case _: # default to selectOperation
                     self.selectOperation()
 
@@ -96,15 +88,8 @@ class GUI:
         self.master.bind("<Configure>", lambda event: self.placeMenuBar())
 
     def placeMenuBar(self):
-        self.removeMenuBar()
         self.userMenu.place(x=self.master.winfo_width() - self.userMenu.winfo_reqwidth(), y=0)
         self.logMenu.place(x=0, y=0)
-
-    def removeMenuBar(self):
-        if self.userMenu:
-            self.userMenu.place_forget()
-        if self.logMenu:
-            self.logMenu.place_forget()
 
     def signIn(self):
         #TODO: [LOG] implicit sign out
@@ -146,11 +131,11 @@ class GUI:
     def viewLog(self):
         #TODO: retrieve log file
         # NOTE: might need to change directory to read log from desktop
-        logConents = LogHandler.getLogContents()
+        logContents = LogHandler.getLogContents()
 
         self.logWindow = Toplevel()
         self.logWindow.grab_set() # ensure that other windows cannot be modified while this one is open
-        self.logWindow.geometry("1500x900")
+        self.logWindow.geometry(f"{self.master.winfo_width()}x{self.master.winfo_height()}")
         self.logWindow.title("View Log")
         self.log_listbox = Listbox(self.logWindow,
                           activestyle="none")
@@ -161,7 +146,7 @@ class GUI:
                                        command=self.log_listbox.yview)
         self.log_listbox.config(yscrollcommand = self.log_scrollbar.set)
 
-        for line in logConents.splitlines():
+        for line in logContents.splitlines():
             self.log_listbox.insert(END, line)
         self.log_listbox.see(END)
 
@@ -287,23 +272,29 @@ class GUI:
                 #    instruction.print()
                 if not self.recover:
                     self.manifest_upload.place_forget()
-            
-            
-            preGridList = []
-            postGridList = []
 
-            for i in range(len(self.instructionList)):
-                preGridList.append(deepcopy(self.calc.ship_bay_array))
-                self.calc.performInstruction(self.instructionList[i])
-                postGridList.append(deepcopy(self.calc.ship_bay_array))
-                self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.instructionList[i]))
-            self.getNextInstruction()
+            self.displayInstructions()
             self.menuBar()
             #TESTING renderInstructionFrame below
             # postManifest_file = "SampleManifests/customManifest.txt"
             # postManifest = manifest.Manifest(postManifest_file)
             # post = postManifest.copyManifest()[0]
             # self.renderInstructionFrame(self.calc.ship_bay_array, post, None)
+
+    def displayInstructions(self, index=None):
+        preGridList = []
+        postGridList = []
+        for i in range(len(self.instructionList)):
+            preGridList.append(deepcopy(self.calc.ship_bay_array))
+            self.calc.performInstruction(self.instructionList[i])
+            postGridList.append(deepcopy(self.calc.ship_bay_array))
+            self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.instructionList[i]))
+
+        if index and index < len(self.instructionList):
+            self.frames[index].place(relwidth=1, relheight=1)
+        else:
+            self.getNextInstruction()
+        self.menuBar()
 
     def renderInstructionFrame(self, preGrid, postGrid, currInstruction):
         instruction_frame = Frame(self.master)
