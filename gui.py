@@ -7,6 +7,8 @@ import manifest
 import LogHandler
 import calculate
 import balance_operator
+import json
+import os
 
 class GUI:
 
@@ -17,9 +19,21 @@ class GUI:
         self.operation = ""
         self.currUser = None
         self.frames = [] # store all pages of gui to display
+        self.save_state = {}
 
-        self.selectOperation()
-        self.signIn()
+        try:
+            if os.path.isfile("./save_state.json"):
+                with open("save_state.json", "r") as save_state:
+                    save_state_string = save_state.read()
+                    self.save_state = json.loads(save_state_string)
+
+            else: # first time opening program
+                self.selectOperation()
+                self.signIn()
+        except "Error":
+            print("An error has occured")
+
+
 
     def menuBar(self):
         self.userMenu = Menubutton(self.master, text=self.currUser, bd=0)
@@ -53,6 +67,7 @@ class GUI:
                 messagebox.showerror("Error", f"\"{currUser}\" is an invalid name")
             currUser = simpledialog.askstring(title="User Sign In", prompt="Please enter your name to sign in")
         if currUser is not None:
+            self.updateJSON({"currUser": currUser})
             self.currUser = currUser
             self.userMenu.configure(text=self.currUser)
             #TODO: [LOG] sign in
@@ -106,6 +121,7 @@ class GUI:
 
 
     def selectOperation(self):
+        self.updateJSON({"currScreen": "selectOperation"})
 
         self.operation_select = Frame(self.master, height=720, width=1080)
 
@@ -170,6 +186,8 @@ class GUI:
 
         if self.manifest_file is not None:
             self.manifest = manifest.Manifest(self.manifest_file.name)
+            self.updateJSON({"manifest_file": self.manifest_file.name})
+
             array, containerID = self.manifest.copyManifest()
             self.calc = calculate.Calculate(array, containerID)
             # redisplay manifest_upload with button for next screen
@@ -198,7 +216,8 @@ class GUI:
                                           relwidth = 1,
                                           relheight=0.1)
     def calculateSolution(self):
-        self.InstructionList = []
+        self.updateJSON({"currScreen": "calculateSolution", "currInstruction": 0})
+        self.instructionList = []
         self.currInstruction = 0
         if self.manifest is None:
             # TODO: error popup
@@ -210,7 +229,8 @@ class GUI:
             else: # balance solution
                 # calculate solution without additional input
                 balancer = balance_operator.BalanceOperator(self.calc, self.manifest)
-                self.InstructionList = balancer.perform_balance_operation(self.calc.ship_bay_array)
+                self.instructionList = balancer.perform_balance_operation(self.calc.ship_bay_array)
+                self.save_state.update({"currScreen": "displayInstructions", "instructionList": [instruction.__dict__ for instruction in self.instructionList]})
                 #for instruction in self.InstructionList:
                 #    instruction.print()
                 self.manifest_upload.place_forget()
@@ -219,11 +239,11 @@ class GUI:
             preGridList = []
             postGridList = []
 
-            for i in range(len(self.InstructionList)):
+            for i in range(len(self.instructionList)):
                 preGridList.append(deepcopy(self.calc.ship_bay_array))
-                self.calc.performInstruction(self.InstructionList[i])
+                self.calc.performInstruction(self.instructionList[i])
                 postGridList.append(deepcopy(self.calc.ship_bay_array))
-                self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.InstructionList[i]))
+                self.frames.append(self.renderInstructionFrame(preGridList[i], postGridList[i], self.instructionList[i]))
             self.getNextInstruction()
             self.menuBar()
             #TESTING renderInstructionFrame below
@@ -325,6 +345,7 @@ class GUI:
             messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
             self.frames[self.currInstruction-1].place_forget()
             self.frames = []
+            self.initializeJSON()
             self.selectOperation()
         else:
             if(self.currInstruction != 0):
@@ -333,11 +354,14 @@ class GUI:
             instruction_frame.place(relwidth=1, relheight=1)
             #self.menuBar()
             self.currInstruction += 1
+            self.updateJSON({"currInstruction": self.currInstruction})
 
     def containerSelect(self):
+        self.updateJSON({"currScreen": "containerSelect"})
         self.manifest_upload.place_forget()
         self.load_list = {}
         self.offload_list = {}
+        self.offload_positions = [] # only use for recovering from save state
 
 
         self.container_select = Frame(self.master)
@@ -352,6 +376,7 @@ class GUI:
             for c in range(12):
                 if self.grid[r][c].description != "NAN" and self.grid[r][c].description != "UNUSED":
                     self.offload_list[f"{self.grid[r][c].description}"] = 0
+        self.updateJSON({"offload_list": self.offload_list})
 
         # buttons for selecting containers for offload
         self.configureGridDisplay(self.manifest_display, self.grid)
@@ -362,8 +387,8 @@ class GUI:
                 # configure container selection toggle and hover for complete container info
                 if self.container_buttons[r][c].cget("text") != "NAN" and self.container_buttons[r][c].cget("text") != "UNUSED":
                     self.container_buttons[r][c].configure(activebackground="red", command=lambda x=c, y=r: self.toggle_container(x, y))
-                    self.container_buttons[r][c].bind("<Enter>", lambda event, x=r, y=c: self.displayContainerInfo(event, x, y))
-                    self.container_buttons[r][c].bind("<Leave>", lambda event, x=r, y=c: self.removeContainerInfo(event, x, y))
+                    self.container_buttons[r][c].bind("<Enter>", lambda event, x=r, y=c: self.displayContainerInfo(x, y))
+                    self.container_buttons[r][c].bind("<Leave>", lambda event: self.removeContainerInfo())
 
         for r in range(7, -1, -1):
             for c in range(12):
@@ -402,15 +427,16 @@ class GUI:
         if self.container_buttons[y][x].cget("bg") == "#BCBCBC":
             self.container_buttons[y][x].configure(background="red", activebackground="#BCBCBC")
             self.offload_list.update({description: curr_offload + 1}) # increase selected offload by 1
-
+            self.offload_positions.append((y, x))
         else:
             self.container_buttons[y][x].configure(background="#BCBCBC", activebackground="red")
             self.offload_list.update({description: curr_offload - 1}) # decrease selected offload by 1
-
+            self.offload_positions.remove((y, x))
+        self.updateJSON({"offload_list": self.offload_list, "offload_positions": self.offload_positions})
         self.updatePendingOffloads()
 
 
-    def displayContainerInfo(self, event, x, y):
+    def displayContainerInfo(self, x, y):
         self.container_info_border = Frame(self.container_select, bd=4, background="black")
         self.container_info = Frame(self.container_info_border)
         self.container_info_title = Label(self.container_info, text="Container Information", font=("Arial", 14, "bold"))
@@ -430,7 +456,7 @@ class GUI:
         self.container_info.place(relwidth=1, relheight=1)
         self.container_info_border.place(relx=0.02, rely=0.65, relwidth=0.2, relheight=0.2)
     
-    def removeContainerInfo(self, event, x, y):
+    def removeContainerInfo(self):
         self.container_info_border.place_forget()
 
     def renderLoadOffloadButtons(self):
@@ -527,6 +553,8 @@ class GUI:
                 self.load_list.update({loadContainerDescription: curr_load_dupe + 1}) # increase selected load by 1
             else:
                 self.load_list[f"{loadContainerDescription}"] = 1
+
+            self.updateJSON({"load_list": self.load_list})
             self.updatePendingLoads()
             print(self.load_list)
 
@@ -598,6 +626,7 @@ class GUI:
                     del self.load_list[container2DeleteDescription]
                 else:
                     self.load_list.update({container2DeleteDescription: curr_load_dupe - 1}) # increase selected load by 1
+        self.updateJSON({"load_list": self.load_list})
         self.updatePendingLoads()
 
     #def displayPendingOffloadsList(self):
@@ -605,6 +634,7 @@ class GUI:
 
 
     def loadManifest(self):
+        self.updateJSON({"operation": self.operation, "currScreen": "loadManifest"})
         # deload operation selection screen
         self.operation_select.place_forget()
         self.userMenu.place_forget()
@@ -661,3 +691,15 @@ class GUI:
         # redraw menubar over manifest_upload screen
         self.menuBar()
         self.select_manifest_file()
+
+    def updateJSON(self, dict):
+        self.save_state.update(dict)
+        with open("save_state.json", "w") as file:
+            file.write(json.dumps(self.save_state, indent=4))
+            file.close()
+
+    def initializeJSON(self):
+        self.save_state = {"currUser": self.currUser}
+        with open("save_state.json", "w") as file:
+            file.write(json.dumps(self.save_state, indent=4))
+            file.close()
