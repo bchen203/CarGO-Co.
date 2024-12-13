@@ -73,7 +73,7 @@ class Load_Offload_Operator():
                 for container in movable_containers:
                     if(self.is_in_offloads(loader,container)): #for offloads
                         #print("offload time")
-                        curInstruction = calculate.Instruction(container.id, (container.y,container.x),(8,0))
+                        curInstruction = calculate.Instruction(container.id, (container.y,container.x),(8,0),container.description)
                         instructionTime = calculate.get_time(curInstruction.starting_location[0],curInstruction.starting_location[1],8,0)
                         newInstructions = list(curInstructionsArray)
                         newInstructions.append(curInstruction)
@@ -86,7 +86,7 @@ class Load_Offload_Operator():
                         load_destinations.append(calculate.get_supported_empty_space(self.calculator.ship_bay_array, column) )
                 if(self.get_truck_container(loader) and load_destinations != []):
                     for container in load_destinations: #for loads
-                        curInstruction = calculate.Instruction(0,(8,0),(container.y,container.x))
+                        curInstruction = calculate.Instruction(0,(8,0),(container.y,container.x),self.get_truck_container(loader))
                         instructionTime = calculate.get_time(8,0,curInstruction.ending_location[0],curInstruction.ending_location[1])
                         newInstructions = list(curInstructionsArray)
                         newInstructions.append(curInstruction)
@@ -102,7 +102,7 @@ class Load_Offload_Operator():
                             if not current_goal_slot == False: #False if none exists in that column
 
 
-                                curInstruction = calculate.Instruction(container.id, (container.y, container.x), (current_goal_slot.y, current_goal_slot.x))
+                                curInstruction = calculate.Instruction(container.id, (container.y, container.x), (current_goal_slot.y, current_goal_slot.x),container.description)
                                 instructionTime = calculate.get_time(curInstruction.starting_location[0], curInstruction.starting_location[1], curInstruction.ending_location[0], curInstruction.ending_location[1])
                                 newInstructions = list(curInstructionsArray)
                                 newInstructions.append(curInstruction)
