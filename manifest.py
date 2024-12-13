@@ -111,6 +111,7 @@ class Manifest:
                     else:
                         file.write(f"{output}\n")
             file.close()
+            LogHandler.logFinishCycle(self.filename[:-4][self.filename[:-4].rfind('/')+1:])
         except:
             print(f"[ERROR] Failed to create outbound manifest file for {self.filename}.")
 

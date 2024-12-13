@@ -75,8 +75,8 @@ def logLoadUnloadOperation(containerName, isLoad):
         writeToLogSafe(f"\"{containerName}\" is offloaded.")
     
 
-def logBalanceOperation(shipName, isSift):
-    if isSift: #“2024-1-30: 15:40 Balanced HMSJakartaExplorer within the Maritime Law’s definition of balance.”
+def logBalanceOperation(shipName, isNotSift):
+    if isNotSift: #“2024-1-30: 15:40 Balanced HMSJakartaExplorer within the Maritime Law’s definition of balance.”
         writeToLogSafe(f"Balanced {shipName} within the Maritime Law\'s definition of balance.") 
     else: #2024-1-30: 15:40 HMSThanatos cannot be balanced within Maritime Law’s definition of balance. Balanced ship to match the goal state of SIFT.”
         writeToLogSafe(f"{shipName} cannot be balanced within Maritime Law\'s definition of balance. Balanced ship to match the goal state of SIFT.")

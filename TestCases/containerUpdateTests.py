@@ -38,7 +38,7 @@ print("Container 2 should be Dog, container 1 should be Cat")
 #Test Case 3 - Instantiating and printing Instructions:
 print("Testing Case 3 -  Instantiating and printing Instructions")
 print("Created instruction with id 45, Start Location (0,1), and End Location (4,6)")
-new_instruction = calculate.Instruction(45, (0,1), (4, 6))
+new_instruction = calculate.Instruction(45, (0,1), (4, 6), "TestInstruction")
 new_instruction.print()
 
 #Test Case 4 - Testing Calculate.py

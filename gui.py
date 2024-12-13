@@ -38,6 +38,7 @@ class GUI:
                 LogHandler.writeToLogSafe("Program recovered from crash.")
 
                 self.currUser = self.save_state.get("currUser")
+                LogHandler.logOperatorSignIn(self.currUser)
                 currScreen = self.save_state.get("currScreen")
 
                 match currScreen: # place_forget() causes crash for screens beyond selectOperation
@@ -65,7 +66,8 @@ class GUI:
                         if self.instructionList:
                             self.instructionList = [calculate.Instruction(instruction.get("container_id"),
                                                                           tuple(instruction.get("starting_location")),
-                                                                          tuple(instruction.get("ending_location")))
+                                                                          tuple(instruction.get("ending_location")),
+                                                                          instruction.get("description"))
                                                     for instruction in self.instructionList]
                         array, containerID = self.manifest.copyManifest()
                         self.calc = calculate.Calculate(array, containerID)
@@ -279,6 +281,23 @@ class GUI:
         else:
             if self.operation == "load":
                 #TODO: load/offload select screen
+
+                # SAMPLE LOAD/OFFLOAD OPERATIONS
+                # Instruction(self, container_id, start_coords, end_coords)
+                #self.manifest.printManifest()
+                loadInstruction1 = calculate.Instruction(self.calc.generateID(), (8,0), (0,3), "Load1")
+                offloadInstruction1 = calculate.Instruction(2, (1,0), (8,0), "Dog")
+                loadInstruction2 = calculate.Instruction(self.calc.generateID(), (8,0), (1,0), "Load2")
+                #loadInstruction1.print()
+                #loadInstruction2.print()
+                offloadInstruction2 = calculate.Instruction(self.calc.containerID, (1,0), (8,0), loadInstruction2.description)
+                self.instructionList = [loadInstruction1, offloadInstruction1, loadInstruction2, offloadInstruction2]
+
+
+                self.updateJSON({"currScreen": "displayInstructions"})
+                if self.instructionList:
+                    self.updateJSON({"instructionList": [instruction.__dict__ for instruction in self.instructionList]})
+                
                 if not self.recover:
                     self.container_select.place_forget()
             else: # balance solution
@@ -348,7 +367,7 @@ class GUI:
             else:
                 currInstructionETAString = f"ETA: {currInstructionETA} minutes"
             instructionDetails = self.generateInstructionDetails(preGrid, currInstruction)
-            print(instructionDetails)
+            #print(instructionDetails)
 
 
         instruction_frame = Frame(self.master)
@@ -385,7 +404,8 @@ class GUI:
                                        relief="flat",
                                        activebackground="#00CD14",
                                        borderwidth=0,
-                                       command=self.getNextInstruction)
+                                       command= lambda: self.getNextInstruction(currInstruction))
+
 
         if preGrid != None and postGrid != None:
             self.configureGridDisplay(pre_manifest_display, preGrid)
@@ -433,23 +453,26 @@ class GUI:
 
     def generateInstructionDetails(self, preGrid, currInstruction):
         calcTemp = calculate.Calculate(preGrid, -1) # does not care about containerID
+        #calcTempLoad = calculate.Calculate(postGrid, -1) # does not care about containerID
         currOperation = calcTemp.determineInstruction(currInstruction)
         if currOperation == "load":
-            return f"Load the container \"{calcTemp.getContainerDescription(currInstruction.container_id)}\" from the truck and place it at [{currInstruction.ending_location[0]+1},{currInstruction.ending_location[1]+1}]."
+            return f"Load the container \"{currInstruction.description}\" from the truck and place it at [{currInstruction.ending_location[0]+1},{currInstruction.ending_location[1]+1}]."
         elif currOperation == "offload":
-            return f"Offload the container \"{calcTemp.getContainerDescription(currInstruction.container_id)}\" located at [{currInstruction.starting_location[0]+1},{currInstruction.starting_location[1]+1}] and place it in the truck."
+            return f"Offload the container \"{currInstruction.description}\" located at [{currInstruction.starting_location[0]+1},{currInstruction.starting_location[1]+1}] and place it in the truck."
         elif currOperation == "balance": # could also be any container movement
-            return f"Move the container \"{calcTemp.getContainerDescription(currInstruction.container_id)}\" located at [{currInstruction.starting_location[0]+1},{currInstruction.starting_location[1]+1}] to [{currInstruction.ending_location[0]+1},{currInstruction.ending_location[1]+1}]."
+            return f"Move the container \"{currInstruction.description}\" located at [{currInstruction.starting_location[0]+1},{currInstruction.starting_location[1]+1}] to [{currInstruction.ending_location[0]+1},{currInstruction.ending_location[1]+1}]."
         else: 
             return("Could not generate instruction.")
 
-    def getNextInstruction(self):
-        print(self.currInstruction)
+    def getNextInstruction(self, currentInstruction=None):
+        #print(self.currInstruction)
+        #print(len(self.frames))
         if(self.currInstruction == len(self.frames)):
             if self.instructionList is None:
                 messagebox.showwarning("Info", "The current arrangement of containers is unbalanceable, no action needed")
             elif len(self.instructionList) == 0:
                 messagebox.showwarning("Info", "The current arrangement of containers is already balanced, no action needed")
+            self.exportManifest()
             messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
             if not self.recover and self.currInstruction:
                 self.frames[self.currInstruction-1].place_forget()
@@ -457,6 +480,8 @@ class GUI:
             self.initializeJSON()
             self.selectOperation()
         else:
+            if (currentInstruction != None) and ((currentInstruction.starting_location[0] == 8 and currentInstruction.starting_location[1] == 0)):
+                self.getLoadedWeight(currentInstruction)
             if(self.currInstruction != 0):
                 if not self.recover:
                     self.frames[self.currInstruction-1].place_forget()
@@ -465,6 +490,23 @@ class GUI:
             #self.menuBar()
             self.updateJSON({"currInstruction": self.currInstruction})
             self.currInstruction += 1
+
+    def exportManifest(self):
+        if self.operation == "balance":
+            LogHandler.logBalanceOperation(self.manifest_file.name[self.manifest_file.name.rfind('/')+1:], True)
+        self.manifest.updateManifest(self.calc.ship_bay_array)
+        self.manifest.exportManifest()
+
+    def getLoadedWeight(self, currentInstruction):
+        #print(currentInstruction.description)
+        #print(currentInstruction.print())
+        loadWeight = simpledialog.askinteger(title="Add Weight", prompt=f"Please enter the weight of \"{currentInstruction.description}\"")
+        while loadWeight == None or loadWeight < 0:
+            messagebox.showerror("Error", f"Please enter a weight for this container")
+            loadWeight = simpledialog.askinteger(title="Add Weight", prompt=f"Please enter the weight of \"{currentInstruction.description}\"")
+        if loadWeight > 99999:
+            loadWeight = 99999
+        self.calc.addLoadWeight(loadWeight, currentInstruction.container_id)
 
     def containerSelect(self):
         self.updateJSON({"currScreen": "containerSelect"})
@@ -538,6 +580,7 @@ class GUI:
         for r in range(8):
             for c in range(12):
                 temp = Button(self.container_button_frames[r][c], border=0, relief="flat", font=("Arial", 8, "bold"))
+                #temp.configure(text=grid[r][c].id)
                 temp.configure(text=grid[r][c].description[0:14])  # only display first 15 characters of container descriptions
                 # configure NAN locations
                 if grid[r][c].description == "NAN":
