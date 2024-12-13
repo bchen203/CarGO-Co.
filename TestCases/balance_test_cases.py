@@ -25,7 +25,7 @@ def test_case_1():
 
 #Unbalanceable:
 def test_case_2():
-    print("Test Case 2: Ship is cannot be Balanced (no SIFT yet)")
+    print("Test Case 2: Ship cannot be Balanced (no SIFT yet)")
     mani = manifest.Manifest("SampleManifests/BalanceTestUnbalanceable.txt")
     manifest_info = mani.copyManifest()
     calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
