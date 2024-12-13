@@ -62,7 +62,12 @@ load_offload_list.add_pending_load("Sheep")
 result_instructions = operator.perform_load_offload_operation(manifest_info[0],load_offload_list)
 
 for instruction in result_instructions:
-    instruction.print()
+    pass
+    #instruction.print()
+if(len(result_instructions) == 2):
+    print("Test Passed")
+else:
+    print("Test Failed")
 
 #Test 4: Run operator with Loader with a single offload with many containers above it
 print("Test 4: Run operator with Loader with a single offload with many containers above it")
@@ -77,8 +82,12 @@ load_offload_list.add_offload("Dog")
 result_instructions = operator.perform_load_offload_operation(manifest_info[0],load_offload_list)
 
 for instruction in result_instructions:
-    instruction.print()
-
+    pass
+    #instruction.print()
+if(len(result_instructions) == 6):
+    print("Test Passed")
+else:
+    print("Test Failed")
 
 #Test 5: Run operator with Loader with a completely full manifest requiring one load and offload
 print("Test 5: Run operator with Loader with a completely full manifest requiring one load and offload")
@@ -94,5 +103,56 @@ load_offload_list.add_offload("James")
 result_instructions = operator.perform_load_offload_operation(manifest_info[0],load_offload_list)
 
 for instruction in result_instructions:
-    instruction.print()
-    
+    pass
+    #instruction.print()
+if((len(result_instructions) == 2)):
+    print("Test Passed")
+else:
+    print("Test Failed")
+
+#Test 6: Run operator with Loader with a completely empty  manifest requiring 4 loads
+print("Test 6: Run operator with Loader with a completely empty  manifest requiring 4 loads")
+mani = manifest.Manifest("SampleManifests/ShipCaseEmpty.txt")
+manifest_info = mani.copyManifest()
+calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
+
+operator = load_offload_operator.Load_Offload_Operator(calculator)
+
+load_offload_list = load_list_editor.Loader()
+load_offload_list.add_pending_load("Worthy Edge Razors")
+load_offload_list.add_pending_load("Wright Brothers Model Planes")
+load_offload_list.add_pending_load("Fey Cosplay Molding Clay")
+load_offload_list.add_pending_load("Larry's Statues")
+result_instructions = operator.perform_load_offload_operation(manifest_info[0],load_offload_list)
+
+for instruction in result_instructions:
+    pass
+    #instruction.print()
+if((len(result_instructions) == 4)):
+    print("Test Passed")
+else:
+    print("Test Failed")
+
+'''
+#Test 7: Run operator with Case 6 from Dr. Keogh's email (Silver Queen)
+print("Test 7: Run operator with Case 6 from Dr. Keogh's email (Silver Queen)")
+mani = manifest.Manifest("SampleManifests/SilverQueen.txt")
+manifest_info = mani.copyManifest()
+calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
+
+operator = load_offload_operator.Load_Offload_Operator(calculator)
+
+load_offload_list = load_list_editor.Loader()
+load_offload_list.add_pending_load("Natron")
+load_offload_list.add_offload("Batons")
+load_offload_list.add_offload("Catfish")
+result_instructions = operator.perform_load_offload_operation(manifest_info[0],load_offload_list)
+
+for instruction in result_instructions:
+    pass
+    #instruction.print()
+if((len(result_instructions) == 4)):
+    print("Test Passed")
+else:
+    print("Test Failed")
+    '''

@@ -205,7 +205,7 @@ class Load_Offload_Operator():
             current_container = manifest.Container(0,self.get_truck_container(loader),1, instruction.ending_location[0], instruction.ending_location[1])
             self.loading_stack.append(current_container)
             loader.remove_pending_loads(current_container.description)
-            print("loading: %s", current_container.description)
+            #print("loading: %s", current_container.description)
             self.calculator.loadContainer(current_container.description,instruction.ending_location[0], instruction.ending_location[1])
             
         elif(instruction.ending_location[0] == 8 and instruction.ending_location[1] == 0): 
