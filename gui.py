@@ -71,6 +71,7 @@ class GUI:
                         self.calc = calculate.Calculate(array, containerID)
 
                         self.displayInstructions(self.currInstruction)
+                        self.currInstruction += 1
                     case _: # default to selectOperation
                         self.selectOperation()
 
@@ -402,6 +403,7 @@ class GUI:
         #self.menuBar()
 
     def getNextInstruction(self):
+        print(self.currInstruction)
         if(self.currInstruction == len(self.frames)):
             messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
             if not self.recover and self.currInstruction:
