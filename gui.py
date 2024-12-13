@@ -296,7 +296,12 @@ class GUI:
                 #self.instructionList = [loadInstruction1, offloadInstruction1, loadInstruction2, offloadInstruction2]
 
                 loaderOffloader = load_offload_operator.Load_Offload_Operator(self.calc)
-                load_offload_list = load_list_editor.Loader(self.load_list, self.offload_list)
+                #load_offload_list = load_list_editor.Loader(self.load_list, self.offload_list)
+                trimmed_offload_list = dict((description, dupes) for description, dupes in self.offload_list.items() if dupes > 0)
+                load_offload_list = load_list_editor.Loader(self.load_list, trimmed_offload_list)
+                print(self.load_list)
+                print(trimmed_offload_list)
+                
                 self.instructionList = loaderOffloader.perform_load_offload_operation(self.calc.ship_bay_array, load_offload_list)
                 #for instruction in self.instructionList:
                 #    instruction.print()
@@ -479,9 +484,15 @@ class GUI:
                 self.getLoadedWeight(currentInstruction)
         if(self.currInstruction == len(self.frames)):
             if self.instructionList is None:
-                messagebox.showwarning("Info", "The current arrangement of containers is unbalanceable, no action needed")
+                if self.operation == "load":
+                    messagebox.showwarning("Info", "No moves to perform, no action needed")
+                elif self.operation == "balance":
+                    messagebox.showwarning("Info", "The current arrangement of containers is unbalanceable, no action needed")
             elif len(self.instructionList) == 0:
-                messagebox.showwarning("Info", "The current arrangement of containers is already balanced, no action needed")
+                if self.operation == "load":
+                    messagebox.showwarning("Info", "No moves to perform, no action needed")
+                elif self.operation == "balance":
+                    messagebox.showwarning("Info", "The current arrangement of containers is already balanced, no action needed")
             self.exportManifest()
             messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
             if not self.recover and self.currInstruction:
