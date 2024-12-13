@@ -233,6 +233,12 @@ class GUI:
 
         if self.manifest_file is not None:
             self.manifest = manifest.Manifest(self.manifest_file.name)
+            while type(self.manifest.grid) == str:
+                messagebox.showerror("Error", f"{self.manifest.grid}")
+                self.manifest_upload.place_forget()
+                self.userMenu.place_forget()
+                self.logMenu.place_forget()
+                self.loadManifest()
             self.updateJSON({"manifest_file": self.manifest_file.name})
 
             # redisplay manifest_upload with button for next screen
@@ -282,7 +288,7 @@ class GUI:
                 if self.instructionList:
                     self.updateJSON({"instructionList": [instruction.__dict__ for instruction in self.instructionList]})
 
-                #for instruction in self.InstructionList:
+                #for instruction in self.instructionList:
                 #    instruction.print()
                 if not self.recover:
                     self.manifest_upload.place_forget()
@@ -299,6 +305,8 @@ class GUI:
         preGridList = []
         postGridList = []
         if self.instructionList:
+            if len(self.frames) == 0:
+                self.frames.append(self.renderInstructionFrame(None, None, None))
             for i in range(len(self.instructionList)):
                 preGridList.append(deepcopy(self.calc.ship_bay_array))
                 self.calc.performInstruction(self.instructionList[i])
@@ -314,6 +322,34 @@ class GUI:
         self.menuBar()
 
     def renderInstructionFrame(self, preGrid, postGrid, currInstruction):
+        if len(self.frames) == 0:
+            instructionSubHeader = "Overview"
+            currInstructionETAString = "" # set to empty so nothing is displated
+            totalETA = 0
+            # calculate the total ETA for all of the instructions
+            for i in range(len(self.instructionList)):
+                totalETA += calculate.get_time(self.instructionList[i].starting_location[0],self.instructionList[i].starting_location[1], self.instructionList[i].ending_location[0], self.instructionList[i].ending_location[1])
+            if totalETA == 1:
+                totalETAString = f"{totalETA} minute"
+            else:
+                totalETAString = f"{totalETA} minutes"
+
+            instructionCount = len(self.instructionList) # get total number of instructions
+            if instructionCount == 1:
+                instructionDetails = f"There is {instructionCount} move to complete.\nThis will take an estimated {totalETAString} to complete."
+            else:
+                instructionDetails = f"There are {instructionCount} moves to complete.\nThis will take an estimated {totalETAString} to complete."
+        else:
+            instructionSubHeader = f"Move {len(self.frames)}/{len(self.instructionList)}"
+            currInstructionETA = calculate.get_time(currInstruction.starting_location[0],currInstruction.starting_location[1], currInstruction.ending_location[0], currInstruction.ending_location[1])
+            if currInstructionETA == 1:
+                currInstructionETAString = f"ETA: {currInstructionETA} minute"
+            else:
+                currInstructionETAString = f"ETA: {currInstructionETA} minutes"
+            instructionDetails = self.generateInstructionDetails(preGrid, currInstruction)
+            print(instructionDetails)
+
+
         instruction_frame = Frame(self.master)
 
         pre_manifest_display = Frame(instruction_frame)
@@ -323,17 +359,17 @@ class GUI:
                                     font=("Arial", 30, "bold"))
         # TODO: dynamically update based on current move number (default/move=0 -> "Overview", move>0 -> "Move move/moveTotal")
         instruction_step = Label(instruction_frame,
-                                    text="Overview",
+                                    text=instructionSubHeader,
                                     font=("Arial", 15, "bold"))
         instruction_top_divider = Canvas(instruction_frame, background="black")
         instruction_description = Label(instruction_frame,
-                                    text=f"There are 21 moves to complete.\nThis will take an estimated 52 minutes to complete.\n{len(self.frames)}",
+                                    text=instructionDetails,
                                     font=("Arial", 15))
         instruction_step_divider = Canvas(instruction_frame, background="black")
         instruction_vertical_divider = Canvas(instruction_frame, background="black")
         instruction_bottom_divider = Canvas(instruction_frame, background="black")
         instruction_move_eta = Label(instruction_frame,
-                                    text="ETA: 0 minutes",
+                                    text=currInstructionETAString,
                                     font=("Arial", 20, "bold"))
 
         instruction_next_button_border = Frame(instruction_frame,
@@ -350,41 +386,34 @@ class GUI:
                                        borderwidth=0,
                                        command=self.getNextInstruction)
 
-        # Don't need offload_list for rendering instructions
-        # for r in range(8):
-        #     for c in range(12):
-        #         if self.preGrid[r][c].description != "NAN" and self.preGrid[r][c].description != "UNUSED":
-        #             self.offload_list[f"{self.preGrid[r][c].description}"] = 0
+        if preGrid != None and postGrid != None:
+            self.configureGridDisplay(pre_manifest_display, preGrid)
 
-        # buttons for selecting containers for offload
-        #self.container_buttons = [[None for r in range(12)] for c in range(8)]
-        self.configureGridDisplay(pre_manifest_display, preGrid)
+            # disable clicking and hover functionality for container_buttons
+            # TODO: check if this errors out if starting from balance containers
+            for r in range(8):
+                for c in range(12):
+                    # configure container selection toggle and hover for complete container info
+                    if self.container_buttons[r][c].cget("text") != "NAN" and self.container_buttons[r][c].cget("text") != "UNUSED":
+                        self.container_buttons[r][c].configure(activebackground="#BCBCBC")
+                        self.container_buttons[r][c].unbind("<Enter>")
+                        self.container_buttons[r][c].unbind("<Leave>")
 
-        # disable clicking and hover functionality for container_buttons
-        # TODO: check if this errors out if starting from balance containers
-        for r in range(8):
-            for c in range(12):
-                # configure container selection toggle and hover for complete container info
-                if self.container_buttons[r][c].cget("text") != "NAN" and self.container_buttons[r][c].cget("text") != "UNUSED":
-                    self.container_buttons[r][c].configure(activebackground="#BCBCBC")
-                    self.container_buttons[r][c].unbind("<Enter>")
-                    self.container_buttons[r][c].unbind("<Leave>")
+            # NOTE: to highlight a specific container
+            #   self.container_buttons[r][c].configure(background=color, activebackground=color)
 
-        # NOTE: to highlight a specific container
-        #   self.container_buttons[r][c].configure(background=color, activebackground=color)
-
-        for r in range(7, -1, -1):
-            for c in range(12):
-                self.container_buttons[r][c].place(relwidth=1, relheight=1)
-                self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
-        pre_manifest_display.place(relx=0.075, rely=0.58, relwidth=0.40, relheight=0.40, anchor="w")
-        
-        self.configureGridDisplay(post_manifest_display, postGrid)
-        for r in range(7, -1, -1):
-            for c in range(12):
-                self.container_buttons[r][c].place(relwidth=1, relheight=1)
-                self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
-        post_manifest_display.place(relx=0.925, rely=0.58, relwidth=0.40, relheight=0.40, anchor="e")
+            for r in range(7, -1, -1):
+                for c in range(12):
+                    self.container_buttons[r][c].place(relwidth=1, relheight=1)
+                    self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
+            pre_manifest_display.place(relx=0.075, rely=0.58, relwidth=0.40, relheight=0.40, anchor="w")
+            
+            self.configureGridDisplay(post_manifest_display, postGrid)
+            for r in range(7, -1, -1):
+                for c in range(12):
+                    self.container_buttons[r][c].place(relwidth=1, relheight=1)
+                    self.container_button_frames[r][c].place(relx=c*(1/12), rely=(7-r)*(1/8), relwidth=(1/12), relheight=(1/8))
+            post_manifest_display.place(relx=0.925, rely=0.58, relwidth=0.40, relheight=0.40, anchor="e")
         
         instruction_label.place(relx=0.5, rely=0.075, anchor="center")
         instruction_step.place(relx=0.5, rely=0.12, anchor="center")
@@ -401,8 +430,24 @@ class GUI:
         return instruction_frame
         #self.menuBar()
 
+    def generateInstructionDetails(self, preGrid, currInstruction):
+        calcTemp = calculate.Calculate(preGrid, -1) # does not care about containerID
+        currOperation = calcTemp.determineInstruction(currInstruction)
+        if currOperation == "load":
+            return f"Load the container \"{calcTemp.getContainerDescription(currInstruction.container_id)}\" from the truck and place it at [{currInstruction.ending_location[0]+1},{currInstruction.ending_location[1]+1}]."
+        elif currOperation == "offload":
+            return f"Offload the container \"{calcTemp.getContainerDescription(currInstruction.container_id)}\" located at [{currInstruction.starting_location[0]+1},{currInstruction.starting_location[1]+1}] and place it in the truck."
+        elif currOperation == "balance": # could also be any container movement
+            return f"Move the container \"{calcTemp.getContainerDescription(currInstruction.container_id)}\" located at [{currInstruction.starting_location[0]+1},{currInstruction.starting_location[1]+1}] to [{currInstruction.ending_location[0]+1},{currInstruction.ending_location[1]+1}]."
+        else: 
+            return("Could not generate instruction.")
+
     def getNextInstruction(self):
         if(self.currInstruction == len(self.frames)):
+            if self.instructionList is None:
+                messagebox.showwarning("Info", "The current arrangement of containers is unbalanceable, no action needed")
+            elif len(self.instructionList) == 0:
+                messagebox.showwarning("Info", "The current arrangement of containers is already balanced, no action needed")
             messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
             if not self.recover and self.currInstruction:
                 self.frames[self.currInstruction-1].place_forget()
@@ -769,11 +814,12 @@ class GUI:
                                        borderwidth=0,
                                        command=self.calculateSolution)
         self.container_select_button = Button(self.calculate_button_border,
+                                              background = "#00ff14",
                                               text="Select Containers",
                                               font=("Arial", 10, "bold"),
                                               wraplength=150,
                                               relief="flat",
-                                              activebackground="#DBDBDB",
+                                              activebackground="#00CD14",
                                               borderwidth=0,
                                               command=self.containerSelect)
 

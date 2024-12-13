@@ -83,9 +83,14 @@ class Calculate:
         return self.is_start_legal(rowStart,colStart) and self.is_end_legal(rowEnd,colEnd)
     
 
-    #calculates manhattan distance between start location (rowStart,colStart) and end location (rowEnd,colEnd) - FOR ONLY LOCATIONS INSIDE SHIP
-    def calculate_time(self,rowStart,colStart,rowEnd,colEnd):
-        return abs(rowStart-rowEnd) + abs(colStart-colEnd)
+    # #calculates manhattan distance between start location (rowStart,colStart) and end location (rowEnd,colEnd) - FOR ONLY LOCATIONS INSIDE SHIP
+    # def calculate_time(self,rowStart,colStart,rowEnd,colEnd):
+    #     if (rowEnd == 8 and colEnd == 0) or (rowStart == 8 and colStart == 0):
+    #         # +2 minutes to load/offload from a truck
+    #         return abs(rowStart-rowEnd) + abs(colStart-colEnd) + 2
+    #     else:
+    #         # time cost to move containers within the ship
+    #         return abs(rowStart-rowEnd) + abs(colStart-colEnd)
     
 
     # move containers that already exist on the ship
@@ -153,13 +158,13 @@ class Calculate:
     
     def performInstruction(self, currInstruction):
         # needs to determine what operation is being performed:
-        currInstruction.print()
+        #currInstruction.print()
         currOperation = self.determineInstruction(currInstruction)
-        print(currOperation)
+        #print(currOperation)
         if currOperation == "load":
             #TODO: replace description with container name derived from currInstruction.container_id if needed
             #TODO: make sure starting_location and ending_location are tuples in the form of (row,col)
-            self.loadContainer(currInstruction.description, currInstruction.ending_location[0], currInstruction.ending_location[1])
+            self.loadContainer(self.getContainerDescription(currInstruction.id), currInstruction.ending_location[0], currInstruction.ending_location[1])
         elif currOperation == "offload":
             self.offloadContainer(currInstruction.starting_location[0], currInstruction.starting_location[1])
         elif currOperation == "balance": # could also be any container movement
@@ -189,6 +194,14 @@ class Calculate:
                 if self.ship_bay_array[r][c].description == "UNUSED":
                     availableSpaces += 1
         return availableSpaces
+    
+    def getContainerDescription(self, id):
+        for r in range(8):
+            for c in range(12):
+                if self.ship_bay_array[r][c].id == id:
+                    return self.ship_bay_array[r][c].description
+        print(f"[ERROR] could not find a container with id {id}")
+        return None
 
 
 #inside the column of an array, returns topmost container

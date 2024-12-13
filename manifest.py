@@ -37,7 +37,9 @@ class Manifest:
     # initialize the manifest object by reading in a given manifest file
     def __init__(self, filename):
         if filename[-4:] != ".txt":
-            print("[ERROR] Invalid input manifest file type. Please input a .txt file")
+            errorMessage = "Invalid input manifest file type. Please input a .txt file"
+            print(f"[ERROR] {errorMessage}")
+            self.grid = errorMessage
         else:
             self.filename = filename
             try:
@@ -75,9 +77,13 @@ class Manifest:
                     # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
                     LogHandler.logManifestUpload((self.filename[self.filename.rfind('/')+1:])[:-4], self.containerID+1)
                 else:
-                    print(f"[ERROR] Input manifest {self.filename} has invalid format.")
+                    errorMessage = f"Input manifest {self.filename} has invalid format."
+                    print(f"[ERROR] {errorMessage}")
+                    self.grid = errorMessage
             except:
-                print(f"[ERROR] Could not open file {self.filename}.")
+                errorMessage = f"Could not open file {self.filename}."
+                print(f"[ERROR] {errorMessage}")
+                self.grid = errorMessage
 
     # export the outbound manifest
     def exportManifest(self):

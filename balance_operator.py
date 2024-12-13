@@ -79,7 +79,7 @@ class BalanceOperator():
                         instructionTime = calculate.get_time(curInstruction.starting_location[0], curInstruction.starting_location[1], curInstruction.ending_location[0], curInstruction.ending_location[1])
                         newInstructions = list(curInstructionsArray)
                         newInstructions.append(curInstruction)
-                        heapq.heappush(instruction_heap, (curInstructionTime + instructionTime, newInstructions)) #Pushing updated time and instruction array.
+                        heapq.heappush(instruction_heap, (curInstructionTime + instructionTime + 1, newInstructions)) #Pushing updated time and instruction array.
             
             #Reversing the changes:
             curInstructionsArray.reverse()
