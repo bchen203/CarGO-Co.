@@ -71,6 +71,7 @@ class GUI:
                         self.calc = calculate.Calculate(array, containerID)
 
                         self.displayInstructions(self.currInstruction)
+                        self.currInstruction += 1
                     case _: # default to selectOperation
                         self.selectOperation()
 
@@ -443,6 +444,7 @@ class GUI:
             return("Could not generate instruction.")
 
     def getNextInstruction(self):
+        print(self.currInstruction)
         if(self.currInstruction == len(self.frames)):
             if self.instructionList is None:
                 messagebox.showwarning("Info", "The current arrangement of containers is unbalanceable, no action needed")
