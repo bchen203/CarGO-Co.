@@ -73,7 +73,7 @@ class GUI:
                         self.calc = calculate.Calculate(array, containerID)
 
                         self.displayInstructions(self.currInstruction)
-                        self.currInstruction += 1
+                        # self.currInstruction += 1
                     case _: # default to selectOperation
                         self.selectOperation()
 
@@ -304,7 +304,7 @@ class GUI:
                 # calculate solution without additional input
                 balancer = balance_operator.BalanceOperator(self.calc, self.manifest)
                 self.instructionList = balancer.perform_balance_operation(self.calc.ship_bay_array)
-                self.updateJSON({"currScreen": "displayInstructions"})
+                self.updateJSON({"currScreen": "displayInstructions", "currInstruction": self.currInstruction})
                 if self.instructionList:
                     self.updateJSON({"instructionList": [instruction.__dict__ for instruction in self.instructionList]})
 
@@ -335,6 +335,7 @@ class GUI:
 
             if index and index < len(self.instructionList):
                 self.frames[index].place(relwidth=1, relheight=1)
+                self.currInstruction += 1
             else:
                 self.getNextInstruction()
         else:
@@ -465,7 +466,7 @@ class GUI:
             return("Could not generate instruction.")
 
     def getNextInstruction(self, currentInstruction=None):
-        #print(self.currInstruction)
+        # print(self.currInstruction)
         #print(len(self.frames))
         if(self.currInstruction == len(self.frames)):
             if self.instructionList is None:
