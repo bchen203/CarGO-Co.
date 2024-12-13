@@ -3,9 +3,9 @@ import manifest
 
 class Loader:
     
-    def __init__(self):
-        self.pending_loads = {}
-        self.offload_list = {}
+    def __init__(self, loads_list={}, offloads_list={}):
+        self.pending_loads = loads_list
+        self.offload_list = offloads_list
 
     #adds a container from a truck into the load list
     def add_pending_load(self,name):

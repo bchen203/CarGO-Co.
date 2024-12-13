@@ -7,6 +7,8 @@ import manifest
 import LogHandler
 import calculate
 import balance_operator
+import load_offload_operator
+import load_list_editor
 import json
 import os
 
@@ -285,14 +287,19 @@ class GUI:
                 # SAMPLE LOAD/OFFLOAD OPERATIONS
                 # Instruction(self, container_id, start_coords, end_coords)
                 #self.manifest.printManifest()
-                loadInstruction1 = calculate.Instruction(self.calc.generateID(), (8,0), (0,3), "Load1")
-                offloadInstruction1 = calculate.Instruction(2, (1,0), (8,0), "Dog")
-                loadInstruction2 = calculate.Instruction(self.calc.generateID(), (8,0), (1,0), "Load2")
+                #loadInstruction1 = calculate.Instruction(self.calc.generateID(), (8,0), (0,3), "Load1")
+                #offloadInstruction1 = calculate.Instruction(2, (1,0), (8,0), "Dog")
+                #loadInstruction2 = calculate.Instruction(self.calc.generateID(), (8,0), (1,0), "Load2")
                 #loadInstruction1.print()
                 #loadInstruction2.print()
-                offloadInstruction2 = calculate.Instruction(self.calc.containerID, (1,0), (8,0), loadInstruction2.description)
-                self.instructionList = [loadInstruction1, offloadInstruction1, loadInstruction2, offloadInstruction2]
+                #offloadInstruction2 = calculate.Instruction(self.calc.containerID, (1,0), (8,0), loadInstruction2.description)
+                #self.instructionList = [loadInstruction1, offloadInstruction1, loadInstruction2, offloadInstruction2]
 
+                loaderOffloader = load_offload_operator.Load_Offload_Operator(self.calc)
+                load_offload_list = load_list_editor.Loader(self.load_list, self.offload_list)
+                self.instructionList = loaderOffloader.perform_load_offload_operation(self.calc.ship_bay_array, load_offload_list)
+                #for instruction in self.instructionList:
+                #    instruction.print()
 
                 self.updateJSON({"currScreen": "displayInstructions"})
                 if self.instructionList:
@@ -468,6 +475,8 @@ class GUI:
     def getNextInstruction(self, currentInstruction=None):
         # print(self.currInstruction)
         #print(len(self.frames))
+        if (currentInstruction != None) and ((currentInstruction.starting_location[0] == 8 and currentInstruction.starting_location[1] == 0)):
+                self.getLoadedWeight(currentInstruction)
         if(self.currInstruction == len(self.frames)):
             if self.instructionList is None:
                 messagebox.showwarning("Info", "The current arrangement of containers is unbalanceable, no action needed")
@@ -481,8 +490,6 @@ class GUI:
             self.initializeJSON()
             self.selectOperation()
         else:
-            if (currentInstruction != None) and ((currentInstruction.starting_location[0] == 8 and currentInstruction.starting_location[1] == 0)):
-                self.getLoadedWeight(currentInstruction)
             if(self.currInstruction != 0):
                 if not self.recover:
                     self.frames[self.currInstruction-1].place_forget()
