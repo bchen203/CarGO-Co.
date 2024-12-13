@@ -32,7 +32,8 @@ class Load_Offload_Operator():
     def perform_load_offload_operation_uniform_cost(self, manifest_array,loader):
         #Need a heapqueue that has tuples (Total Time, [Array of instructions])
         instruction_heap = []
-        
+        #curId = self.get_highest_id(self.calculator.ship_bay_array)
+        #print(curId)
         heapq.heappush(instruction_heap, (0, [])) 
    
         
@@ -41,7 +42,7 @@ class Load_Offload_Operator():
             
             curInstructionTime = current_state[0]
             curInstructionsArray = current_state[1]
-            #print(curInstructionTime)
+           
             
             for instruction in curInstructionsArray: #applying current instructions, will need to reverse after
                 self.follow_instruction(instruction,loader)
@@ -52,6 +53,9 @@ class Load_Offload_Operator():
                 for instruction in reverseInstructions:
                     self.follow_reverse_instruction(instruction,loader)
                 return curInstructionsArray
+            
+           # if(self.get_highest_id(self.calculator.ship_bay_array) >= curId):
+           #     curId = self.get_highest_id(self.calculator.ship_bay_array)
 
             is_offload_possible_now = 0
             #Find each possible move, from each possible container:
@@ -82,7 +86,7 @@ class Load_Offload_Operator():
                         load_destinations.append(calculate.get_supported_empty_space(self.calculator.ship_bay_array, column) )
                 if(self.get_truck_container(loader) and load_destinations != []):
                     for container in load_destinations: #for loads
-                        curInstruction = calculate.Instruction(1,(8,0),(container.y,container.x))
+                        curInstruction = calculate.Instruction(0,(8,0),(container.y,container.x))
                         instructionTime = calculate.get_time(8,0,curInstruction.ending_location[0],curInstruction.ending_location[1])
                         newInstructions = list(curInstructionsArray)
                         newInstructions.append(curInstruction)
@@ -186,17 +190,31 @@ class Load_Offload_Operator():
                 return True
         
         return False
+    
+    #finds current highest id in array
+    def get_highest_id(self,array):
+        id = 0
+        for row in range(8):
+            for col in range(12):
+                if(array[row][col].id > id):
+                    id = array[row][col].id
+        return id
         
-    def follow_instruction(self,instruction,loader):
+    def follow_instruction(self,instruction,loader,):
        
         if(instruction.starting_location[0] == 8 and instruction.starting_location[1] == 0): 
             #instruction is load
             
-            current_container = manifest.Container(0,self.get_truck_container(loader),1, instruction.ending_location[0], instruction.ending_location[1])
+
+            current_container = manifest.Container(-1,self.get_truck_container(loader),-1, instruction.ending_location[0], instruction.ending_location[1])
+            
+            
             self.loading_stack.append(current_container)
             loader.remove_pending_loads(current_container.description)
             #print("loading: %s", current_container.description)
             self.calculator.loadContainer(current_container.description,instruction.ending_location[0], instruction.ending_location[1])
+            current_container.id = self.calculator.ship_bay_array[instruction.ending_location[0]][instruction.ending_location[1]].id
+            instruction.container_id = current_container.id
             
         elif(instruction.ending_location[0] == 8 and instruction.ending_location[1] == 0): 
             #instruction is offload
@@ -212,6 +230,7 @@ class Load_Offload_Operator():
     def follow_reverse_instruction(self,instruction,loader):
         if(instruction.starting_location[0] == 8 and instruction.starting_location[1] == 0):
             #instruction was load so we offload to reverse it
+            self.calculator.containerID = self.calculator.containerID - 1
             current_container = self.loading_stack.pop()
             loader.add_pending_load(current_container.description)
             self.calculator.offloadContainer(instruction.ending_location[0], instruction.ending_location[1])
