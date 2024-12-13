@@ -2,7 +2,7 @@ import manifest
 import calculate
 import heapq
 
-#TODO: Change the implementation of global variables
+
 
 class Load_Offload_Operator():
 
@@ -24,10 +24,7 @@ class Load_Offload_Operator():
         # Second: Calculate the solution
         solution_array = self.perform_load_offload_operation_uniform_cost(self.calculator.ship_bay_array,loader)
         
-        # Third: Making the moves (updating 2D array through calculate.py)
-        # for instruction in solution_array:
-        #     self.calculator.moveContainer(instruction.starting_location[0], instruction.starting_location[1], instruction.ending_location[0],  instruction.ending_location[1])
-        #     pass
+        
         self.instructionList = solution_array
 
         return solution_array
@@ -36,15 +33,8 @@ class Load_Offload_Operator():
         #Need a heapqueue that has tuples (Total Time, [Array of instructions])
         instruction_heap = []
         
-        heapq.heappush(instruction_heap, (0, [])) #Getting started, I'd like to write it so that the loop can handle it w/o special setup
-
-    # First, check if balanced (done in the function that calls this)
-    # Then, explore every single possible move, generating an instruction and pushing that and it's total time to the heapqueue
-    # For each tuple in the heapqueue, do the following loop:
-    # Pop move with least time. A
-    # Apply imstructions to the grid based on the list of instructions
-    # Find all possible moves, push all of them to the heapqueue, based on the old list of instructions
-    # Move on
+        heapq.heappush(instruction_heap, (0, [])) 
+   
         
         while(True): #break on finding a solution
             current_state = heapq.heappop(instruction_heap)
@@ -56,7 +46,7 @@ class Load_Offload_Operator():
             for instruction in curInstructionsArray: #applying current instructions, will need to reverse after
                 self.follow_instruction(instruction,loader)
 
-            if self.is_finished_transferring(loader): #break if balanced
+            if self.is_finished_transferring(loader): #break if complete
                 reverseInstructions = list(curInstructionsArray)
                 reverseInstructions.reverse()
                 for instruction in reverseInstructions:
@@ -236,72 +226,4 @@ class Load_Offload_Operator():
             self.calculator.moveContainer(instruction.ending_location[0], instruction.ending_location[1], instruction.starting_location[0], instruction.starting_location[1])
 
 
-    def get_partition(self, array): #Get the partition line (considering which side is left/right) returns last index of left side (inclusive)
-        return len(array[0])/2 - 1
-
-    #Given a list of containers and a tuple with the left and right side weights, figure out if everything is still sortable in the current state
-    def is_balanceable(self, containers, current_weight): 
-        container_weights = []
-        for container in containers:
-            container_weights.append(container.weight)
-
-        sorted_weights = (sorted(container_weights))
-        sorted_weights.reverse()
-        
-        for container in sorted_weights:
-            if current_weight[0] > current_weight[1]:
-                current_weight[1] += container
-            else:
-                current_weight[0] += container
-
-        if (self.is_balanced(current_weight[0], current_weight[1])):
-            return True
-        else:
-            return False
-
-    #Given a manifest, checks whether the ship is balanceable:
-    def is_ship_balanceable(self, manifest_array):
-        list_of_containers = []
-
-        for row in manifest_array:
-            for container in row: 
-                if not (container.description == "UNUSED" or container.description ==  "NAN"):
-                    list_of_containers.append(container)
-
-
-        current_weight = [0,0]
-
-        return self.is_balanceable(list_of_containers, current_weight)
-
-    # Given a left-side and right-side weight, returns True if balanced, False if not balanced.
-    def is_balanced(self, port_weight, starboard_weight):
-
-        if(port_weight < 1 or starboard_weight < 1): #catching 0 and below
-            return False
-
-        return (max(port_weight, starboard_weight) / min(port_weight , starboard_weight) < 1.1)
-
-    #Checks if a ship is balanced
-    def is_ship_balanced(self, manifest_array): #manifest is a 2D array
-        left_partition_inclusive = self.get_partition(manifest_array) 
-
-        port_weight = 0
-        starboard_weight = 0
-
-        for row in manifest_array: #assumign row-column?
-            i = 0
-            for container in row:
-                #skip if not a container (IE NAN or UNUSED)
-
-                if i <= left_partition_inclusive:
-                    port_weight += container.weight
-                else:
-                    starboard_weight += container.weight
-                i += 1
-        
-        return self.is_balanced(port_weight, starboard_weight)   
-
-    #returns instruction list, matching call to load/offload solution
-    def get_instruction_list(self):
-        #TODO: Add a check for whether a solution has been generated?
-        return self.instructionList
+   
