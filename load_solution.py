@@ -2,6 +2,7 @@ import manifest
 import calculate
 import load_list_editor
 import heapq
+import copy
 class Tree_Node:
     def __init__(self, array, loader,instruction,parent,instruction_num):
         self.current_array = array #state of the manifest
@@ -22,32 +23,33 @@ class Tree_Node:
 def load_instructions(root_node): #should output a list of INSTRUCTIONS
     successor_number = 0
     cost = 0
-    unvisited_nodes = [(cost,successor_number,root_node)]
+    unvisited_nodes = [(cost, successor_number, root_node)]
     successor_number += 1
     heapq.heapify(unvisited_nodes)
     once = 1
     visited_nodes = []
     #check if is_finished
     while(unvisited_nodes):
+        #current_cost,v,current_node = heapq.heappop(unvisited_nodes)
         current_cost,v,current_node = unvisited_nodes[0]
         unvisited_nodes.pop(0)
 
         if(is_finished(current_node)):
             #MAKE THE LIST OF NODES/INSTRUCTIONS THAT IS CORRECT
             current_instruction_num = current_node.instruction_num
-            node_list = set()
-            while(current_instruction_num >= 0):
-                node_list[current_instruction_num] = current_node
+            #print(current_instruction_num)
+            node_list = [None]*current_instruction_num
+            while(current_instruction_num > 0):
+                node_list[current_instruction_num-1] = current_node
                 current_node = current_node.parent
                 current_instruction_num -= 1
             return node_list #returns list of nodes which in order, contains every instruction and array state
 
 
         for start_column in range(12): #selecting starting pos
-            start_space = get_top_container(current_node.current_array,start_column)
+            start_space = get_top_container(current_node.current_array, start_column)
             if(start_space != False):
-                if(once):
-                    print('{},{},{} start space'.format(start_space.y,start_space.x,start_space.description))
+                
                 for dest_column in range(12): #selecting end pos
                     
                     if(start_column != dest_column):
@@ -55,41 +57,66 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
                         if(end_space != False):
                             #creating a successor with an instruction moves a container within ship
                             #ADD DOUBLE CHECKING THAT ARRAY STATE IS NOT REPEATED
-                            successor_array = current_node.current_array.copy()
+                            '''
+                            if(once):
+                                for col2 in range(8):
+                                    for row2 in range(12):
+                                        print(current_node.current_array[col2][row2].description, end=' ')
+                                    print()
+                                print('{},{},{} start space'.format(start_space.y,start_space.x,start_space.description))
+                                print()
+                                print()
+                            '''
+                            successor_array = copy.deepcopy(current_node.current_array)
                             calculator = calculate.Calculate(successor_array,0)
 
-                           # if(once):
-                            #    print('{},{} goes to {},{}'.format(start_space.y,start_space.x,end_space.y,end_space.x))
+                            
+                        
                             calculator.moveContainer(start_space.y,start_space.x,end_space.y,end_space.x)
+                            
+
+
                             successor_instruction = calculate.Instruction(0,(start_space.y,start_space.x),(end_space.y,end_space.x)  )
                             successor = Tree_Node(successor_array,current_node.current_list,successor_instruction,current_node,current_node.instruction_num + 1)
                             successor_cost = get_time(start_space.y,start_space.x,end_space.y,end_space.x)
                             if(not is_repeated_move(successor,visited_nodes)):
                                 heapq.heappush(unvisited_nodes,(current_cost + successor_cost,successor_number,successor))
+                                
                                 successor_number += 1
-
-                #creating successor moving from ship to truck (only requires a start_column)
-                #end pos for a ship to truck pos is (8,0)
-                
-                if(start_space in current_node.current_list.offload_list):
-                    successor_array = current_node.current_array.copy()
+                           
+                            
+                if(start_space.description in current_node.current_list.offload_list):
+                    #creating successor moving from ship to truck (only requires a start_column)
+                    #end pos for a ship to truck pos is (8,0)
+                    #change start_space to grab a description
+                    successor_array = copy.deepcopy(current_node.current_array)
                     calculator = calculate.Calculate(successor_array,0)
+
+                    
                     calculator.offloadContainer(start_space.y,start_space.x)
                     successor_instruction = calculate.Instruction(0,(start_space.y,start_space.x),(8,0))
                     successor_list = current_node.current_list.copy()
                     successor_list.remove_offload_list(start_space.description)
                     successor = Tree_Node(successor_array,successor_list,successor_instruction,current_node,current_node.instruction_num + 1)
                     successor_cost = get_time(start_space.y,start_space.x,8,0)
+                    if(once):
+                        print(current_cost+successor_cost)
+                        print(successor.instruction.starting_location[0])
+                        print(successor.instruction.starting_location[1])
                     heapq.heappush(unvisited_nodes,(current_cost + successor_cost,successor_number,successor))
+                    
+                        
+                        
+                        
                     successor_number += 1
         
         #creating a successor where we move a container from truck to ship
-        '''
+        
         for dest_column in range(0,12):
             end_space = get_supported_empty_space(current_node.current_array,dest_column)
             container_to_load = get_truck_container(current_node.current_list)
             if(end_space != False):
-                successor_array = current_node.current_array.copy()
+                successor_array = copy.deepcopy(current_node.current_array)
                 calculator = calculate.Calculate(successor_array,0)
                 calculator.loadContainer(container_to_load,end_space.y,end_space.x)
                 successor_instruction = calculate.Instruction(0,(8,0),(end_space.y,end_space.x))
@@ -99,9 +126,10 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
                 successor_cost = get_time(8,0,end_space.y,end_space.x)
                 heapq.heappush(unvisited_nodes,(current_cost+successor_cost,successor_number,successor) )
                 successor_number += 1
-        '''
+        
         #stuff after making all the successors
         visited_nodes.append(current_node)
+        once = 0
 
         #TEST STUFF
         if(once):
@@ -109,6 +137,8 @@ def load_instructions(root_node): #should output a list of INSTRUCTIONS
                 unvisited_instruction = unvisited[2].instruction
                # print('{} goes to {}'.format(unvisited_instruction.starting_location, unvisited_instruction.ending_location))
             once = 0
+        
+
 
     return False #for when no solution is possible (should probably never happen)
 
@@ -130,6 +160,8 @@ def is_finished(tree_node):
     
     for key in tree_node.current_list.offload_list:
         containers_left += tree_node.current_list.offload_list[key]
+    
+    #print(containers_left)
 
     if(containers_left == 0):
         return True
@@ -161,6 +193,8 @@ def is_repeated_move(tree_node,visited_nodes):
 def get_top_container(array,column):
     current_row = 7
     while(current_row >= 0):
+        #print(current_row)
+        #print(column)
         
         if array[current_row][column].description == "UNUSED":
             pass 
@@ -171,7 +205,7 @@ def get_top_container(array,column):
             #when current space has NAN
             #idk figure out a way to make it work
         else:
-            #print("returned container")
+            
             return array[current_row][column]
         current_row -= 1
     #print("returned unused")
@@ -216,198 +250,3 @@ def get_truck_container(transfer_list):
         return False
 
 
-#TESTING THE SUBFUNCTIONS
-arr = [[manifest.Container(0, "UNUSED", -1, r, c) for c in range(12)] for r in range(8)]
-list = load_list_editor.Loader()
-list.add_offload("Cory Luggage")
-instruction = calculate.Instruction(0,(0,0),(0,1))
-test_node = Tree_Node(arr,list,instruction,None,0)
-
-#TEST 1 is_finished function - should return false
-print("TEST 1")
-if is_finished(test_node):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-test_node.current_list.remove_offload_list("Cory Luggage")
-test_node.current_list.add_pending_load("Poe Packings")
-
-if is_finished(test_node):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-#TEST 2 is_finished function - should return true
-print("TEST 2")
-test_node.current_list.remove_pending_loads("Poe Packings")
-if is_finished(test_node):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-#TEST 3 is_in_offloads function - should return false
-print("TEST 3")
-test_container = manifest.Container(0,"Mini Marshmallow Moths",0,0,0)
-if is_in_offloads(test_node.current_list,test_container):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-#TEST 4 is_in_offloads function - should return true
-print("TEST 4")
-test_node.current_list.add_offload("Mini Marshmallow Moths")
-if is_in_offloads(test_node.current_list,test_container):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-
-#TEST 5 is_repeated_move function - should return false
-print("TEST 5")
-test_visited_nodes = []
-if is_repeated_move(test_node,test_visited_nodes):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-test_manifest = manifest.Manifest("SampleManifests/ShipCase1.txt")
-ship_case1, v = test_manifest.copyManifest()
-
-second_node = Tree_Node(ship_case1,list,instruction,None,0)
-test_visited_nodes.append(second_node)
-
-if is_repeated_move(test_node,test_visited_nodes):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-#TEST 6 is_repeated_move function - should return true
-print("TEST 5")
-test_visited_nodes.append(second_node)
-if is_repeated_move(second_node,test_visited_nodes):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-
-ship_case1[1][2].changeWeight(5)
-third_node = Tree_Node(ship_case1,list,instruction,None,0)
-if is_repeated_move(third_node,test_visited_nodes):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-
-#TEST 7 get_top_container function - should return false (empty column)
-print("TEST 7")
-test_container = get_top_container(ship_case1,3)
-
-if(test_container):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-#TEST 8 get_top_container function - should return false (column with only 'NAN')
-print("TEST 8")
-test_container = get_top_container(ship_case1,11)
-
-if(test_container):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-#TEST 9 get_top_container function - returns a container
-print("TEST 9")
-test_container = get_top_container(ship_case1,1)
-
-if(test_container):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-
-#TEST 10 get_supported_empty_space function - should return false (entirely filled column)
-print("Test 10")
-test_manifest4 = manifest.Manifest("SampleManifests/ShipCase4.txt")
-ship_case4, v = test_manifest4.copyManifest()
-test_container = get_supported_empty_space(ship_case4,4)
-
-if(test_container):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-#TEST 11 get_supported_empty_space function - should return 'UNUSED' container (position is above y = 0)
-print("Test 11")
-test_container = get_supported_empty_space(ship_case4,0)
-if(test_container):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-#TEST 12 get_supported_empty_space function - should return 'UNUSED' container (position is y = 0)
-print("Test 12")
-test_container = get_supported_empty_space(ship_case1,3)
-if(test_container):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-#TEST 13 get_time - returns correct time (start pos is 8,0)
-print("Test 13")
-time_sum = get_time(8,0,0,0)
-if(time_sum == 10):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-
-#TEST 14 get_time - returns correct time (end pos is 8,0)
-print("Test 14")
-time_sum = get_time(0,0,8,0)
-if(time_sum == 10):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-#TEST 15 get_time - returns correct time (neither pos is 8,0)
-print("Test 15")
-time_sum = get_time(1,2,3,4)
-if(time_sum == 4):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-#TEST 16 get_truck_container - returns a container name
-list = load_list_editor.Loader()
-list.add_pending_load("Very Heavy Rocks")
-if get_truck_container(list):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
-#TEST 17 get_truck_container- returns false (empty list)
-list = load_list_editor.Loader()
-if get_truck_container(list):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-#ACTUAL TESTS FOR THE LOAD SOLUTION
-#THE MEAT
-#TEST 18 load_instruction - already solved array
-testing_manifest = manifest.Manifest("SampleManifests/ShipCase1.txt")
-testing_list = load_list_editor.Loader()
-testing_node = Tree_Node(testing_manifest.copyManifest(),testing_list, None,None,-1 )
-
-instruction_list = load_instructions(testing_node)
-if(instruction_list):
-    print("Test Failed!")
-else:
-    print("Test Passed!")
-
-#TEST 19 load_instruction - needs to unload one thing
-
-testing_manifest = manifest.Manifest("SampleManifests/ShipCase1.txt")
-testing_manifest.printManifest()
-testing_array = testing_manifest.copyManifest()[0].copy()
-#print(len(testing_array))
-testing_list = load_list_editor.Loader()
-testing_list.add_offload("Cat")
-testing_node = Tree_Node(testing_array,testing_list, None,None,-1 )
-
-instruction_list = load_instructions(testing_node)
-if(instruction_list):
-    print("Test Passed!")
-else:
-    print("Test Failed!")
