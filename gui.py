@@ -299,8 +299,8 @@ class GUI:
                 #load_offload_list = load_list_editor.Loader(self.load_list, self.offload_list)
                 trimmed_offload_list = dict((description, dupes) for description, dupes in self.offload_list.items() if dupes > 0)
                 load_offload_list = load_list_editor.Loader(self.load_list, trimmed_offload_list)
-                print(self.load_list)
-                print(trimmed_offload_list)
+                #print(self.load_list)
+                #print(trimmed_offload_list)
                 
                 self.instructionList = loaderOffloader.perform_load_offload_operation(self.calc.ship_bay_array, load_offload_list)
                 
@@ -309,8 +309,8 @@ class GUI:
                         instruction.description = loaderOffloader.get_truck_container(load_offload_list)
                         load_offload_list.remove_pending_loads(instruction.description)
                 
-                for instruction in self.instructionList:
-                    print(instruction.description)
+                #for instruction in self.instructionList:
+                #    print(instruction.description)
                     
 
                 self.updateJSON({"currScreen": "displayInstructions"})
