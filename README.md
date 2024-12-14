@@ -1,5 +1,4 @@
-# Welcome to CarGo Co.'s Official Website        (This webpage was last edited on 12-13-2024)
-## Team CarGo Co.
+## Team CarGo Co.                             (This webpage was last edited on 12-13-2024)
  - Jake Blackwell, jblac041@ucr.edu
  - Brendan Cheng, bchen203@ucr.edu
  - David Huang, dhuan084@ucr.edu
