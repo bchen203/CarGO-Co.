@@ -286,6 +286,9 @@ class GUI:
             self.manifest_file_text.place(relx=0.5, rely=0.8, anchor="center",
                                           relwidth = 1,
                                           relheight=0.1)
+        else: 
+            self.calculate_button_border.place_forget()
+            self.manifest_file_text.place_forget()
     def calculateSolution(self):
         self.updateJSON({"currScreen": "calculateSolution", "currInstruction": 0})
         array, containerID = self.manifest.copyManifest()
