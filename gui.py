@@ -22,6 +22,7 @@ class GUI:
         self.currUser = None
         self.frames = [] # store all pages of gui to display
         self.save_state = {}
+        self.loaded_weights = []
         self.recover = False
 
         if os.path.isfile("save_state.json"):
@@ -49,20 +50,24 @@ class GUI:
                         self.loadManifest()
                     case "containerSelect":
                         self.operation = self.save_state.get("operation")
-                        self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+                        self.manifest_file = self.save_state.get("manifest_file")
+                        self.manifest = manifest.Manifest(self.manifest_file)
                         self.containerSelect()
                         self.updatePendingLoads()
                         self.updatePendingOffloads()
                     case "calculateSolution":
                         self.operation = self.save_state.get("operation")
-                        self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+                        self.manifest_file = self.save_state.get("manifest_file")
+                        self.manifest = manifest.Manifest(self.manifest_file)
 
                         if self.operation == "load":
                             self.offload_list = self.save_state.get("offload_list")
                             self.load_list = self.save_state.get("load_list")
                         self.calculateSolution()
                     case "displayInstructions":
-                        self.manifest = manifest.Manifest(self.save_state.get("manifest_file"))
+                        self.manifest_file = self.save_state.get("manifest_file")
+                        self.manifest = manifest.Manifest(self.manifest_file)
+
                         self.currInstruction = self.save_state.get("currInstruction")
                         self.instructionList = self.save_state.get("instructionList")
                         if self.instructionList:
@@ -73,6 +78,10 @@ class GUI:
                                                     for instruction in self.instructionList]
                         array, containerID = self.manifest.copyManifest()
                         self.calc = calculate.Calculate(array, containerID)
+                        self.loaded_weights = self.save_state.get("loaded_weights")
+                        for load in self.loaded_weights:
+                            print(load)
+                            self.calc.addLoadWeight(load[0], load[1])
 
                         self.displayInstructions(self.currInstruction)
                         # self.currInstruction += 1
@@ -524,12 +533,18 @@ class GUI:
                     messagebox.showwarning("Info", "No moves to perform, no action needed")
                 elif self.operation == "balance":
                     messagebox.showwarning("Info", "The current arrangement of containers is already balanced, no action needed")
+            for load in self.loaded_weights:
+                self.calc.addLoadWeight(load[0], load[1])
             self.exportManifest()
-            outboundManifestName = (self.manifest_file.name[self.manifest_file.name.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
+            if not self.recover:
+                outboundManifestName = (self.manifest_file.name[self.manifest_file.name.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
+            else:
+                outboundManifestName = (self.manifest_file[self.manifest_file.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
             messagebox.showinfo("Info", f"Operation complete. Please send the outbound manifest \"{outboundManifestName}\" to the ship captain")
             if not self.recover and self.currInstruction:
                 self.frames[self.currInstruction-1].place_forget()
             self.frames = []
+            self.loaded_weights = []
             self.initializeJSON()
             self.selectOperation()
         else:
@@ -557,6 +572,9 @@ class GUI:
             loadWeight = simpledialog.askinteger(title="Add Weight", prompt=f"Please enter the weight of \"{currentInstruction.description}\"")
         if loadWeight > 99999:
             loadWeight = 99999
+
+        self.loaded_weights.append((loadWeight, currentInstruction.container_id))
+        self.updateJSON({"loaded_weights": self.loaded_weights})
         self.calc.addLoadWeight(loadWeight, currentInstruction.container_id)
 
     def containerSelect(self):
