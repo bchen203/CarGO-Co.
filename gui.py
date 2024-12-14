@@ -435,6 +435,7 @@ class GUI:
 
             # NOTE: to highlight a specific container
             #   self.container_buttons[r][c].configure(background=color, activebackground=color)
+            self.highlightContainer(preGrid, currInstruction, True)
 
             for r in range(7, -1, -1):
                 for c in range(12):
@@ -443,6 +444,7 @@ class GUI:
             pre_manifest_display.place(relx=0.075, rely=0.58, relwidth=0.40, relheight=0.40, anchor="w")
             
             self.configureGridDisplay(post_manifest_display, postGrid)
+            self.highlightContainer(postGrid, currInstruction, False)
             for r in range(7, -1, -1):
                 for c in range(12):
                     self.container_buttons[r][c].place(relwidth=1, relheight=1)
@@ -463,6 +465,28 @@ class GUI:
         #instruction_frame.place(relwidth=1, relheight=1)
         return instruction_frame
         #self.menuBar()
+
+    def highlightContainer(self, currGrid, currInstruction, isPreGrid):
+        calcTemp = calculate.Calculate(currGrid, -1) # does not care about containerID
+        #calcPostTemp = calculate.Calculate(postGrid, -1) # does not care about containerID
+        currOperation = calcTemp.determineInstruction(currInstruction)
+        if currOperation == "load":
+            if isPreGrid: # preGrid
+                self.container_buttons[currInstruction.ending_location[0]][currInstruction.ending_location[1]].configure(background="SystemButtonFace", activebackground="SystemButtonFace")
+            else: # postGrid
+                self.container_buttons[currInstruction.ending_location[0]][currInstruction.ending_location[1]].configure(background="#00ff14", activebackground="#00CD14")
+        elif currOperation == "offload":
+            if isPreGrid: # preGrid
+                self.container_buttons[currInstruction.starting_location[0]][currInstruction.starting_location[1]].configure(background="red", activebackground="red")
+            else: # postGrid
+                self.container_buttons[currInstruction.starting_location[0]][currInstruction.starting_location[1]].configure(background="SystemButtonFace", activebackground="SystemButtonFace")
+        else: # any container movement
+            if isPreGrid: # preGrid
+                self.container_buttons[currInstruction.starting_location[0]][currInstruction.starting_location[1]].configure(background="yellow", activebackground="yellow")
+            else: # postGrid
+                self.container_buttons[currInstruction.ending_location[0]][currInstruction.ending_location[1]].configure(background="yellow", activebackground="yellow")
+        #else: 
+        #    print("[ERROR] Could not highlight container.")
 
     def generateInstructionDetails(self, preGrid, currInstruction):
         calcTemp = calculate.Calculate(preGrid, -1) # does not care about containerID
