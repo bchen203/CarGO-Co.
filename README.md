@@ -6,7 +6,7 @@
 
 1) This file [CarGO_Co.pdf](https://drive.google.com/file/d/1k8azH72ajFuV4qa9EQ2fr0EouEPoD1Xb/view?usp=drive_link) contains evidence of our efforts to plan our elicitation of requirements from Mr. Keogh, and any notes taken during the elicitation.
 2) This file [CarGO_CoProjectPitchORIGINAL.pdf](https://drive.google.com/file/d/1SwNXSIQbf5PmzQHZAJMXbSK73pQisVSl/view?usp=drive_link) contains our original pitch to Mr. Keogh, which was delivered on 6:30pm on Monday, November 4th, 2024.
-3) This file [CarGO_CoProjectPitchCORRECTED.pdf](https://drive.google.com/file/d/1yilMQILYlT_vgx3kC1Zy8xW9L-lFb603/view?usp=drive_link) contains a new version of the pitch, with all the corrections, amendments and deletions suggested by Mr. Keogh (and/or Dr. Keogh)
+3) This file [CarGO_CoProjectPitchCORRECTED.pdf](https://drive.google.com/file/d/1yilMQILYlT_vgx3kC1Zy8xW9L-lFb603/view?usp=drive_link) contains a new version of the pitch, with all the corrections, amendments and deletions suggested by Mr. Keogh (and/or Dr. Keogh). This version also contains a scan of the wet-ink signed contract between CarGO Co. and John Keogh.
 4) This file [CarGO_CoDesign.pdf](https://drive.google.com/file/d/1cf-V98lgEvkXtJEZvJEaGNLaCzscSkd2/view?usp=drive_link) shows evidence of our efforts to design our software.
 5) This file [CarGO_CoTesting.pdf](https://drive.google.com/file/d/1k3c90AIDbBJwvwktILQv7_tOcxURz_Oe/view?usp=drive_link) which shows evidence of our efforts to test our software.
 6) This URL [https://github.com/bchen203/CargoCo](https://github.com/bchen203/CargoCo) points to a GitHub repository of our code.
