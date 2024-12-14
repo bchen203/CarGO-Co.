@@ -20,7 +20,7 @@
  - Our recordings of ourselves working on the code is in the following folder: [Coding Recordings](https://drive.google.com/drive/folders/1EnAzyScByTH-xV-R-nzwLkKr7LVadN-J?usp=sharing) 
 11) We would like to acknowledge the following resources that where helpful in completing this project:
     - We asked advice from Dr. Keogh about implementing heuristics and uniform cost search to our balance and load/offload operations.
-    - We looked through [GeeksforGeeks](geeksforgeeks.org) for information on python libraries and how to use tkinter.
+    - We looked through [GeeksforGeeks](https://www.geeksforgeeks.org/) for information on python libraries and how to use tkinter.
     - We also used [TkDocs](https://tkdocs.com/tutorial/) for more info on how to use tkinter. We used [Stack Overflow ](https://stackoverflow.com/)for general debugging tips.
     - We looked through this Stack Overflow [post](https://stackoverflow.com/questions/12203676/daylight-savings-time-in-python) about implementing daylight savings time with Python's timezones.
     - We looked through this Stack Overflow [post](https://www.geeksforgeeks.org/convert-python-script-to-exe-file/) about compiling and bundling all of our files into a singular .exe file
