@@ -10,15 +10,15 @@
 4) This file [CarGO_CoDesign.pdf](https://drive.google.com/file/d/1cf-V98lgEvkXtJEZvJEaGNLaCzscSkd2/view?usp=drive_link) shows evidence of our efforts to design our software.
 5) This file [CarGO_CoTesting.pdf](https://drive.google.com/file/d/1k3c90AIDbBJwvwktILQv7_tOcxURz_Oe/view?usp=drive_link) which shows evidence of our efforts to test our software.
 6) This URL [https://github.com/bchen203/CargoCo](https://github.com/bchen203/CargoCo) points to a GitHub repository of our code.
-7) This YouTube video, that shows our software solving one balance, and one transfer test case (our choices, of the test cases Mr. Keogh gave us).
-8) This text file, is the [Logfile] log that was created by our software, during the making of the YouTube video in the previous bullet point.
+7) This [YouTube video](https://youtu.be/XzobUY1jaeM), that shows our software solving one balance, and one transfer test case (our choices, of the test cases Mr. Keogh gave us).
+8) This text file, is the [KeoghsPort2024.txt](https://drive.google.com/file/d/1Vmzcx--fPh_A-w6yR3npbsd9z3LbfmG6/view?usp=drive_link) log that was created by our software, during the making of the YouTube video in the previous bullet point.
 9) We would like to point out the following limitations:
  - We did not implement heuristics in either balance or load/offload, so our program begins to lag above 10, and hangs at around 25 containers.
  - We did not implement the buffer.
  - Because we did not implement the buffer, we could not implement SIFT.
 10) Here is some additional items you may find useful in grading the project:
  - Our recordings of ourselves working on the code is in the following folder: [Coding Recordings](https://drive.google.com/drive/folders/1EnAzyScByTH-xV-R-nzwLkKr7LVadN-J?usp=sharing)
- - The executable file to run our program is in the Releases tab on the right.
+ - The executable file to run our program is in the Releases tab on the right, or at this [link](https://github.com/bchen203/CarGO-Co./releases)
 11) We would like to acknowledge the following resources that where helpful in completing this project:
     - We asked advice from Dr. Keogh about implementing heuristics and uniform cost search to our balance and load/offload operations on Wednesday, December 4th.
     - We looked through [GeeksforGeeks](https://www.geeksforgeeks.org/) for information on python libraries and how to use tkinter.
