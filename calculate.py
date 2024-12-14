@@ -131,7 +131,7 @@ class Calculate:
                         if self.containerID < id:
                             self.containerID = id
                     self.ship_bay_array[rowEnd][colEnd] = manifest.Container(-1, containerDescription, conID, rowEnd, colEnd)
-                    LogHandler.logLoadUnloadOperation(containerDescription, True)
+                    #LogHandler.logLoadUnloadOperation(containerDescription, True)
                 
         else:
             print("[ERROR] cannot load a container with the name \"UNUSED\" or \"NAN\"")
@@ -145,7 +145,7 @@ class Calculate:
                 # TODO: [LOG] container [name] was offloaded from the ship.
                 tempDescription = self.ship_bay_array[rowStart][colStart].description
                 self.ship_bay_array[rowStart][colStart] = manifest.Container(0, "UNUSED",-1, rowStart, colStart)
-                LogHandler.logLoadUnloadOperation(tempDescription, False)
+                #LogHandler.logLoadUnloadOperation(tempDescription, False)
 
     # Searches the manifest 2D array for placeable slots (ie, the first available layer of open spaces in each column)
     # Returns a list of 2-element tuples that represent the indices of placeable slots
@@ -185,8 +185,10 @@ class Calculate:
             #TODO: make sure starting_location and ending_location are tuples in the form of (row,col)
             self.loadContainer(currInstruction.description, currInstruction.ending_location[0], currInstruction.ending_location[1], currInstruction.container_id)            
             #self.loadContainer(self.getContainerDescription(currInstruction.container_id), currInstruction.ending_location[0], currInstruction.ending_location[1])
+            LogHandler.logLoadUnloadOperation(currInstruction.description, True)
         elif currOperation == "offload":
             self.offloadContainer(currInstruction.starting_location[0], currInstruction.starting_location[1])
+            LogHandler.logLoadUnloadOperation(currInstruction.description, False)
         elif currOperation == "balance": # could also be any container movement
             self.moveContainer(currInstruction.starting_location[0], currInstruction.starting_location[1], currInstruction.ending_location[0], currInstruction.ending_location[1])
         else: 
