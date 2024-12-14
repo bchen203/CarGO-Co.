@@ -79,9 +79,9 @@ class GUI:
                         array, containerID = self.manifest.copyManifest()
                         self.calc = calculate.Calculate(array, containerID)
                         self.loaded_weights = self.save_state.get("loaded_weights")
-                        for load in self.loaded_weights:
-                            print(load)
-                            self.calc.addLoadWeight(load[0], load[1])
+                        if self.loaded_weights is None:
+                            self.loaded_weights = []
+
 
                         self.displayInstructions(self.currInstruction)
                         # self.currInstruction += 1
