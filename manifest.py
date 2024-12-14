@@ -1,5 +1,6 @@
 import re
-
+import LogHandler
+from copy import deepcopy
 
 class Container:
     def __init__(self, container_weight, container_description, container_id, row, col):
@@ -16,7 +17,6 @@ class Container:
         print(f"container weight: {self.weight}")
         print(f"container description: {self.description}")
         print(f"Container location (y,x): {self.y}, {self.x}")
-        
 
     def changeWeight(self, weight):
         # TODO: [LOG] add log here for adding weight to container (this function call will only occur when the operator adds the weight to a container being loaded)
@@ -37,15 +37,17 @@ class Manifest:
     # initialize the manifest object by reading in a given manifest file
     def __init__(self, filename):
         if filename[-4:] != ".txt":
-            print("[ERROR] Invalid input manifest file type. Please input a .txt file")
+            errorMessage = "Invalid input manifest file type. Please input a .txt file"
+            print(f"[ERROR] {errorMessage}")
+            self.grid = errorMessage
         else:
-            # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
             self.filename = filename
             try:
                 file = open(self.filename, "r")
                 inFile = file.read()
                 file.seek(0)
                 lines = file.readlines()
+                file.close()
                 numMatches = len(re.findall(r"\[[0-9]{2},[0-9]{2}\],\s\{[0-9]{5}\},\s.*", inFile))
                 if len(lines) == numMatches:
                     # Sample manifest line: [01, 03], {00100}, Dog
@@ -72,10 +74,16 @@ class Manifest:
                         # column    -> y -> outer array     (grid[y][])
                         # row       -> x -> inner array     (grid[][x])
                         self.grid[x - 1][y - 1] = Container(int(weight.group()), description, id, x-1, y-1)
+                    # TODO: [LOG] Operator input [manifestfilename]. It has [stats]
+                    LogHandler.logManifestUpload((self.filename[self.filename.rfind('/')+1:])[:-4], self.containerID+1)
                 else:
-                    print(f"[ERROR] Input manifest {self.filename} has invalid format.")
+                    errorMessage = f"Input manifest {self.filename} has invalid format."
+                    print(f"[ERROR] {errorMessage}")
+                    self.grid = errorMessage
             except:
-                print(f"[ERROR] Could not open file {self.filename}.")
+                errorMessage = f"Could not open file {self.filename}."
+                print(f"[ERROR] {errorMessage}")
+                self.grid = errorMessage
 
     # export the outbound manifest
     def exportManifest(self):
@@ -103,13 +111,14 @@ class Manifest:
                     else:
                         file.write(f"{output}\n")
             file.close()
+            LogHandler.logFinishCycle(self.filename[:-4][self.filename[:-4].rfind('/')+1:])
         except:
             print(f"[ERROR] Failed to create outbound manifest file for {self.filename}.")
 
     # return a copy of the manifest
     def copyManifest(self):
-        return (self.grid, self.containerID)
-    
+        return (deepcopy(self.grid), self.containerID)
+
     # override the current manifest (used by other classes)
     def updateManifest(self, newManifest):
         self.grid = newManifest

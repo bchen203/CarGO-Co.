@@ -237,20 +237,20 @@ calculator.offloadContainer(7,0)
 print("----------")
 
 print()
-print("\nTesting calculate_time function:")
+print("\nTesting get_time function:")
 print("TEST 18:")
 print("Test is successful if \"Time calculation is correct\" is printed three times")
 print("----------")
-#TEST 18 calculate_time - compute manhattan distance
-if calculator.calculate_time(8,5,6,4) == 3:
+#TEST 18 get_time - compute manhattan distance
+if calculate.get_time(8,5,6,4) == 3:
         print("Time calculation is correct")
 else:
         print("Time calculation is incorrect")
-if calculator.calculate_time(6,4,8,5) == 3:
+if calculate.get_time(6,4,8,5) == 3:
         print("Time calculation is correct")
 else:
         print("Time calculation is incorrect")
-if calculator.calculate_time(1,1,1,1) == 0:
+if calculate.get_time(1,1,1,1) == 0:
         print("Time calculation is correct")
 else:
         print("Time calculation is incorrect")

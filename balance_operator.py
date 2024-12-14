@@ -75,11 +75,11 @@ class BalanceOperator():
                     current_goal_slot = calculate.get_supported_empty_space(self.calculator.ship_bay_array, column)
                     if not current_goal_slot == False: #False if none exists in that column
 
-                        curInstruction = calculate.Instruction(container.id, (container.y, container.x), (current_goal_slot.y, current_goal_slot.x))
+                        curInstruction = calculate.Instruction(container.id, (container.y, container.x), (current_goal_slot.y, current_goal_slot.x), container.description)
                         instructionTime = calculate.get_time(curInstruction.starting_location[0], curInstruction.starting_location[1], curInstruction.ending_location[0], curInstruction.ending_location[1])
                         newInstructions = list(curInstructionsArray)
                         newInstructions.append(curInstruction)
-                        heapq.heappush(instruction_heap, (curInstructionTime + instructionTime, newInstructions)) #Pushing updated time and instruction array.
+                        heapq.heappush(instruction_heap, (curInstructionTime + instructionTime + 1, newInstructions)) #Pushing updated time and instruction array.
             
             #Reversing the changes:
             curInstructionsArray.reverse()
