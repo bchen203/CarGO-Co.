@@ -243,36 +243,42 @@ class GUI:
 
     def select_manifest_file(self):
         # limit file select to only txt files
+        errorFlag = False
         self.manifest_file = filedialog.askopenfile(mode="r", filetypes=[("Text Files", "*.txt")])
 
         if self.manifest_file is not None:
             self.manifest = manifest.Manifest(self.manifest_file.name)
-            while type(self.manifest.grid) == str:
+            if (type(self.manifest.grid) == str):
                 messagebox.showerror("Error", f"{self.manifest.grid}")
+                errorFlag = True
+                self.calculate_button_border.place_forget()
+            else:
+                array, containerID = self.manifest.copyManifest()
+                calcTemp = calculate.Calculate(array, containerID)
+                if calcTemp.getNumAvailableSpaces() <= 0 and self.operation == "balance":
+                    messagebox.showerror("Error", f"Cannot balance a ship at full capacity.")
+                    errorFlag = True
+                    self.calculate_button_border.place_forget()
+            if errorFlag is not True:
+                self.updateJSON({"manifest_file": self.manifest_file.name})
+                # redisplay manifest_upload with button for next screen
                 self.manifest_upload.place_forget()
                 self.userMenu.place_forget()
                 self.logMenu.place_forget()
-                self.loadManifest()
-            self.updateJSON({"manifest_file": self.manifest_file.name})
-
-            # redisplay manifest_upload with button for next screen
-            self.manifest_upload.place_forget()
-            self.userMenu.place_forget()
-            self.logMenu.place_forget()
-            if self.operation == "load": # button to move to container select screen
-                self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
-                self.container_select_button.place(relheight=1, relwidth=1)
-                self.manifest_upload.place(relwidth=1, relheight=1)
-                self.menuBar()
+                if self.operation == "load": # button to move to container select screen
+                    self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
+                    self.container_select_button.place(relheight=1, relwidth=1)
+                    self.manifest_upload.place(relwidth=1, relheight=1)
+                    self.menuBar()
 
 
 
-            else: # button to calculate solution for balance operation
-                self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
-                self.calculate_button.place(relheight=1, relwidth=1)
-                self.manifest_upload.place(relwidth=1, relheight=1)
-                self.menuBar()
-            # display selected file with full path
+                else: # button to calculate solution for balance operation
+                    self.calculate_button_border.place(relx=0.975, rely=0.975, relheight=0.1, relwidth=0.15, anchor="se")
+                    self.calculate_button.place(relheight=1, relwidth=1)
+                    self.manifest_upload.place(relwidth=1, relheight=1)
+                    self.menuBar()
+                # display selected file with full path
             self.manifest_file_text = Label(self.manifest_upload,
                                             font=[("Arial", 16)])
             self.manifest_file_text.configure(text=self.manifest_file.name[self.manifest_file.name.rfind('/')+1:],
@@ -490,7 +496,7 @@ class GUI:
             if isPreGrid: # preGrid
                 self.container_buttons[currInstruction.ending_location[0]][currInstruction.ending_location[1]].configure(background="SystemButtonFace", activebackground="SystemButtonFace")
             else: # postGrid
-                self.container_buttons[currInstruction.ending_location[0]][currInstruction.ending_location[1]].configure(background="#00ff14", activebackground="#00CD14")
+                self.container_buttons[currInstruction.ending_location[0]][currInstruction.ending_location[1]].configure(background="#00ff14", activebackground="#00ff14")
         elif currOperation == "offload":
             if isPreGrid: # preGrid
                 self.container_buttons[currInstruction.starting_location[0]][currInstruction.starting_location[1]].configure(background="red", activebackground="red")
@@ -536,10 +542,10 @@ class GUI:
             for load in self.loaded_weights:
                 self.calc.addLoadWeight(load[0], load[1])
             self.exportManifest()
-            if not self.recover:
-                outboundManifestName = (self.manifest_file.name[self.manifest_file.name.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
-            else:
+            if type(self.manifest_file) == "str":
                 outboundManifestName = (self.manifest_file[self.manifest_file.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
+            else:
+                outboundManifestName = (self.manifest_file.name[self.manifest_file.name.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
             messagebox.showinfo("Info", f"Operation complete. Please send the outbound manifest \"{outboundManifestName}\" to the ship captain")
             if not self.recover and self.currInstruction:
                 self.frames[self.currInstruction-1].place_forget()
