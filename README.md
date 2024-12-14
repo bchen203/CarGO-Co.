@@ -16,9 +16,11 @@
  - We did not implement heuristics in either balance or load/offload, so our program begins to lag above 10, and hangs at around 25 containers.
  - We did not implement the buffer.
  - Because we did not implement the buffer, we could not implement SIFT.
+
 10) Here is some additional items you may find useful in grading the project:
  - Our recordings of ourselves working on the code is in the following folder: [Coding Recordings](https://drive.google.com/drive/folders/1EnAzyScByTH-xV-R-nzwLkKr7LVadN-J?usp=sharing)
  - The executable file to run our program is in the Releases tab on the right, or at this [link](https://github.com/bchen203/CarGO-Co./releases)
+
 11) We would like to acknowledge the following resources that where helpful in completing this project:
  - We asked advice from Dr. Keogh about implementing heuristics and uniform cost search to our balance and load/offload operations on Wednesday, December 4th.
  - We looked through [GeeksforGeeks](https://www.geeksforgeeks.org/) for information on python libraries and how to use tkinter.
