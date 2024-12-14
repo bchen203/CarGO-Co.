@@ -55,10 +55,13 @@ manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
 operator = load_offload_operator.Load_Offload_Operator(calculator)
-
-load_offload_list = load_list_editor.Loader()
+load_list = {}
+offload_list = {}
+offload_list = dict((description, dupes) for description, dupes in offload_list.items() if dupes > 0)
+load_offload_list = load_list_editor.Loader(load_list,offload_list)
 load_offload_list.add_offload("Cat")
 load_offload_list.add_pending_load("Sheep")
+operator.is_finished_transferring(load_offload_list)
 result_instructions = operator.perform_load_offload_operation(manifest_info[0],load_offload_list)
 
 for instruction in result_instructions:
@@ -76,8 +79,10 @@ manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
 operator = load_offload_operator.Load_Offload_Operator(calculator)
-
-load_offload_list = load_list_editor.Loader()
+load_list = {}
+offload_list = {}
+offload_list = dict((description, dupes) for description, dupes in offload_list.items() if dupes > 0)
+load_offload_list = load_list_editor.Loader(load_list,offload_list)
 load_offload_list.add_offload("Dog")
 result_instructions = operator.perform_load_offload_operation(manifest_info[0],load_offload_list)
 
@@ -96,8 +101,10 @@ manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
 operator = load_offload_operator.Load_Offload_Operator(calculator)
-
-load_offload_list = load_list_editor.Loader()
+load_list = {}
+offload_list = {}
+offload_list = dict((description, dupes) for description, dupes in offload_list.items() if dupes > 0)
+load_offload_list = load_list_editor.Loader(load_list,offload_list)
 load_offload_list.add_pending_load("Worthy Edge Razors")
 load_offload_list.add_offload("James")
 result_instructions = operator.perform_load_offload_operation(manifest_info[0],load_offload_list)
@@ -117,8 +124,10 @@ manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
 operator = load_offload_operator.Load_Offload_Operator(calculator)
-
-load_offload_list = load_list_editor.Loader()
+load_list = {}
+offload_list = {}
+offload_list = dict((description, dupes) for description, dupes in offload_list.items() if dupes > 0)
+load_offload_list = load_list_editor.Loader(load_list,offload_list)
 load_offload_list.add_pending_load("Worthy Edge Razors")
 load_offload_list.add_pending_load("Wright Brothers Model Planes")
 load_offload_list.add_pending_load("Fey Cosplay Molding Clay")
@@ -141,8 +150,10 @@ manifest_info = mani.copyManifest()
 calculator = calculate.Calculate(manifest_info[0], manifest_info[1])
 
 operator = load_offload_operator.Load_Offload_Operator(calculator)
-
-load_offload_list = load_list_editor.Loader()
+load_list = {}
+offload_list = {}
+offload_list = dict((description, dupes) for description, dupes in offload_list.items() if dupes > 0)
+load_offload_list = load_list_editor.Loader(load_list,offload_list)
 load_offload_list.add_pending_load("Natron")
 load_offload_list.add_offload("Batons")
 load_offload_list.add_offload("Catfish")
@@ -155,4 +166,4 @@ if((len(result_instructions) == 4)):
     print("Test Passed")
 else:
     print("Test Failed")
-    '''
+'''

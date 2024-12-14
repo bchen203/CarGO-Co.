@@ -48,6 +48,7 @@ class Load_Offload_Operator():
                 self.follow_instruction(instruction,loader)
 
             if self.is_finished_transferring(loader): #break if complete
+ 
                 reverseInstructions = list(curInstructionsArray)
                 reverseInstructions.reverse()
                 for instruction in reverseInstructions:
@@ -78,6 +79,7 @@ class Load_Offload_Operator():
                         newInstructions = list(curInstructionsArray)
                         newInstructions.append(curInstruction)
                         heapq.heappush(instruction_heap, (curInstructionTime + instructionTime, newInstructions)) #Pushing updated time and instruction array.
+                        
                        # print(curInstructionTime + instructionTime)
             else:
                 load_destinations = []
@@ -87,6 +89,7 @@ class Load_Offload_Operator():
                 if(self.get_truck_container(loader) and load_destinations != []):
                     for container in load_destinations: #for loads
                         curInstruction = calculate.Instruction(0,(8,0),(container.y,container.x),self.get_truck_container(loader))
+                        #print(curInstruction.description)
                         instructionTime = calculate.get_time(8,0,curInstruction.ending_location[0],curInstruction.ending_location[1])
                         newInstructions = list(curInstructionsArray)
                         newInstructions.append(curInstruction)
@@ -168,7 +171,7 @@ class Load_Offload_Operator():
         for key in loader.offload_list:
             containers_left += loader.offload_list[key]
         
-       
+        #print(containers_left)
         if(containers_left == 0):
             return True
         else:
