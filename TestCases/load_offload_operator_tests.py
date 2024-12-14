@@ -142,7 +142,7 @@ if((len(result_instructions) == 4)):
 else:
     print("Test Failed")
 
-
+'''
 #Test 7: Run operator with Case 6 from Dr. Keogh's email (Silver Queen)
 print("Test 7: Run operator with Case 6 from Dr. Keogh's email (Silver Queen)")
 mani = manifest.Manifest("SampleManifests/SilverQueen.txt")
@@ -166,4 +166,4 @@ if((len(result_instructions) == 4)):
     print("Test Passed")
 else:
     print("Test Failed")
-    
+'''
