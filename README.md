@@ -25,4 +25,4 @@
     - We also used [TkDocs](https://tkdocs.com/tutorial/) for more info on how to use tkinter. We used [Stack Overflow ](https://stackoverflow.com/)for general debugging tips.
     - We looked through this Stack Overflow [post](https://stackoverflow.com/questions/12203676/daylight-savings-time-in-python) about implementing daylight savings time with Python's timezones.
     - We looked through this Stack Overflow  [post](https://stackoverflow.com/questions/68718968/using-datetime-to-print-a-couple-of-days-into-the-future) to help us test that the correct year is being added to the log and the filename is correct for future years.
-    - We looked through this Stack Overflow [post](https://www.geeksforgeeks.org/convert-python-script-to-exe-file/) about compiling and bundling all of our files into a singular.exe file.
+    - We looked through this GeeksforGeeks [post](https://www.geeksforgeeks.org/convert-python-script-to-exe-file/) about compiling and bundling all of our files into a singular.exe file.
