@@ -536,10 +536,10 @@ class GUI:
             for load in self.loaded_weights:
                 self.calc.addLoadWeight(load[0], load[1])
             self.exportManifest()
-            if not self.recover:
-                outboundManifestName = (self.manifest_file.name[self.manifest_file.name.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
-            else:
+            if type(self.manifest_file) == "str":
                 outboundManifestName = (self.manifest_file[self.manifest_file.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
+            else:
+                outboundManifestName = (self.manifest_file.name[self.manifest_file.name.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
             messagebox.showinfo("Info", f"Operation complete. Please send the outbound manifest \"{outboundManifestName}\" to the ship captain")
             if not self.recover and self.currInstruction:
                 self.frames[self.currInstruction-1].place_forget()
