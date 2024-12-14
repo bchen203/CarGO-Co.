@@ -525,7 +525,8 @@ class GUI:
                 elif self.operation == "balance":
                     messagebox.showwarning("Info", "The current arrangement of containers is already balanced, no action needed")
             self.exportManifest()
-            messagebox.showinfo("Info", "Operation complete. Please send the outbound manifest to the ship captain")
+            outboundManifestName = (self.manifest_file.name[self.manifest_file.name.rfind('/')+1:])[:-4] + "OUTBOUND.txt"
+            messagebox.showinfo("Info", f"Operation complete. Please send the outbound manifest \"{outboundManifestName}\" to the ship captain")
             if not self.recover and self.currInstruction:
                 self.frames[self.currInstruction-1].place_forget()
             self.frames = []
