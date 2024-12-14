@@ -14,7 +14,8 @@
 7) This YouTube video, that shows our software solving one balance, and one transfer test case (our choices, of the test cases Mr. Keogh gave us).
 8) This text file, is the [Logfile] log that was created by our software, during the making of the YouTube video in the previous bullet point.
 9) We would like to point out the following limitations:
-
+- We did not implement the buffer
+- We did not implement heuristics for balance or transfer
 10) (EK says, this is optional) Here is some additional items you may find useful in grading the project
 11) 1) (EK says, this is optional) We would like to acknowledge the following resources that where helpful in completing this project. We asked advice from Dr. Smith about
-heuristics. We watched this YouTube video , about user interface design, we got many ideas about elicitation of requirements from this book Simply Put!: Helping Stakeholders Discover and Define Requirements for IT Projects by Thomas Hathaway
+heuristics. We watched this YouTube video , about user interface design, we got many ideas about elicitation of requirements from this book Simply Put!: Helping Stakeholders Discover and Define Requirements for IT Projects by Thomas Hathaway. We looked through [GeeksforGeeks](geeksforgeeks.org) for information on python libraries and how to use tkinter. We also used [TkDocs](https://tkdocs.com/tutorial/) for more info on how to use tkinter. We used [Stack Overflow ](https://stackoverflow.com/)for general debugging tips.
