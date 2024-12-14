@@ -1,4 +1,4 @@
-# Welcome to CarGo Co.'s Official Website
+# Welcome to CarGo Co.'s Official Website        (This webpage was last edited on 12-03-2024)
 ## Team CarGo Co.
  - Jake Blackwell, jblac041@ucr.edu
  - Brendan Cheng, bchen203@ucr.edu
@@ -18,7 +18,7 @@
  - We did not implement the buffer.
  - Because we did not implement the buffer, we could not implement SIFT
 10) Here is some additional items you may find useful in grading the project:
- - Our recordings of ourselves working on the code is in the following folder: [link](https://drive.google.com/drive/folders/1EnAzyScByTH-xV-R-nzwLkKr7LVadN-J?usp=sharing) 
+ - Our recordings of ourselves working on the code is in the following folder: [Coding Recordings](https://drive.google.com/drive/folders/1EnAzyScByTH-xV-R-nzwLkKr7LVadN-J?usp=sharing) 
 11) We would like to acknowledge the following resources that where helpful in completing this project:
     - We asked advice from Dr. Keogh about implementing heuristics and uniform cost search to our balance and load/offload operations.
     - We looked through [GeeksforGeeks](geeksforgeeks.org) for information on python libraries and how to use tkinter.
